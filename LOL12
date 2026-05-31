@@ -108,10 +108,5 @@ RS.GameData.LatestRoom.Changed:Connect(function()
 
 	if room then
 		spawnDreadClock(room)  -- gọi spawn theo tỉ lệ 11%
-		local sound = Instance.new("Sound")
-		sound.SoundId = "rbxassetid://9114038441"
-		sound.Volume = 5
-		sound.Parent = workspace
-		sound:Play()
 	end
 end)
