@@ -74,7 +74,7 @@
 
 	fullTween:Play()
 
-	for i = 1, 140 do
+	for i = 1, 70 do
 		local mode = rng:NextInteger(1, 3)
 
 		if mode == 1 then
