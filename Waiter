@@ -236,7 +236,7 @@ task.spawn(function()
 
 	pcall(function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Jumpscare%20waiter"))()
-		Players.Humanoid.Health = 0
+		player.Character.Humanoid.Health = 0
 	end)
 
 	stopped = true
