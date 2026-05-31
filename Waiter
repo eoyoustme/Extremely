@@ -165,7 +165,7 @@ local function applyGlitchPulse()
 	if not redFx then
 		redFx = Instance.new("ColorCorrectionEffect")
 		redFx.Name = "FlusterRed"
-		redFx.TintColor = Color3.fromRGB(255, 0, 0)
+		redFx.TintColor = Color3.fromRGB(255, 255, 255)
 		redFx.Saturation = 0
 		redFx.Contrast = 0
 		redFx.Parent = Lighting
