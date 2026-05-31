@@ -30,7 +30,7 @@ local function createWarningFX()
 
 	TweenService:Create(
 		reboundColor,
-		TweenInfo.new(15),
+		TweenInfo.new(5),
 		{
 			TintColor = Color3.fromRGB(255, 255, 255),
 			Saturation = 0,
@@ -70,7 +70,7 @@ local function createCountdownGui()
 	label.TextColor3 = Color3.fromRGB(255, 255, 255)
 	label.TextStrokeTransparency = 0
 	label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-	label.Text = "10"
+	label.Text = "Time Left:10"
 	label.Parent = gui
 
 	return gui, label
