@@ -227,7 +227,7 @@ local fullTween = TweenService:Create(
 
 fullTween:Play()
 
-	for i = 1, 300 do
+	for i = 1, 150 do
 		local mode = rng:NextInteger(1, 3)
 
 		if mode == 1 then
