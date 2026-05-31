@@ -8,7 +8,7 @@ local player = Players.LocalPlayer
 local function spawnDreadClock(room)
 
 	-- 11% tỉ lệ xuất hiện
-	if math.random(10, 100) > 11 then
+	if math.random(1, 100) > 11 then
 		return -- Không spawn
 	end
 
@@ -71,25 +71,29 @@ local function spawnDreadClock(room)
 	if pick == 1 then
 	-- Flashlight
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/back/refs/heads/main/Crucifix"))()
-	require(plr.PlayerGui.MainUI.Initiator.Main_Game)
+			require(plr.PlayerGui.MainUI.Initiator.Main_Game)
+			omg:Destroy()
 		.caption("Command block has granted you a Flashlight!", true)
 
 elseif pick == 2 then
 	-- Entity xấu 1
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Camperbad"))()
-	require(plr.PlayerGui.MainUI.Initiator.Main_Game)
+			require(plr.PlayerGui.MainUI.Initiator.Main_Game)
+			omg:Destroy()
 		.caption("Oh no! You have bad luck, an entity has spawned", true)
 
 elseif pick == 3 then
 	-- Entity xấu 2
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Waiter"))()
-	require(plr.PlayerGui.MainUI.Initiator.Main_Game)
+			require(plr.PlayerGui.MainUI.Initiator.Main_Game)
+			omg:Destroy()
 		.caption("Oh no! You have bad luck, an entity has spawned", true)
 
 elseif pick == 4 then
 	-- Entity xấu 3
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/ohh/refs/heads/main/Depthter%20bad%20luck"))()
-	require(plr.PlayerGui.MainUI.Initiator.Main_Game)
+			require(plr.PlayerGui.MainUI.Initiator.Main_Game)
+			omg:Destroy()
 		.caption("Oh no! You have bad luck, an entity has spawned", true)
 end
 
@@ -108,5 +112,5 @@ RS.GameData.LatestRoom.Changed:Connect(function()
 
 	if room then
 		spawnDreadClock(room)  -- gọi spawn theo tỉ lệ 11%
-	end
+		end
 end)
