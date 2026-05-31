@@ -1,0 +1,243 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local Debris = game:GetService("Debris")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+local rng = Random.new()
+
+local function GetRoom()
+	local gruh = Workspace:FindFirstChild("CurrentRooms")
+	if not gruh then
+		return nil
+	end
+
+	local latestRoom = ReplicatedStorage:WaitForChild("GameData"):WaitForChild("LatestRoom")
+	return gruh:FindFirstChild(tostring(latestRoom.Value))
+end
+
+local function createWarningFX()
+	local reboundColor = Instance.new("ColorCorrectionEffect")
+	reboundColor.Name = "Warn"
+	reboundColor.TintColor = Color3.fromRGB(0, 255, 0)
+	reboundColor.Saturation = -0.7
+	reboundColor.Contrast = 0.2
+	reboundColor.Parent = Lighting
+	Debris:AddItem(reboundColor, 24)
+
+	TweenService:Create(
+		reboundColor,
+		TweenInfo.new(15),
+		{
+			TintColor = Color3.fromRGB(255, 255, 255),
+			Saturation = 0,
+			Contrast = 0
+		}
+	):Play()
+
+	local mainColor = Lighting:FindFirstChild("MainColorCorrection")
+	if mainColor and mainColor:IsA("ColorCorrectionEffect") then
+		TweenService:Create(
+			mainColor,
+			TweenInfo.new(5),
+			{
+				TintColor = Color3.fromRGB(255, 255, 255)
+			}
+		):Play()
+	end
+
+	return reboundColor
+end
+
+local function createCountdownGui()
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "FlusterCountdownGui"
+	gui.ResetOnSpawn = false
+	gui.IgnoreGuiInset = true
+	gui.DisplayOrder = 999999
+	gui.Parent = playerGui
+
+	local label = Instance.new("TextLabel")
+	label.Name = "Countdown"
+	label.Size = UDim2.fromScale(0.3, 0.15)
+	label.Position = UDim2.fromScale(0.35, 0.42)
+	label.BackgroundTransparency = 1
+	label.TextScaled = true
+	label.Font = Enum.Font.Arcade
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.TextStrokeTransparency = 0
+	label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	label.Text = "10"
+	label.Parent = gui
+
+	return gui, label
+end
+
+local function getVisibleAlivePlayers()
+	local result = {}
+
+	for _, plr in ipairs(Players:GetPlayers()) do
+		local char = plr.Character
+		local hum = char and char:FindFirstChildOfClass("Humanoid")
+		local hrp = char and char:FindFirstChild("HumanoidRootPart")
+
+		if hum and hrp and hum.Health > 0 then
+			local hiding = char:GetAttribute("Hiding") == true
+			if not hiding then
+				table.insert(result, {
+					Player = plr,
+					Character = char,
+					Humanoid = hum,
+					HumanoidRootPart = hrp
+				})
+			end
+		end
+	end
+
+	return result
+end
+
+local function cleanup(entityModel, gui, fx)
+	if gui and gui.Parent then
+		gui:Destroy()
+	end
+	if fx and fx.Parent then
+		fx:Destroy()
+	end
+	if entityModel and entityModel.Parent then
+		entityModel:Destroy()
+	end
+end
+
+local room = GetRoom()
+if not room then
+	return
+end
+
+local s = game:GetObjects("rbxassetid://122266144333132")[1]
+s.Parent = Workspace
+
+local entity = s:FindFirstChildWhichIsA("BasePart", true)
+if not entity then
+	s:Destroy()
+	return
+end
+
+entity.Anchored = true
+entity.CanCollide = false
+entity.CFrame = (room:FindFirstChild("RoomEntrance") and room.RoomEntrance.CFrame or room:GetPivot()) * CFrame.new(0, 0, -15)
+
+local playSound = entity:FindFirstChild("Close", true)
+if playSound and playSound:IsA("Sound") then
+	playSound.Volume = 2
+	playSound:Play()
+end
+
+local warningFx = createWarningFX()
+local countdownGui, countdownLabel = createCountdownGui()
+
+local stopped = false
+local roomConnection
+roomConnection = Workspace:WaitForChild("CurrentRooms").ChildAdded:Connect(function()
+	if stopped then
+		return
+	end
+	stopped = true
+	if roomConnection then
+		roomConnection:Disconnect()
+	end
+	cleanup(s, countdownGui, warningFx)
+end)
+
+local function applyGlitchPulse()
+	local blur = Lighting:FindFirstChild("FlusterBlur")
+	if not blur then
+		blur = Instance.new("BlurEffect")
+		blur.Name = "FlusterBlur"
+		blur.Size = 0
+		blur.Parent = Lighting
+	end
+
+	local redFx = Lighting:FindFirstChild("FlusterRed")
+	if not redFx then
+		redFx = Instance.new("ColorCorrectionEffect")
+		redFx.Name = "FlusterRed"
+		redFx.TintColor = Color3.fromRGB(255, 0, 0)
+		redFx.Saturation = 0
+		redFx.Contrast = 0
+		redFx.Parent = Lighting
+	end
+
+	TweenService:Create(blur, TweenInfo.new(0.12), { Size = 20 }):Play()
+	TweenService:Create(redFx, TweenInfo.new(0.12), {
+		TintColor = Color3.fromRGB(255, 255, 255),
+		Saturation = -0.2,
+		Contrast = 0.15
+	}):Play()
+
+	task.delay(0.18, function()
+		if blur and blur.Parent then
+			TweenService:Create(blur, TweenInfo.new(0.18), { Size = 0 }):Play()
+		end
+		if redFx and redFx.Parent then
+			TweenService:Create(redFx, TweenInfo.new(0.18), {
+				TintColor = Color3.fromRGB(255, 0, 0),
+				Saturation = 0,
+				Contrast = 0
+			}):Play()
+		end
+	end)
+end
+
+task.spawn(function()
+	for i = 10, 0, -1 do
+		if stopped or not s.Parent then
+			return
+		end
+
+		local visibleTargets = getVisibleAlivePlayers()
+
+		if #visibleTargets == 0 then
+			stopped = true
+			cleanup(s, countdownGui, warningFx)
+			return
+		end
+
+		if countdownLabel and countdownLabel.Parent then
+			countdownLabel.Text = tostring(i)
+		end
+
+		if i <= 3 then
+			applyGlitchPulse()
+
+			if countdownLabel and countdownLabel.Parent then
+				countdownLabel.Rotation = rng:NextInteger(-6, 6)
+				countdownLabel.TextTransparency = rng:NextNumber(0, 0.25)
+				countdownLabel.TextStrokeTransparency = rng:NextNumber(0, 0.15)
+			end
+		end
+
+		task.wait(1)
+	end
+
+	if stopped or not s.Parent then
+		return
+	end
+
+	local finalTargets = getVisibleAlivePlayers()
+	if #finalTargets == 0 then
+		stopped = true
+		cleanup(s, countdownGui, warningFx)
+		return
+	end
+
+	pcall(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Jumpscare%20waiter"))()
+	end)
+
+	stopped = true
+	cleanup(s, countdownGui, warningFx)
+end)
