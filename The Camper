@@ -227,34 +227,31 @@ local fullTween = TweenService:Create(
 
 fullTween:Play()
 
-for i = 1, 1000 do
-	local mode = rng:NextInteger(1, 3)
+	for i = 1, 300 do
+		local mode = rng:NextInteger(1, 3)
 
-	if mode == 1 then
-		background.BackgroundColor3 = Color3.new(0, 0, 0)
-		imageLabel.ImageColor3 = Color3.new(1, 0, 0)
-		imageLabel.Position = UDim2.new(rng:NextNumber(0.4, 0.6), 0, rng:NextNumber(0.4, 0.6), 0)
-	elseif mode == 2 then
-		background.BackgroundColor3 = Color3.new(0, 0, 0)
-		imageLabel.ImageColor3 = Color3.new(0, 0, 0)
-		imageLabel.Position = UDim2.new(rng:NextNumber(0.4, 0.6), 0, rng:NextNumber(0.4, 0.6), 0)
-	else
-		background.BackgroundColor3 = Color3.new(1, 0, 0)
-		imageLabel.ImageColor3 = Color3.new(1, 0, 0)
-		imageLabel.Position = UDim2.new(rng:NextNumber(0.4, 0.6), 0, rng:NextNumber(0.4, 0.6), 0)
+		if mode == 1 then
+			background.BackgroundColor3 = Color3.new(0, 0, 0)
+			imageLabel.ImageColor3 = Color3.new(1, 0, 0)
+			imageLabel.Position = UDim2.new(rng:NextNumber(0.2, 0.8), 0, rng:NextNumber(0.2, 0.8), 0)
+		elseif mode == 2 then
+			background.BackgroundColor3 = Color3.new(0, 0, 0)
+			imageLabel.ImageColor3 = Color3.new(0, 0, 0)
+			imageLabel.Position = UDim2.new(rng:NextNumber(0.2, 0.8), 0, rng:NextNumber(0.2, 0.8), 0)
+		else
+			background.BackgroundColor3 = Color3.new(1, 0, 0)
+			imageLabel.ImageColor3 = Color3.new(1, 0, 0)
+			imageLabel.Position = UDim2.new(rng:NextNumber(0.2, 0.8), 0, rng:NextNumber(0.2, 0.8), 0)
+		end
+
+		imageLabel.Rotation = rng:NextInteger(-30, 30)
+		task.wait(0.00001)
 	end
 
-	imageLabel.Rotation = rng:NextInteger(-30, 30)
-	task.wait(0.001)
-end
 
-fullTween.Completed:Wait()
-
-if screenGui then
 	screenGui:Destroy()
-end
-
-script.Disabled = true
+	imageLabel:Destroy()
+	background:Destroy()
 	else
 		print("Entity has damaged the player")
 	end
