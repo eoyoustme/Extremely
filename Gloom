@@ -227,6 +227,13 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				return s
 			end
 
+for _, descendant in ipairs(entityModel:GetDescendants()) do
+    if descendant:IsA("Sound") then
+        descendant.Playing = false
+        descendant.Volume = 0
+    end
+end
+
 wait(1)
 
 			-- GUI jumpscare
@@ -283,16 +290,17 @@ wait(1)
 			-- Fade in jumpscare image trong 1 giây, trong lúc static vẫn chạy
 			local fadeInTween = TweenService:Create(
 				jumpLabel,
-				TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+				TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
 				{ ImageTransparency = 0 }
 			)
 			fadeInTween:Play()
 
-			task.wait(1)
+
+			task.wait(2)
 
 			-- Sau 1 giây, static vẫn chạy và image jumpscare phóng to / thu nhỏ
-			local expandSound1 = MakeSound(132305462382803, 10, 10)
-			local expandSound2 = MakeSound(133358860191747, 10, 10)
+			local expandSound1 = MakeSound(132305462382803, 1, 1)
+			local expandSound2 = MakeSound(133358860191747, 1, 1)
 			expandSound1:Play()
 			expandSound2:Play()
 
