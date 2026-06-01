@@ -308,13 +308,13 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 			local growTween = TweenService:Create(
 				jumpLabel,
-				TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+				TweenInfo.new(0.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out),
 				{ Size = UDim2.new(0, 1500, 0, 1500) }
 			)
 
 			local shrinkTween = TweenService:Create(
 				jumpLabel,
-				TweenInfo.new(0.4, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out),
+				TweenInfo.new(0.4, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
 				{ Size = UDim2.new(0, 150, 0, 150) }
 			)
 
