@@ -60,39 +60,39 @@ local entity = spawner.Create({
 ---====== Debug entity ======---
 
 entity:SetCallback("OnSpawned", function()
-    print("Entity has spawned")
-local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
-local camara = game.Workspace.CurrentCamera
-local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
- camara.CFrame = camara.CFrame * shakeCf
-end)
-camShake:Start()
-camShake:ShakeOnce(10,3,1,6,2,2)
-wait(2)
-local TweenService = game:GetService("TweenService")
-local Tweeninfo = TweenInfo.new(2.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-local color = {Color = Color3.new(85, 0, 255)}
+	print("Entity has spawned")
+	local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
+	local camara = game.Workspace.CurrentCamera
+	local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
+		camara.CFrame = camara.CFrame * shakeCf
+	end)
+	camShake:Start()
+	camShake:ShakeOnce(10,3,1,6,2,2)
+	wait(2)
+	local TweenService = game:GetService("TweenService")
+	local Tweeninfo = TweenInfo.new(2.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+	local color = {Color = Color3.new(85, 0, 255)}
 
-for _, v in pairs(workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]:GetDescendants()) do
-    if v:IsA("Light") then
-        TweenService:Create(v, Tweeninfo, color):Play()
-    elseif v.Parent.Name == "LightFixture" then
-        TweenService:Create(v.Parent, Tweeninfo, color):Play()
-    end
-end
+	for _, v in pairs(workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]:GetDescendants()) do
+		if v:IsA("Light") then
+			TweenService:Create(v, Tweeninfo, color):Play()
+		elseif v.Parent.Name == "LightFixture" then
+			TweenService:Create(v.Parent, Tweeninfo, color):Play()
+		end
+	end
 end)
 
 entity:SetCallback("OnStartMoving", function()
-    print("Entity has started moving")
+	print("Entity has started moving")
 end)
 
 entity:SetCallback("OnEnterRoom", function(room, firstTime)
-    if firstTime == true then
-        print("Entity has entered room: ".. room.Name.. " for the first time")
-                    entity.Config.Movement.Speed = entity.Config.Movement.Speed * 1.2
-    else
-        print("Entity has entered room: ".. room.Name.. " again")
-    end
+	if firstTime == true then
+		print("Entity has entered room: ".. room.Name.. " for the first time")
+		entity.Config.Movement.Speed = entity.Config.Movement.Speed * 1.2
+	else
+		print("Entity has entered room: ".. room.Name.. " again")
+	end
 end)
 
 entity:SetCallback("OnLookAt", function(lineOfSight)
@@ -104,44 +104,44 @@ entity:SetCallback("OnLookAt", function(lineOfSight)
 end)
 
 entity:SetCallback("OnRebounding", function(startOfRebound)
-    if startOfRebound == true then
-        print("Entity has started rebounding")
--- Tang t?c d? theo c?p s? nhân m?i l?n rebound k?t thúc
-        print("New Speed:", entity.Config.Movement.Speed)
+	if startOfRebound == true then
+		print("Entity has started rebounding")
+		-- Tang t?c d? theo c?p s? nhân m?i l?n rebound k?t thúc
+		print("New Speed:", entity.Config.Movement.Speed)
 
-        -- Hi?u ?ng ánh sáng nhu cu
-        game.Lighting.MainColorCorrection.TintColor = Color3.fromRGB(255, 255, 255)
-        game.Lighting.MainColorCorrection.Contrast = 1
-        game.Lighting.MainColorCorrection.Saturation = -0.9
+		-- Hi?u ?ng ánh sáng nhu cu
+		game.Lighting.MainColorCorrection.TintColor = Color3.fromRGB(255, 255, 255)
+		game.Lighting.MainColorCorrection.Contrast = 1
+		game.Lighting.MainColorCorrection.Saturation = -0.9
 
-        local tween = game:GetService("TweenService")
-        tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(2), {Contrast = 0}):Play()
-        tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(2), {Saturation = 0}):Play()
+		local tween = game:GetService("TweenService")
+		tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(2), {Contrast = 0}):Play()
+		tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(2), {Saturation = 0}):Play()
 
-        local TW = tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(5), {
-            TintColor = Color3.fromRGB(255, 255, 255)
-        })
-        TW:Play()
-    else
-        print("Entity has finished rebounding")
+		local TW = tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(5), {
+			TintColor = Color3.fromRGB(255, 255, 255)
+		})
+		TW:Play()
+	else
+		print("Entity has finished rebounding")
 
-    end
+	end
 end)
 
 
 entity:SetCallback("OnDespawning", function()
-    print("Entity is despawning")
+	print("Entity is despawning")
 end)
 
 entity:SetCallback("OnDespawned", function()
-    print("Entity has despawned")
-  local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/Idk-lol2/a-60aa/refs/heads/main/fix%20bage.txt"))()
-    achievementGiver({
-        Title = "Torn Apart",
-        Desc = "Don't Leave Too Early.",
-        Reason = "Encounter Ripper",
-        Image = "rbxassetid://125217047990746"
-    })
+	print("Entity has despawned")
+	local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/Idk-lol2/a-60aa/refs/heads/main/fix%20bage.txt"))()
+	achievementGiver({
+		Title = "Torn Apart",
+		Desc = "Don't Leave Too Early.",
+		Reason = "Encounter Ripper",
+		Image = "rbxassetid://125217047990746"
+	})
 end)
 
 local TweenService = game:GetService("TweenService")
@@ -163,18 +163,20 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 			local camera = workspace.CurrentCamera
 
-			local entityModel = workspace:WaitForChild("Ripper")
-			local primaryPart = entityModel:FindFirstChild("RushNew")
+			local entityModel = workspace:WaitForChild("Gloom")
+			local primaryPart = entityModel:FindFirstChild("Gloom", true)
 
-			if not (entityModel and humanoid and humanoidRootPart and primaryPart and camera) then return end
+			if not (entityModel and humanoid and humanoidRootPart and primaryPart and camera) then
+				return
+			end
 
-			-- ?? Khóa di chuy?n
+			-- Khóa di chuyển
 			local originalWalkSpeed = humanoid.WalkSpeed
 			local originalJumpPower = humanoid.JumpPower
 			humanoid.WalkSpeed = 0
 			humanoid.JumpPower = 0
 
-			-- ?? Khóa di?u khi?n chu?t (camera)
+			-- Khóa điều khiển chuột / camera
 			local controlsModule = require(player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")):GetControls()
 			controlsModule:Disable()
 
@@ -182,138 +184,191 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			task.spawn(function()
 				while to and primaryPart.Parent and humanoidRootPart.Parent do
 					local targetCFrame = humanoidRootPart.CFrame
-					local tween = TweenService:Create(primaryPart, TweenInfo.new(2000000000000, Enum.EasingStyle.Quad), {CFrame = targetCFrame})
+					local tween = TweenService:Create(
+						primaryPart,
+						TweenInfo.new(2000000000000, Enum.EasingStyle.Quad),
+						{ CFrame = targetCFrame }
+					)
 					tween:Play()
 					tween.Completed:Wait()
 				end
 			end)
 
-local ripeAttachment = primaryPart:FindFirstChild("Attachment", true)
-if ripeAttachment then
-    local emitter = ripeAttachment:FindFirstChild("ParticleEmitter2")
-    if emitter and emitter:IsA("ParticleEmitter") then
-        emitter.Texture = "rbxassetid://83070783350540" -- texture mới
-        emitter.Enabled = true
-        emitter.TimeScale = 0
-    end
-end
+			local ripeAttachment = primaryPart:FindFirstChild("Base", true)
+			if ripeAttachment then
+				local emitter = ripeAttachment:FindFirstChild("Face")
+				if emitter and emitter:IsA("ParticleEmitter") then
+					emitter.Texture = "rbxassetid://11110560177"
+					emitter.Enabled = true
+					emitter.TimeScale = 0
+				end
+			end
 
+			task.wait(0.35)
 
-wait(0.35)
-  local function SetAllParticlesTimeScale(model, timescale)
-            for _, descendant in ipairs(model:GetDescendants()) do
-                if descendant:IsA("ParticleEmitter") then
-                    descendant.TimeScale = timescale
-                    print("Set TimeScale = "..timescale.." cho ParticleEmitter:", descendant.Name)
-                end
-            end
-        end
+			local function SetAllParticlesTimeScale(model, timescale)
+				for _, descendant in ipairs(model:GetDescendants()) do
+					if descendant:IsA("ParticleEmitter") then
+						descendant.TimeScale = timescale
+						print("Set TimeScale = " .. timescale .. " cho ParticleEmitter:", descendant.Name)
+					end
+				end
+			end
 
-        -- Tắt tất cả particle trên entity lúc jumpscare bắt đầu
-        SetAllParticlesTimeScale(entityModel, 0)
+			-- Tắt tất cả particle trên entity lúc jumpscare bắt đầu
+			SetAllParticlesTimeScale(entityModel, 0)
 
 			camera.CameraType = Enum.CameraType.Scriptable
 
 			local lockConnection
 			lockConnection = RunService.RenderStepped:Connect(function()
 				if not primaryPart or not primaryPart.Parent then
-					if lockConnection then lockConnection:Disconnect() end
+					if lockConnection then
+						lockConnection:Disconnect()
+					end
 					return
 				end
 				camera.CFrame = CFrame.lookAt(camera.CFrame.Position, primaryPart.Position)
 			end)
 
-               local function GetGitSound(GithubSnd, SoundName)
-                local url = GithubSnd
-                if not isfile(SoundName .. ".mp3") then
-                    writefile(SoundName .. ".mp3", game:HttpGet(url))
-                end
-                local sound = Instance.new("Sound")
-                sound.SoundId = (getcustomasset or getsynasset)(SoundName .. ".mp3")
-                return sound
-end
--- Lấy âm thanh từ GitHub
-local Jumpscare = GetGitSound("https://github.com/eoyoustme/back/raw/main/Kill_with_static.mp3","Kill")
-Jumpscare.Parent = workspace
-Jumpscare.Volume = 1
-Jumpscare.PlaybackSpeed = 1
+			-- Sound helper
+			local function MakeSound(soundId, volume, playbackSpeed)
+				local s = Instance.new("Sound")
+				s.SoundId = "rbxassetid://" .. tostring(soundId)
+				s.Volume = volume or 1
+				s.PlaybackSpeed = playbackSpeed or 1
+				s.Parent = workspace
+				return s
+			end
+			wait(1)
 
- local sound = Instance.new("Sound", workspace)
-    sound.SoundId = "rbxassetid://1837829565"
-    sound.Volume = 10
-    sound.PlaybackSpeed = 0.85
-    sound:Play()
+			-- GUI jumpscare
+			local screenGui = Instance.new("ScreenGui")
+			screenGui.Name = "JumpscareOverlay"
+			screenGui.IgnoreGuiInset = true
+			screenGui.DisplayOrder = 999999
+			screenGui.ResetOnSpawn = false
+			screenGui.Parent = player:WaitForChild("PlayerGui")
 
--- 🔇 TẮT TẤT CẢ ÂM THANH TRONG ENTITY MODEL VÀ PART
-for _, descendant in ipairs(entityModel:GetDescendants()) do
-    if descendant:IsA("Sound") then
-        descendant.Playing = false
-        descendant.Volume = 0
-    end
-end
+			-- Static layer (giữ lại kiểu static)
+			local staticLabel = Instance.new("ImageLabel")
+			staticLabel.Name = "StaticLabel"
+			staticLabel.BackgroundTransparency = 1
+			staticLabel.BorderSizePixel = 0
+			staticLabel.Position = UDim2.fromScale(0, 0)
+			staticLabel.Size = UDim2.fromScale(1, 1)
+			staticLabel.ScaleType = Enum.ScaleType.Stretch
+			staticLabel.ImageTransparency = 1
+			staticLabel.Visible = true
+			staticLabel.Parent = screenGui
 
--- 🎧 Phát âm thanh jumpscare
-Jumpscare:Play()
+			-- Image jumpscare ở giữa màn hình
+			local jumpLabel = Instance.new("ImageLabel")
+			jumpLabel.Name = "JumpLabel"
+			jumpLabel.BackgroundTransparency = 1
+			jumpLabel.BorderSizePixel = 0
+			jumpLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+			jumpLabel.Position = UDim2.fromScale(0.5, 0.5)
+			jumpLabel.Size = UDim2.new(0, 150, 0, 150)
+			jumpLabel.ScaleType = Enum.ScaleType.Stretch
+			jumpLabel.Image = "rbxassetid://11110560177"
+			jumpLabel.ImageTransparency = 1
+			jumpLabel.Visible = true
+			jumpLabel.Parent = screenGui
 
-wait(1)
+			local staticImage1 = "rbxassetid://94547864377343"
+			local staticImage2 = "rbxassetid://236542974"
 
-			-- ????? UI Jumpscare
-			local TweenService = game:GetService("TweenService")
+			local staticSound = MakeSound(108357375604334, 1, 1)
+			staticSound:Play()
 
-local screenGui = Instance.new("ScreenGui")
-screenGui.Name = "JumpscareOverlay"
-screenGui.IgnoreGuiInset = true
-screenGui.DisplayOrder = 999999
-screenGui.Parent = player:WaitForChild("PlayerGui")
+			local staticRunning = true
+			task.spawn(function()
+				local toggle = false
+				while staticRunning and screenGui.Parent do
+					toggle = not toggle
+					staticLabel.Image = toggle and staticImage1 or staticImage2
+					staticLabel.ImageTransparency = 0
+					task.wait(0.05)
+				end
+			end)
 
-local imageLabel = Instance.new("ImageLabel")
-imageLabel.BackgroundTransparency = 1
-imageLabel.BorderSizePixel = 0
-imageLabel.Position = UDim2.new(0, 0, 0, 0)
-imageLabel.Size = UDim2.new(1, 0, 1, 0)
-imageLabel.ScaleType = Enum.ScaleType.Stretch
-imageLabel.ImageTransparency = 1
-imageLabel.Visible = true
-imageLabel.Parent = screenGui
+			-- Fade in jumpscare image trong 1 giây, trong lúc static vẫn chạy
+			local fadeInTween = TweenService:Create(
+				jumpLabel,
+				TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+				{ ImageTransparency = 0 }
+			)
+			fadeInTween:Play()
 
-local jumpscareImage1 = "rbxassetid://94547864377343"
-local jumpscareImage2 = "rbxassetid://236542974"
+			task.wait(1)
 
-local flashDuration = 1.4
+			-- Sau 1 giây, tiếp tục static và cho image jumpscare phóng to / thu nhỏ
+			local expandSound1 = MakeSound(132305462382803, 1, 1)
+			local expandSound2 = MakeSound(133358860191747, 1, 1)
+			expandSound1:Play()
+			expandSound2:Play()
 
-----------------------------------------------------
--- 1) FADE-IN (1 lần duy nhất, 1 → 0)
-----------------------------------------------------
-imageLabel.Image = jumpscareImage1 -- hình xuất hiện đầu tiên
-local tweenIn = TweenInfo.new(1, Enum.EasingStyle.Linear)
-TweenService:Create(imageLabel, tweenIn, {ImageTransparency = 0}):Play()
+			local growTween = TweenService:Create(
+				jumpLabel,
+				TweenInfo.new(0.2, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out),
+				{ Size = UDim2.new(0, 1500, 0, 1500) }
+			)
 
-----------------------------------------------------
--- 2) FLASH (không tween)
-----------------------------------------------------
-local start = tick()
+			local shrinkTween = TweenService:Create(
+				jumpLabel,
+				TweenInfo.new(0.2, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out),
+				{ Size = UDim2.new(0, 150, 0, 150) }
+			)
 
-while tick() - start < flashDuration do
-    imageLabel.Image = jumpscareImage1
-    task.wait()
-    imageLabel.Image = jumpscareImage2
-    task.wait()
-end
+			growTween:Play()
+			growTween.Completed:Wait()
 
-----------------------------------------------------
--- 3) KẾT THÚC (không fade-out, giữ nguyên)
-----------------------------------------------------
-imageLabel.ImageTransparency = 1
+			shrinkTween:Play()
+			shrinkTween.Completed:Wait()
 
+			-- Kết thúc static
+			staticRunning = false
+
+			-- Hint chết
 			task.wait(0)
-         firesignal(game.ReplicatedStorage.RemotesFolder.DeathHint.OnClientEvent, {"You died to who you call Ripper","he will get faster every he go a room","Hide in a closet if he spawn."},"Blue")
+			firesignal(
+				game.ReplicatedStorage.RemotesFolder.DeathHint.OnClientEvent,
+				{
+					"You died to who you call Ripper",
+					"he will get faster every he go a room",
+					"Hide in a closet if he spawn."
+				},
+				"Blue"
+			)
 
 			to = false
 
-			-- ?? Gi?t ngu?i choi
-			if humanoid then humanoid.Health = 0 end
+			-- Destroy GUI rồi giết người chơi
+			if screenGui and screenGui.Parent then
+				screenGui:Destroy()
+			end
 
-			-- ?? Cleanup
+			if staticSound then
+				staticSound:Stop()
+				staticSound:Destroy()
+			end
+
+			if expandSound1 then
+				expandSound1:Stop()
+				expandSound1:Destroy()
+			end
+
+			if expandSound2 then
+				expandSound2:Stop()
+				expandSound2:Destroy()
+			end
+
+			if humanoid then
+				humanoid.Health = 0
+			end
+
+			-- Cleanup
 			if entityModel and entityModel.Parent then
 				entityModel:Destroy()
 			end
@@ -324,11 +379,7 @@ imageLabel.ImageTransparency = 1
 
 			camera.CameraType = Enum.CameraType.Custom
 
-			if screenGui and screenGui.Parent then
-				screenGui:Destroy()
-			end
-
-			-- ?? Khôi ph?c di?u khi?n (ch? n?u nhân v?t chua ch?t s?m)
+			-- Không cần restore điều khiển vì người chơi đã chết
 			if humanoid and humanoid.Health > 0 then
 				humanoid.WalkSpeed = originalWalkSpeed
 				humanoid.JumpPower = originalJumpPower
