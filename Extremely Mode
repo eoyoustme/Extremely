@@ -45,6 +45,7 @@ end)
 local entityList = {
 	{url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/The%20Camper", delay = 130},
 	{url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Waiter", delay = 200},
+    {url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Chaser", delay = 400},
 	}
 
 for _, entity in ipairs(entityList) do
