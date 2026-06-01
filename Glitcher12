@@ -98,6 +98,13 @@ end)
 
 entity:SetCallback("OnDespawned", function()
 	print("Entity despawned")
+	local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/Idk-lol2/a-60aa/refs/heads/main/fix%20bage.txt"))()
+	achievementGiver({
+		Title = "Torn Apart",
+		Desc = "Don't Leave Too Early.",
+		Reason = "Encounter Ripper",
+		Image = "rbxassetid://125217047990746"
+	})
 end)
 
 --====== JUMPSCARE CALLBACK ======--
@@ -239,110 +246,114 @@ local function StartRoomGlitch(entityModel, duration)
 	end
 end
 
--- ====== PHẦN GỌI JUMPSCARE ======
-task.spawn(function()
-	local character = player.Character or player.CharacterAdded:Wait()
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+entity:SetCallback("OnDamagePlayer", function(newHealth: number)
+	if newHealth <= 0 then
+		print("Entity has killed the player")
+	else
+		print("Entity has damaged the player")
+		task.spawn(function()
+			local character = player.Character or player.CharacterAdded:Wait()
+			local humanoid = character:FindFirstChildOfClass("Humanoid")
+			local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
 
-	local entityModel = workspace:FindFirstChild("Glitcher") -- đổi tên nếu model bạn khác
-	local primaryPart = entityModel and entityModel:FindFirstChild("Glitcher")
+			local entityModel = workspace:FindFirstChild("Glitcher") -- đổi tên nếu model bạn khác
+			local primaryPart = entityModel and entityModel:FindFirstChild("Glitcher")
 
-	if not (entityModel and primaryPart and humanoid and humanoidRootPart and camera) then
-		return
-	end
+			if not (entityModel and primaryPart and humanoid and humanoidRootPart and camera) then
+				return
+			end
 
-	local originalCameraType = camera.CameraType
-	camera.CameraType = Enum.CameraType.Scriptable
+			local originalCameraType = camera.CameraType
+			camera.CameraType = Enum.CameraType.Scriptable
 
-	local lockConnection
-	lockConnection = RunService.RenderStepped:Connect(function()
-		if not primaryPart.Parent then
-			if lockConnection then lockConnection:Disconnect() end
-			return
-		end
-		camera.CFrame = CFrame.lookAt(camera.CFrame.Position, primaryPart.Position)
-	end)
+			local lockConnection
+			lockConnection = RunService.RenderStepped:Connect(function()
+				if not primaryPart.Parent then
+					if lockConnection then lockConnection:Disconnect() end
+					return
+				end
+				camera.CFrame = CFrame.lookAt(camera.CFrame.Position, primaryPart.Position)
+			end)
 
-	local stopGlitch = StartRoomGlitch(entityModel, 2.0)
+			local stopGlitch = StartRoomGlitch(entityModel, 2.0)
 
-	local Jumpscare = GetGitSound(
-		"https://github.com/eoyoustme/Extremely/blob/main/Glitcher.mp3?raw=true",
-		"Glitcher"
-	)
-	Jumpscare.Parent = workspace
-	Jumpscare.Volume = 3
-	Jumpscare.PlaybackSpeed = 1
-	Jumpscare:Play()
+			local Jumpscare = GetGitSound(
+				"https://github.com/eoyoustme/Extremely/blob/main/Glitcher.mp3?raw=true",
+				"Glitcher"
+			)
+			Jumpscare.Parent = workspace
+			Jumpscare.Volume = 3
+			Jumpscare.PlaybackSpeed = 1
+			Jumpscare:Play()
 
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "JumpscareOverlay"
-	screenGui.IgnoreGuiInset = true
-	screenGui.DisplayOrder = 999999
-	screenGui.ResetOnSpawn = false
-	screenGui.Parent = player:WaitForChild("PlayerGui")
+			local screenGui = Instance.new("ScreenGui")
+			screenGui.Name = "JumpscareOverlay"
+			screenGui.IgnoreGuiInset = true
+			screenGui.DisplayOrder = 999999
+			screenGui.ResetOnSpawn = false
+			screenGui.Parent = player:WaitForChild("PlayerGui")
 
-	local staticImage = Instance.new("ImageLabel")
-	staticImage.Name = "Static"
-	staticImage.BackgroundTransparency = 1
-	staticImage.BorderSizePixel = 0
-	staticImage.Size = UDim2.fromScale(1, 1)
-	staticImage.Position = UDim2.fromScale(0, 0)
-	staticImage.Image = "rbxassetid://94547864377343"
-	staticImage.ImageTransparency = 0
-	staticImage.ScaleType = Enum.ScaleType.Stretch
-	staticImage.Parent = screenGui
+			local staticImage = Instance.new("ImageLabel")
+			staticImage.Name = "Static"
+			staticImage.BackgroundTransparency = 1
+			staticImage.BorderSizePixel = 0
+			staticImage.Size = UDim2.fromScale(1, 1)
+			staticImage.Position = UDim2.fromScale(0, 0)
+			staticImage.Image = "rbxassetid://94547864377343"
+			staticImage.ImageTransparency = 0
+			staticImage.ScaleType = Enum.ScaleType.Stretch
+			staticImage.Parent = screenGui
 
-	local staticImage2 = Instance.new("ImageLabel")
-	staticImage2.Name = "Static2"
-	staticImage2.BackgroundTransparency = 1
-	staticImage2.BorderSizePixel = 0
-	staticImage2.Size = UDim2.fromScale(1, 1)
-	staticImage2.Position = UDim2.fromScale(0, 0)
-	staticImage2.Image = "rbxassetid://236542974"
-	staticImage2.ImageTransparency = 1
-	staticImage2.ScaleType = Enum.ScaleType.Stretch
-	staticImage2.Parent = screenGui
+			local staticImage2 = Instance.new("ImageLabel")
+			staticImage2.Name = "Static2"
+			staticImage2.BackgroundTransparency = 1
+			staticImage2.BorderSizePixel = 0
+			staticImage2.Size = UDim2.fromScale(1, 1)
+			staticImage2.Position = UDim2.fromScale(0, 0)
+			staticImage2.Image = "rbxassetid://236542974"
+			staticImage2.ImageTransparency = 1
+			staticImage2.ScaleType = Enum.ScaleType.Stretch
+			staticImage2.Parent = screenGui
 
-	local flashTween = TweenService:Create(
-		staticImage,
-		TweenInfo.new(0.15, Enum.EasingStyle.Linear),
-		{ ImageTransparency = 0 }
-	)
-	flashTween:Play()
+			local flashTween = TweenService:Create(
+				staticImage,
+				TweenInfo.new(0.15, Enum.EasingStyle.Linear),
+				{ ImageTransparency = 0 }
+			)
+			flashTween:Play()
 
-	local t0 = os.clock()
-	while os.clock() - t0 < 2 do
-		staticImage.ImageTransparency = 0
-		staticImage2.ImageTransparency = 1
-		task.wait(0.05)
-		staticImage.ImageTransparency = 1
-		staticImage2.ImageTransparency = 0
-		task.wait(0.05)
-	end
+			local t0 = os.clock()
+			while os.clock() - t0 < 2 do
+				staticImage.ImageTransparency = 0
+				staticImage2.ImageTransparency = 1
+				task.wait(0.05)
+				staticImage.ImageTransparency = 1
+				staticImage2.ImageTransparency = 0
+				task.wait(0.05)
+			end
 
-	if stopGlitch then
-		stopGlitch()
-	end
+			if stopGlitch then
+				stopGlitch()
+			end
 
-	if lockConnection then
-		lockConnection:Disconnect()
-	end
+			if lockConnection then
+				lockConnection:Disconnect()
+			end
 
-	camera.CameraType = originalCameraType
+			camera.CameraType = originalCameraType
 
-	if screenGui then
-		screenGui:Destroy()
-	end
+			if screenGui then
+				screenGui:Destroy()
+			end
 
-	if Jumpscare then
-		Jumpscare:Destroy()
-	end
+			if Jumpscare then
+				Jumpscare:Destroy()
+			end
 
-	if entityModel and entityModel.Parent then
-		entityModel:Destroy()
-	end
-end)
---====== RUN ENTITY ======--
+			if entityModel and entityModel.Parent then
+				entityModel:Destroy()
+			end
+		end)
+		--====== RUN ENTITY ======--
 
-entity:Run()
+		entity:Run()
