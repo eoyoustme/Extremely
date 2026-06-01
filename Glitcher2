@@ -442,7 +442,7 @@ local function StartRoomGlitch(entityModel, duration)
 			end
 
 			grow = not grow
-			task.wait(0.12)
+			task.wait(0)
 		end
 	end)
 
@@ -456,7 +456,7 @@ local function StartRoomGlitch(entityModel, duration)
 				end
 			end
 
-			task.wait()
+			task.wait(0)
 		end
 	end)
 
