@@ -15,13 +15,23 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 local Camera = Workspace.CurrentCamera
 
-local Dummy = game:GetObjects("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Chaser.rbxm")[1]
+local ok, objects = pcall(function()
+	return game:GetObjects("rbxassetid://135868524980355")
+end)
+
+if not ok or not objects or not objects[1] then
+	warn("Failed to load Dummy model")
+	return
+end
+
+local Dummy = objects[1]
 Dummy.Parent = workspace
 
 local dummyHumanoid = Dummy:FindFirstChildOfClass("Humanoid")
 local dummyRoot = Dummy:FindFirstChild("HumanoidRootPart")
 
 if not dummyRoot or not dummyHumanoid then
+	warn("Dummy model is missing Humanoid or HumanoidRootPart")
 	return
 end
 
