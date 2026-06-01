@@ -15,12 +15,20 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 local Camera = Workspace.CurrentCamera
 
+-- Load model từ GitHub .rbxm -> lưu local -> load từ local asset
+local modelUrl = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Chaser.rbxm"
+local modelFile = "Chaser.rbxm"
+
+if not isfile(modelFile) then
+	writefile(modelFile, game:HttpGet(modelUrl))
+end
+
 local ok, objects = pcall(function()
-	return game:GetObjects("rbxassetid://135868524980355")
+	return game:GetObjects((getcustomasset or getsynasset)(modelFile))
 end)
 
 if not ok or not objects or not objects[1] then
-	warn("Failed to load Dummy model")
+	warn("Failed to load Dummy model from GitHub .rbxm")
 	return
 end
 
