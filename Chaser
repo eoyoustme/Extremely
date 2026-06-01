@@ -1,0 +1,252 @@
+local Speed = 21
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Debris = game:GetService("Debris")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
+
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local Camera = Workspace.CurrentCamera
+
+local Dummy = game:GetObjects("https://github.com/eoyoustme/Extremely/blob/main/Chaser.rbxm?raw=true")[1]
+Dummy.Parent = workspace
+
+local dummyHumanoid = Dummy:FindFirstChildOfClass("Humanoid")
+local dummyRoot = Dummy:FindFirstChild("HumanoidRootPart")
+
+if not dummyRoot or not dummyHumanoid then
+	return
+end
+
+dummyRoot.CanCollide = false
+dummyRoot.Anchored = false
+
+if Dummy.PrimaryPart == nil then
+	Dummy.PrimaryPart = dummyRoot
+end
+
+Dummy.HumanoidRootPart.CFrame = Character.HumanoidRootPart.CFrame + Vector3.new(math.random(-20, 20), 0, math.random(-20, 20))
+task.wait(1)
+
+local entity = Dummy:FindFirstChild("Face", true) or Dummy:FindFirstChildWhichIsA("BasePart", true) or Dummy.PrimaryPart
+if not entity then
+	Dummy:Destroy()
+	return
+end
+
+local function followPlayer()
+	if not Character.Parent then
+		return
+	end
+
+	local charHRP = Character:FindFirstChild("HumanoidRootPart")
+	if not charHRP then
+		return
+	end
+
+	local direction = (charHRP.Position - Dummy.HumanoidRootPart.Position).Unit
+	Dummy.HumanoidRootPart.Velocity = direction * Speed
+	Dummy.HumanoidRootPart.CFrame = CFrame.new(Dummy.HumanoidRootPart.Position, charHRP.Position)
+end
+
+local renderConn
+renderConn = RunService.RenderStepped:Connect(function()
+	if Dummy:IsDescendantOf(workspace) and Dummy:FindFirstChild("HumanoidRootPart") and Dummy:FindFirstChildOfClass("Humanoid") and Dummy:FindFirstChildOfClass("Humanoid").Health > 0 then
+		local Distance = (Character.HumanoidRootPart.Position - Dummy.HumanoidRootPart.Position).Magnitude
+
+		if Distance <= math.huge then
+			followPlayer()
+		end
+
+		Dummy:PivotTo(Dummy.HumanoidRootPart.CFrame * CFrame.new(0, 0, -50))
+	end
+end)
+
+task.spawn(function()
+	while task.wait(3) do
+		if not Dummy.Parent then
+			break
+		end
+
+		local light = entity:FindFirstChildWhichIsA("PointLight", true)
+		local radio = entity:FindFirstChild("Radio Static Sound", true)
+
+		if light then
+			TweenService:Create(light, TweenInfo.new(3, Enum.EasingStyle.Linear), { Range = math.random(10, 25) }):Play()
+			TweenService:Create(light, TweenInfo.new(3, Enum.EasingStyle.Linear), { Brightness = math.random(5, 50) }):Play()
+		end
+
+		if radio and radio:IsA("Sound") then
+			TweenService:Create(radio, TweenInfo.new(3, Enum.EasingStyle.Linear), { Volume = 2 }):Play()
+			TweenService:Create(radio, TweenInfo.new(3, Enum.EasingStyle.Linear), { PlaybackSpeed = math.random(1, 5) }):Play()
+		end
+	end
+end)
+
+local death = true
+local cleanupDone = false
+local originalFOV = Camera.FieldOfView
+local originalWalkSpeed = Humanoid.WalkSpeed
+
+local function GetGitSound(GithubSnd, SoundName)
+	local url = GithubSnd
+	if not isfile(SoundName .. ".mp3") then
+		writefile(SoundName .. ".mp3", game:HttpGet(url))
+	end
+
+	local sound = Instance.new("Sound")
+	sound.SoundId = (getcustomasset or getsynasset)(SoundName .. ".mp3")
+	return sound
+end
+
+local fireEmitters = {}
+local fireApplied = false
+
+local function ApplyFireToMap()
+	if fireApplied then
+		return
+	end
+	fireApplied = true
+
+	local currentRooms = Workspace:FindFirstChild("CurrentRooms")
+	if not currentRooms then
+		return
+	end
+
+	for _, inst in ipairs(currentRooms:GetDescendants()) do
+		if inst:IsA("BasePart") and not inst:IsDescendantOf(Dummy) and not inst:IsDescendantOf(Character) then
+			if not inst:FindFirstChild("MapFire") then
+				local fire = Instance.new("ParticleEmitter")
+				fire.Name = "MapFire"
+				fire.Texture = "rbxasset://textures/particles/fire_main.dds"
+				fire.Color = ColorSequence.new(Color3.fromRGB(255, 120, 0), Color3.fromRGB(255, 0, 0))
+				fire.LightEmission = 1
+				fire.Size = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 3),
+					NumberSequenceKeypoint.new(1, 0)
+				})
+				fire.Lifetime = NumberRange.new(0.6, 1.1)
+				fire.Rate = 25
+				fire.Speed = NumberRange.new(2, 6)
+				fire.Rotation = NumberRange.new(0, 360)
+				fire.RotSpeed = NumberRange.new(-120, 120)
+				fire.SpreadAngle = Vector2.new(25, 25)
+				fire.Enabled = true
+				fire.Parent = inst
+
+				table.insert(fireEmitters, fire)
+			end
+		end
+	end
+end
+
+local latestRoom = ReplicatedStorage:WaitForChild("GameData"):WaitForChild("LatestRoom")
+task.spawn(function()
+	latestRoom.Changed:Wait()
+	ApplyFireToMap()
+end)
+
+local redGui = Instance.new("ScreenGui")
+redGui.Name = "RedOverlayGui"
+redGui.ResetOnSpawn = false
+redGui.IgnoreGuiInset = true
+redGui.DisplayOrder = 999999
+redGui.Parent = Player:WaitForChild("PlayerGui")
+
+local redFrame = Instance.new("Frame")
+redFrame.Name = "RedFrame"
+redFrame.Size = UDim2.fromScale(1, 1)
+redFrame.Position = UDim2.fromScale(0, 0)
+redFrame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+redFrame.BackgroundTransparency = 0.45
+redFrame.BorderSizePixel = 0
+redFrame.Parent = redGui
+
+local colorFx = Instance.new("ColorCorrectionEffect")
+colorFx.Name = "ChaserRedFX"
+colorFx.TintColor = Color3.fromRGB(255, 0, 0)
+colorFx.Saturation = -0.15
+colorFx.Contrast = 0.2
+colorFx.Parent = Lighting
+
+Camera.FieldOfView = 90
+
+local Jumpscare = GetGitSound(
+	"https://github.com/eoyoustme/Extremely/blob/main/Schoolhouse%20Madness%202%20Subterbaldi%20Ost.mp3?raw=true",
+	"Subter"
+)
+Jumpscare.Parent = workspace
+Jumpscare.Volume = 6
+Jumpscare.PlaybackSpeed = 1
+Jumpscare:Play()
+
+Humanoid.WalkSpeed = 20
+dummyHumanoid.WalkSpeed = 21
+
+task.spawn(function()
+	while task.wait() do
+		if not death then
+			break
+		end
+
+		local target = HumanoidRootPart
+		local origin = Dummy.HumanoidRootPart.Position
+		local direction = (target.Position - origin).Unit
+		local ray = Ray.new(origin, direction * 5)
+		local raycast = workspace:Raycast(ray.Origin, ray.Direction)
+
+		if raycast and raycast.Instance and raycast.Instance:IsDescendantOf(Character) then
+			if not Character:GetAttribute("Hiding") then
+				Humanoid:TakeDamage(1000)
+				game:GetService("ReplicatedStorage").GameStats["Player_" .. Player.Name].Total.DeathCause.Value = "Chaser"
+			end
+		end
+	end
+end)
+
+ApplyFireToMap()
+
+task.delay(116, function()
+	if cleanupDone then
+		return
+	end
+	cleanupDone = true
+	death = false
+
+	if Jumpscare then
+		Jumpscare:Stop()
+		Jumpscare:Destroy()
+	end
+
+	if redGui then
+		redGui:Destroy()
+	end
+
+	if colorFx then
+		colorFx:Destroy()
+	end
+
+	for _, fire in ipairs(fireEmitters) do
+		if fire and fire.Parent then
+			fire:Destroy()
+		end
+	end
+
+	Camera.FieldOfView = originalFOV
+	Humanoid.WalkSpeed = originalWalkSpeed
+
+	if renderConn then
+		renderConn:Disconnect()
+	end
+
+	if Dummy and Dummy.Parent then
+		Dummy:Destroy()
+	end
+end)
