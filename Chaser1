@@ -15,7 +15,7 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 local Camera = Workspace.CurrentCamera
 
-local Dummy = game:GetObjects("https://github.com/eoyoustme/Extremely/blob/main/Chaser.rbxm?raw=true")[1]
+local Dummy = game:GetObjects("rbxassetid://135868524980355")[1]
 Dummy.Parent = workspace
 
 local dummyHumanoid = Dummy:FindFirstChildOfClass("Humanoid")
