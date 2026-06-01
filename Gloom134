@@ -1,6 +1,30 @@
 ---====== Load spawner ======---
 
-local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
+local function LoadSpawner()
+	local ok, result = pcall(function()
+		local source = game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau")
+		local fn = loadstring(source)
+
+		if not fn then
+			error("loadstring is unavailable in this environment")
+		end
+
+		return fn()
+	end)
+
+	if not ok then
+		warn("Failed to load spawner:", result)
+		return nil
+	end
+
+	return result
+end
+
+local spawner = LoadSpawner()
+if not spawner or type(spawner.Create) ~= "function" then
+	warn("Spawner failed to load or Create() is missing")
+	return
+end
 
 ---====== Create entity ======---
 
@@ -60,11 +84,14 @@ local entity = spawner.Create({
 
 entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
+
 	local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
 	local camara = game.Workspace.CurrentCamera
+
 	local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
 		camara.CFrame = camara.CFrame * shakeCf
 	end)
+
 	camShake:Start()
 	camShake:ShakeOnce(10, 3, 1, 6, 2, 2)
 
@@ -72,10 +99,11 @@ entity:SetCallback("OnSpawned", function()
 
 	local TweenService = game:GetService("TweenService")
 	local Tweeninfo = TweenInfo.new(2.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-	local color = {Color = Color3.new(85, 0, 255)}
+	local color = {Color = Color3.fromRGB(85, 0, 255)}
 
 	local latestRoom = game.ReplicatedStorage.GameData.LatestRoom.Value
 	local room = workspace.CurrentRooms:FindFirstChild(tostring(latestRoom))
+
 	if room then
 		for _, v in pairs(room:GetDescendants()) do
 			if v:IsA("Light") then
