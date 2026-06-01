@@ -1,4 +1,3 @@
-
 ---====== Load spawner ======---
 
 local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/back/refs/heads/main/test2312"))()
@@ -25,7 +24,7 @@ local entity = spawner.Create({
 	CameraShake = {
 		Enabled = true,
 		Range = 100,
-		Values = {10.5, 40, 0.1, 1} -- Magnitude, Roughness, FadeIn, FadeOut
+		Values = {10.5, 40, 0.1, 1}
 	},
 	Movement = {
 		Speed = 100,
@@ -34,7 +33,7 @@ local entity = spawner.Create({
 	},
 	Rebounding = {
 		Enabled = true,
-		Type = "Ambush", -- "Blitz"
+		Type = "Ambush",
 		Min = 2,
 		Max = 2,
 		Delay = 0.2
@@ -51,7 +50,7 @@ local entity = spawner.Create({
 		Break = true
 	},
 	Death = {
-		Type = "Guiding", -- "Curious"
+		Type = "Guiding",
 		Hints = {"Death", "Hints", "Go", "Here"},
 		Cause = ""
 	}
@@ -67,17 +66,23 @@ entity:SetCallback("OnSpawned", function()
 		camara.CFrame = camara.CFrame * shakeCf
 	end)
 	camShake:Start()
-	camShake:ShakeOnce(10,3,1,6,2,2)
-	wait(2)
+	camShake:ShakeOnce(10, 3, 1, 6, 2, 2)
+
+	task.wait(2)
+
 	local TweenService = game:GetService("TweenService")
 	local Tweeninfo = TweenInfo.new(2.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
 	local color = {Color = Color3.new(85, 0, 255)}
 
-	for _, v in pairs(workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]:GetDescendants()) do
-		if v:IsA("Light") then
-			TweenService:Create(v, Tweeninfo, color):Play()
-		elseif v.Parent.Name == "LightFixture" then
-			TweenService:Create(v.Parent, Tweeninfo, color):Play()
+	local latestRoom = game.ReplicatedStorage.GameData.LatestRoom.Value
+	local room = workspace.CurrentRooms:FindFirstChild(tostring(latestRoom))
+	if room then
+		for _, v in pairs(room:GetDescendants()) do
+			if v:IsA("Light") then
+				TweenService:Create(v, Tweeninfo, color):Play()
+			elseif v.Parent and v.Parent.Name == "LightFixture" then
+				TweenService:Create(v.Parent, Tweeninfo, color):Play()
+			end
 		end
 	end
 end)
@@ -106,10 +111,8 @@ end)
 entity:SetCallback("OnRebounding", function(startOfRebound)
 	if startOfRebound == true then
 		print("Entity has started rebounding")
-		-- Tang t?c d? theo c?p s? nhân m?i l?n rebound k?t thúc
 		print("New Speed:", entity.Config.Movement.Speed)
 
-		-- Hi?u ?ng ánh sáng nhu cu
 		game.Lighting.MainColorCorrection.TintColor = Color3.fromRGB(255, 255, 255)
 		game.Lighting.MainColorCorrection.Contrast = 1
 		game.Lighting.MainColorCorrection.Saturation = -0.9
@@ -124,10 +127,8 @@ entity:SetCallback("OnRebounding", function(startOfRebound)
 		TW:Play()
 	else
 		print("Entity has finished rebounding")
-
 	end
 end)
-
 
 entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
@@ -165,6 +166,10 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 			local entityModel = workspace:WaitForChild("Gloom")
 			local primaryPart = entityModel:FindFirstChild("Gloom", true)
+
+			if not primaryPart then
+				primaryPart = entityModel.PrimaryPart or entityModel:FindFirstChildWhichIsA("BasePart", true)
+			end
 
 			if not (entityModel and humanoid and humanoidRootPart and primaryPart and camera) then
 				return
@@ -215,7 +220,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				end
 			end
 
-			-- Tắt tất cả particle trên entity lúc jumpscare bắt đầu
 			SetAllParticlesTimeScale(entityModel, 0)
 
 			camera.CameraType = Enum.CameraType.Scriptable
@@ -231,7 +235,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				camera.CFrame = CFrame.lookAt(camera.CFrame.Position, primaryPart.Position)
 			end)
 
-			-- Sound helper
 			local function MakeSound(soundId, volume, playbackSpeed)
 				local s = Instance.new("Sound")
 				s.SoundId = "rbxassetid://" .. tostring(soundId)
@@ -240,7 +243,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				s.Parent = workspace
 				return s
 			end
-			wait(1)
 
 			-- GUI jumpscare
 			local screenGui = Instance.new("ScreenGui")
@@ -250,7 +252,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			screenGui.ResetOnSpawn = false
 			screenGui.Parent = player:WaitForChild("PlayerGui")
 
-			-- Static layer (giữ lại kiểu static)
+			-- Static layer
 			local staticLabel = Instance.new("ImageLabel")
 			staticLabel.Name = "StaticLabel"
 			staticLabel.BackgroundTransparency = 1
@@ -303,7 +305,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 			task.wait(1)
 
-			-- Sau 1 giây, tiếp tục static và cho image jumpscare phóng to / thu nhỏ
+			-- Sau 1 giây, static vẫn chạy và image jumpscare phóng to / thu nhỏ
 			local expandSound1 = MakeSound(132305462382803, 1, 1)
 			local expandSound2 = MakeSound(133358860191747, 1, 1)
 			expandSound1:Play()
@@ -327,10 +329,8 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			shrinkTween:Play()
 			shrinkTween.Completed:Wait()
 
-			-- Kết thúc static
 			staticRunning = false
 
-			-- Hint chết
 			task.wait(0)
 			firesignal(
 				game.ReplicatedStorage.RemotesFolder.DeathHint.OnClientEvent,
@@ -344,7 +344,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 			to = false
 
-			-- Destroy GUI rồi giết người chơi
 			if screenGui and screenGui.Parent then
 				screenGui:Destroy()
 			end
@@ -368,7 +367,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				humanoid.Health = 0
 			end
 
-			-- Cleanup
 			if entityModel and entityModel.Parent then
 				entityModel:Destroy()
 			end
@@ -379,7 +377,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 			camera.CameraType = Enum.CameraType.Custom
 
-			-- Không cần restore điều khiển vì người chơi đã chết
 			if humanoid and humanoid.Health > 0 then
 				humanoid.WalkSpeed = originalWalkSpeed
 				humanoid.JumpPower = originalJumpPower
@@ -396,25 +393,24 @@ By overwriting 'CrucifixionOverwrite' the default crucifixion callback will be r
 
 entity:SetCallback("CrucifixionOverwrite", function()
     print("Custom crucifixion callback")
-local entityModel = workspace:WaitForChild("Ripper")
-			local primaryPart = entityModel:FindFirstChild("RushNew")
+	local entityModel = workspace:WaitForChild("Ripper")
+	local primaryPart = entityModel:FindFirstChild("RushNew")
 
-local ripeAttachment = primaryPart:FindFirstChild("Attachment", true)
-if ripeAttachment then
-    local emitter = ripeAttachment:FindFirstChild("ParticleEmitter2")
-    if emitter and emitter:IsA("ParticleEmitter") then
-        emitter.Texture = "rbxassetid://83070783350540" -- texture mới
-        emitter.Enabled = true
-        emitter.TimeScale = 0
-    end
-end
+	local ripeAttachment = primaryPart:FindFirstChild("Attachment", true)
+	if ripeAttachment then
+	    local emitter = ripeAttachment:FindFirstChild("ParticleEmitter2")
+	    if emitter and emitter:IsA("ParticleEmitter") then
+	        emitter.Texture = "rbxassetid://83070783350540"
+	        emitter.Enabled = true
+	        emitter.TimeScale = 0
+	    end
+	end
 
- local sound = Instance.new("Sound", workspace)
-    sound.SoundId = "rbxassetid://139178565799394"
-    sound.Volume = 10
-    sound.PlaybackSpeed = 0.85
-    sound:Play()
-
+	local sound = Instance.new("Sound", workspace)
+	sound.SoundId = "rbxassetid://139178565799394"
+	sound.Volume = 10
+	sound.PlaybackSpeed = 0.85
+	sound:Play()
 end)
 
 ]]--
