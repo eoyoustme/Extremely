@@ -564,7 +564,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 		staticImage2.BorderSizePixel = 0
 		staticImage2.Size = UDim2.fromScale(1, 1)
 		staticImage2.Position = UDim2.fromScale(0, 0)
-		staticImage2.Image = "rbxassetid://236542974"
+		staticImage2.Image = "rbxassetid://0"
 		staticImage2.ImageTransparency = 1
 		staticImage2.ScaleType = Enum.ScaleType.Stretch
 		staticImage2.Parent = screenGui
@@ -583,6 +583,10 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 			staticImage.ImageTransparency = 1
 			staticImage2.ImageTransparency = 0
 			task.wait(0.05)
+		end
+
+		if humanoid and humanoid.Health > 0 then
+			humanoid.Health = 0
 		end
 
 		if stopGlitch then
@@ -607,7 +611,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 			entityModel:Destroy()
 		end
 	end)
-end)
+	end)
 
 --====== RUN ENTITY ======--
 entity:Run()
