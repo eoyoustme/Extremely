@@ -15,7 +15,6 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 local Camera = Workspace.CurrentCamera
 
--- Load model từ GitHub .rbxm -> lưu local -> load từ local asset
 local modelUrl = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Chaser.rbxm"
 local modelFile = "Chaser.rbxm"
 
@@ -28,36 +27,33 @@ local ok, objects = pcall(function()
 end)
 
 if not ok or not objects or not objects[1] then
-	warn("Failed to load Dummy model from GitHub .rbxm")
+	warn("Failed to load model from GitHub")
 	return
 end
 
 local Dummy = objects[1]
 Dummy.Parent = workspace
 
-local dummyHumanoid = Dummy:FindFirstChildOfClass("Humanoid")
-local dummyRoot = Dummy:FindFirstChild("HumanoidRootPart")
-
-if not dummyRoot or not dummyHumanoid then
-	warn("Dummy model is missing Humanoid or HumanoidRootPart")
-	return
-end
-
-dummyRoot.CanCollide = false
-dummyRoot.Anchored = false
-
-if Dummy.PrimaryPart == nil then
-	Dummy.PrimaryPart = dummyRoot
-end
-
-Dummy.HumanoidRootPart.CFrame = Character.HumanoidRootPart.CFrame + Vector3.new(math.random(-20, 20), 0, math.random(-20, 20))
-task.wait(1)
-
-local entity = Dummy:FindFirstChild("Face", true) or Dummy:FindFirstChildWhichIsA("BasePart", true) or Dummy.PrimaryPart
-if not entity then
+local entityRoot = Dummy:FindFirstChild("RushNew", true) or Dummy.PrimaryPart or Dummy:FindFirstChildWhichIsA("BasePart", true)
+if not entityRoot then
+	warn("Model is missing RushNew/BasePart")
 	Dummy:Destroy()
 	return
 end
+
+if Dummy.PrimaryPart == nil then
+	Dummy.PrimaryPart = entityRoot
+end
+
+for _, inst in ipairs(Dummy:GetDescendants()) do
+	if inst:IsA("BasePart") then
+		inst.CanCollide = false
+		inst.Anchored = false
+	end
+end
+
+Dummy:PivotTo(Character.HumanoidRootPart.CFrame + Vector3.new(math.random(-20, 20), 0, math.random(-20, 20)))
+task.wait(1)
 
 local function followPlayer()
 	if not Character.Parent then
@@ -69,19 +65,20 @@ local function followPlayer()
 		return
 	end
 
-	local direction = (charHRP.Position - Dummy.HumanoidRootPart.Position).Unit
-	Dummy.HumanoidRootPart.Velocity = direction * Speed
-	Dummy.HumanoidRootPart.CFrame = CFrame.new(Dummy.HumanoidRootPart.Position, charHRP.Position)
+	local offset = charHRP.Position - entityRoot.Position
+	if offset.Magnitude < 0.001 then
+		return
+	end
+
+	local direction = offset.Unit
+	entityRoot.AssemblyLinearVelocity = direction * Speed
+	entityRoot.CFrame = CFrame.new(entityRoot.Position, charHRP.Position)
 end
 
 local renderConn
 renderConn = RunService.RenderStepped:Connect(function()
-	if Dummy:IsDescendantOf(workspace) and Dummy:FindFirstChild("HumanoidRootPart") and Dummy:FindFirstChildOfClass("Humanoid") and Dummy:FindFirstChildOfClass("Humanoid").Health > 0 then
-		local Distance = (Character.HumanoidRootPart.Position - Dummy.HumanoidRootPart.Position).Magnitude
-
-		if Distance <= math.huge then
-			followPlayer()
-		end
+	if Dummy:IsDescendantOf(workspace) and entityRoot and entityRoot.Parent then
+		followPlayer()
 	end
 end)
 
@@ -91,8 +88,8 @@ task.spawn(function()
 			break
 		end
 
-		local light = entity:FindFirstChildWhichIsA("PointLight", true)
-		local radio = entity:FindFirstChild("Radio Static Sound", true)
+		local light = entityRoot:FindFirstChildWhichIsA("PointLight", true)
+		local radio = Dummy:FindFirstChild("Radio Static Sound", true)
 
 		if light then
 			TweenService:Create(light, TweenInfo.new(3, Enum.EasingStyle.Linear), { Range = math.random(10, 25) }):Play()
@@ -130,7 +127,7 @@ local function ApplyFireToMap()
 		return
 	end
 
-	local currentRooms = Workspace:WaitForChild("CurrentRooms")
+	local currentRooms = Workspace:FindFirstChild("CurrentRooms")
 	if not currentRooms then
 		return
 	end
@@ -205,7 +202,6 @@ Jumpscare.PlaybackSpeed = 1
 Jumpscare:Play()
 
 Humanoid.WalkSpeed = 20
-dummyHumanoid.WalkSpeed = 21
 
 task.spawn(function()
 	while task.wait() do
@@ -213,16 +209,29 @@ task.spawn(function()
 			break
 		end
 
-		local target = HumanoidRootPart
-		local origin = Dummy.HumanoidRootPart.Position
-		local direction = (target.Position - origin).Unit
-		local ray = Ray.new(origin, direction * 5)
-		local raycast = workspace:Raycast(ray.Origin, ray.Direction)
+		if not Dummy.Parent or not entityRoot.Parent then
+			break
+		end
 
+		local target = Character:FindFirstChild("HumanoidRootPart")
+		if not target then
+			continue
+		end
+
+		local origin = entityRoot.Position
+		local direction = target.Position - origin
+		if direction.Magnitude <= 0 then
+			continue
+		end
+
+		local raycast = workspace:Raycast(origin, direction.Unit * 5)
 		if raycast and raycast.Instance and raycast.Instance:IsDescendantOf(Character) then
 			if not Character:GetAttribute("Hiding") then
 				Humanoid:TakeDamage(1000)
-				game:GetService("ReplicatedStorage").GameStats["Player_" .. Player.Name].Total.DeathCause.Value = "Chaser"
+				local stats = ReplicatedStorage:FindFirstChild("GameStats")
+				if stats and stats:FindFirstChild("Player_" .. Player.Name) then
+					stats["Player_" .. Player.Name].Total.DeathCause.Value = "Chaser"
+				end
 			end
 		end
 	end
