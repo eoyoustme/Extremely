@@ -291,8 +291,8 @@ wait(1)
 			task.wait(1)
 
 			-- Sau 1 giây, static vẫn chạy và image jumpscare phóng to / thu nhỏ
-			local expandSound1 = MakeSound(132305462382803, 1, 1)
-			local expandSound2 = MakeSound(133358860191747, 1, 1)
+			local expandSound1 = MakeSound(132305462382803, 10, 10)
+			local expandSound2 = MakeSound(133358860191747, 10, 10)
 			expandSound1:Play()
 			expandSound2:Play()
 
