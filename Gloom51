@@ -227,6 +227,8 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				return s
 			end
 
+wait(1)
+
 			-- GUI jumpscare
 			local screenGui = Instance.new("ScreenGui")
 			screenGui.Name = "JumpscareOverlay"
