@@ -176,18 +176,14 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			-- Sử dụng Tween lặp lại để liên tục kéo Entity tới người chơi một cách mượt mà
 			local to = true
 			task.spawn(function()
-				while to and primaryPart and primaryPart.Parent and humanoidRootPart and humanoidRootPart.Parent do
-					-- Tạo một Tween rất ngắn (0.1 giây) hướng thẳng tới vị trí hiện tại của người chơi
+				while to and primaryPart.Parent and humanoidRootPart.Parent do
 					local targetCFrame = humanoidRootPart.CFrame
-					local moveTween = TweenService:Create(
-						primaryPart,
-						TweenInfo.new(20000000000000000000000, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
-						{ CFrame = targetCFrame }
-					)
-					moveTween:Play()
-					task.wait(0.05) -- Chờ một khoảng thời gian ngắn trước khi cập nhật mục tiêu mới (tạo độ mượt)
+					local tween = TweenService:Create(primaryPart, TweenInfo.new(2000000000000, Enum.EasingStyle.Quad), {CFrame = targetCFrame})
+					tween:Play()
+					tween.Completed:Wait()
 				end
 			end)
+
 			local ripeAttachment = primaryPart:FindFirstChild("Base", true)
 			if ripeAttachment then
 				local emitter = ripeAttachment:FindFirstChild("Face")
