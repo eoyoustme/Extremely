@@ -553,7 +553,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 		staticImage.BorderSizePixel = 0
 		staticImage.Size = UDim2.fromScale(1, 1)
 		staticImage.Position = UDim2.fromScale(0, 0)
-		staticImage.Image = "rbxassetid://94547864377343"
+		staticImage.Image = "rbxassetid://0"
 		staticImage.ImageTransparency = 0
 		staticImage.ScaleType = Enum.ScaleType.Stretch
 		staticImage.Parent = screenGui
