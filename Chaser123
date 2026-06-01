@@ -64,8 +64,6 @@ renderConn = RunService.RenderStepped:Connect(function()
 		if Distance <= math.huge then
 			followPlayer()
 		end
-
-		Dummy:PivotTo(Dummy.HumanoidRootPart.CFrame * CFrame.new(0, 0, -50))
 	end
 end)
 
@@ -113,12 +111,13 @@ local function ApplyFireToMap()
 	if fireApplied then
 		return
 	end
-	fireApplied = true
 
-	local currentRooms = Workspace:FindFirstChild("CurrentRooms")
+	local currentRooms = Workspace:WaitForChild("CurrentRooms")
 	if not currentRooms then
 		return
 	end
+
+	fireApplied = true
 
 	for _, inst in ipairs(currentRooms:GetDescendants()) do
 		if inst:IsA("BasePart") and not inst:IsDescendantOf(Dummy) and not inst:IsDescendantOf(Character) then
