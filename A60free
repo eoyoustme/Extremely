@@ -1,0 +1,259 @@
+game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
+---====== Load spawner ======---
+
+local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
+
+---====== Create entity ======---
+
+local entity = Spawner:Create({
+	Entity = {
+		Name = "A60",
+		Asset = "rbxassetid://14169212325",
+		HeightOffset = 0
+	},
+	Lights = {
+		Flicker = {
+			Enabled = true,
+			Duration = 3
+		},
+		Shatter = true,
+		Repair = false
+	},
+	Earthquake = {
+		Enabled = false
+	},
+	CameraShake = {
+		Enabled = true,
+		Range = 100,
+		Values = {3.0, 50, 0.1, 0.1} -- Magnitude, Roughness, FadeIn, FadeOut
+	},
+	Movement = {
+		Speed = 100,
+		Delay = 4,
+		Reversed = false
+	},
+	Rebounding = {
+		Enabled = false,
+		Type = "Ambush", -- "Blitz"
+		Min = 1,
+		Max = 1,
+		Delay = 2
+	},
+	Damage = {
+		Enabled = true,
+		Range = 40,
+		Amount = 125
+	},
+	Crucifixion = {
+		Enabled = true,
+		Range = 45,
+		Resist = false,
+		Break = true
+	},
+	Death = {
+		Type = "Guiding", -- "Curious"
+		Hints = {"You die The Camper", "He is Creature of anguished", "If he appear Everything will get color red", "Don't look him if you look your eye will got bleed"},
+		Cause = "The Camper"
+	}
+})
+
+---====== Debug entity ======---
+
+entity:SetCallback("OnSpawned", function()
+	print("Entity has spawned")
+
+end)
+
+entity:SetCallback("OnStartMoving", function()
+	print("Entity has started moving")
+end)
+
+entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
+	if firstTime == true then
+		print("Entity has entered room: ".. room.Name.. " for the first time")
+	else
+		print("Entity has entered room: ".. room.Name.. " again")
+	end
+end)
+
+entity:SetCallback("OnLookAt", function(lineOfSight: boolean)
+	if lineOfSight == true then
+		print("Player is looking at entity")
+		local Players = game:GetService("Players")
+		local player = Players.LocalPlayer		
+		local playerGui = player:WaitForChild("PlayerGui")
+
+		local screenGui = Instance.new("ScreenGui")
+		screenGui.Name = "JumpscareGui"
+		screenGui.ResetOnSpawn = false
+		screenGui.IgnoreGuiInset = true
+		screenGui.DisplayOrder = 999999
+		screenGui.Parent = playerGui
+
+		local background = Instance.new("Frame")
+		background.Name = "Background"
+		background.Size = UDim2.fromScale(1, 1)
+		background.Position = UDim2.fromScale(0, 0)
+		background.BackgroundColor3 = Color3.new(0, 0, 0)
+		background.BackgroundTransparency = 1
+		background.BorderSizePixel = 0
+		background.Parent = screenGui
+
+		-- Tạo ImageLabel
+		local imageLabel = Instance.new("ImageLabel")
+		imageLabel.Name = "ImageLabel"
+		imageLabel.BackgroundTransparency = 1
+		imageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+		imageLabel.Position = UDim2.fromScale(0.5, 0.5)
+		imageLabel.Size = UDim2.new(0, 0.001, 0, 0.001)
+		imageLabel.ImageTransparency = 0.8
+		imageLabel.Image = "rbxassetid://2862136" -- đổi ID ảnh jumpscare của bạn
+		imageLabel.Parent = background
+
+		wait(3)
+		screenGui:Destroy()
+	else
+		print("Player view is obstructed by something")
+	end
+end)
+
+entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
+	if startOfRebound == true then
+		print("Entity has started rebounding")
+	else
+		print("Entity has finished rebounding")
+	end
+end)
+
+entity:SetCallback("OnDespawning", function()
+	print("Entity is despawning")
+end)
+
+entity:SetCallback("OnDespawned", function()
+	print("Entity has despawned")
+end)
+
+entity:SetCallback("OnDamagePlayer", function(newHealth: number)
+	if newHealth <= 0 then
+		print("Entity has killed the player")
+		local Players = game:GetService("Players")
+		local TweenService = game:GetService("TweenService")
+
+		local player = Players.LocalPlayer
+		local playerGui = player:WaitForChild("PlayerGui")
+		local rng = Random.new()
+
+		-- Tạo ScreenGui
+		local screenGui = Instance.new("ScreenGui")
+		screenGui.Name = "JumpscareGui"
+		screenGui.ResetOnSpawn = false
+		screenGui.IgnoreGuiInset = true
+		screenGui.DisplayOrder = 999999
+		screenGui.Parent = playerGui
+
+		-- Tạo background
+		local background = Instance.new("Frame")
+		background.Name = "Background"
+		background.Size = UDim2.fromScale(1, 1)
+		background.Position = UDim2.fromScale(0, 0)
+		background.BackgroundColor3 = Color3.new(0, 0, 0)
+		background.BorderSizePixel = 0
+		background.Parent = screenGui
+
+		-- Tạo ImageLabel
+		local imageLabel = Instance.new("ImageLabel")
+		imageLabel.Name = "ImageLabel"
+		imageLabel.BackgroundTransparency = 1
+		imageLabel.AnchorPoint = Vector2.new(0.5, 0.5)
+		imageLabel.Position = UDim2.fromScale(0.5, 0.5)
+		imageLabel.Size = UDim2.new(0, 0.001, 0, 0.001)
+		imageLabel.Image = "rbxassetid://10427371065"
+		imageLabel.Parent = background
+
+		-- Tạo Sound
+		local jumpscareSound = Instance.new("Sound")
+		jumpscareSound.Name = "Jumpscare"
+		jumpscareSound.SoundId = "rbxassetid://2306939610"
+		jumpscareSound.Volume = 10
+		jumpscareSound.PlaybackSpeed = 1.7
+		jumpscareSound.Parent = imageLabel
+
+		local dis = Instance.new("DistortionSoundEffect")
+		dis.Level = 1
+		dis.Enabled = true
+		dis.Parent = jumpscareSound
+
+		local pitch = Instance.new("PitchShiftSoundEffect")
+		pitch.Octave = 0.62
+		pitch.Enabled = true
+		pitch.Parent = jumpscareSound
+
+		local chorus = Instance.new("ChorusSoundEffect")
+		chorus.Depth = 0.15
+		chorus.Mix = 0.5
+		chorus.Rate = 0.5
+		chorus.Enabled = true
+		chorus.Parent = jumpscareSound
+
+		local echo = Instance.new("EchoSoundEffect")
+		echo.Delay = 0.02
+		echo.Feedback = 1
+		echo.Enabled = true
+		echo.Parent = jumpscareSound
+
+		jumpscareSound:Play()
+
+		local fullTween = TweenService:Create(
+			imageLabel,
+			TweenInfo.new(1.69, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+			{
+				Size = UDim2.new(0, 1250, 0, 1250)
+			}
+		)
+
+		fullTween:Play()
+
+		for i = 1, 40 do
+			local mode = rng:NextInteger(1, 3)
+
+			if mode == 1 then
+				background.BackgroundColor3 = Color3.new(0, 0, 0)
+				imageLabel.ImageColor3 = Color3.new(1, 0, 0)
+				imageLabel.Position = UDim2.new(rng:NextNumber(0.4, 0.6), 0, rng:NextNumber(0.4, 0.6), 0)
+			elseif mode == 2 then
+				background.BackgroundColor3 = Color3.new(0, 0, 0)
+				imageLabel.ImageColor3 = Color3.new(0, 0, 0)
+				imageLabel.Position = UDim2.new(rng:NextNumber(0.4, 0.6), 0, rng:NextNumber(0.4, 0.6), 0)
+			else
+				background.BackgroundColor3 = Color3.new(1, 0, 0)
+				imageLabel.ImageColor3 = Color3.new(1, 0, 0)
+				imageLabel.Position = UDim2.new(rng:NextNumber(0.4, 0.6), 0, rng:NextNumber(0.4, 0.6), 0)
+			end
+
+			imageLabel.Rotation = rng:NextInteger(-30, 30)
+			task.wait(0.00001)
+		end
+
+
+		screenGui:Destroy()
+		imageLabel:Destroy()
+		background:Destroy()
+	else
+		print("Entity has damaged the player")
+	end
+end)
+
+--[[
+
+DEVELOPER NOTE:
+By overwriting 'CrucifixionOverwrite' the default crucifixion callback will be replaced with your custom callback.
+
+entity:SetCallback("CrucifixionOverwrite", function()
+    print("Custom crucifixion callback")
+end)
+
+]]--
+
+---====== Run entity ======---
+
+entity:Run(true)
