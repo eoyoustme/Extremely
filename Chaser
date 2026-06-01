@@ -1,4 +1,4 @@
-local Speed = 10
+local Speed = 15
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -240,7 +240,7 @@ end)
 
 ApplyFireToMap()
 
-task.delay(116, function()
+task.delay(60, function()
 	if cleanupDone then
 		return
 	end
