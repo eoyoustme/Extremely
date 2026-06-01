@@ -120,19 +120,20 @@ local function GetGitSound(GithubSnd, SoundName)
 end
 
 local fireEmitters = {}
-local fireApplied = false
+
+local function ForceChaseStats()
+	Camera.FieldOfView = 90
+	Humanoid.WalkSpeed = 20
+end
 
 local function ApplyFireToMap()
-	if fireApplied then
-		return
-	end
-
 	local currentRooms = Workspace:FindFirstChild("CurrentRooms")
 	if not currentRooms then
 		return
 	end
 
-	fireApplied = true
+	-- Giữ FOV / tốc độ ở mức này trong lúc chase còn chạy
+	ForceChaseStats()
 
 	for _, inst in ipairs(currentRooms:GetDescendants()) do
 		if inst:IsA("BasePart") and not inst:IsDescendantOf(Dummy) and not inst:IsDescendantOf(Character) then
@@ -162,8 +163,8 @@ local function ApplyFireToMap()
 end
 
 local latestRoom = ReplicatedStorage:WaitForChild("GameData"):WaitForChild("LatestRoom")
-task.spawn(function()
-	latestRoom.Changed:Wait()
+
+latestRoom.Changed:Connect(function()
 	ApplyFireToMap()
 end)
 
@@ -273,6 +274,6 @@ task.delay(116, function()
 	end
 
 	if Dummy and Dummy.Parent then
-		Dummy:Destroy()
+			Dummy:Destroy()
 	end
 end)
