@@ -15,8 +15,8 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 local Camera = Workspace.CurrentCamera
 
-local modelUrl = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/SubterBaldi.rbxm"
-local modelFile = "SubterBaldi.rbxm"
+local modelUrl = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Subterbaldi.rbxm"
+local modelFile = "Subterbaldi.rbxm"
 
 if not isfile(modelFile) then
 	writefile(modelFile, game:HttpGet(modelUrl))
