@@ -1,4 +1,4 @@
-local Speed = 18
+local Speed = 10
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
