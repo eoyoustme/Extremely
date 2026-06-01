@@ -1,36 +1,10 @@
----====== Load spawner ======---
-
-local function LoadSpawner()
-	local ok, result = pcall(function()
-		local source = game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau")
-		local fn = loadstring(source)
-
-		if not fn then
-			error("loadstring is unavailable in this environment")
-		end
-
-		return fn()
-	end)
-
-	if not ok then
-		warn("Failed to load spawner:", result)
-		return nil
-	end
-
-	return result
-end
-
-local spawner = LoadSpawner()
-if not spawner or type(spawner.Create) ~= "function" then
-	warn("Spawner failed to load or Create() is missing")
-	return
-end
+local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
 
 ---====== Create entity ======---
 
-local entity = spawner.Create({
+local entity = Spawner:Create({
 	Entity = {
-		Name = "Gloom",
+		Name = "GloomMoving",
 		Asset = "https://github.com/eoyoustme/Extremely/blob/main/Gloom.rbxm?raw=true",
 		HeightOffset = 2
 	},
@@ -39,33 +13,33 @@ local entity = spawner.Create({
 			Enabled = false,
 			Duration = 1
 		},
-		Shatter = false,
+		Shatter = true,
 		Repair = false
 	},
 	Earthquake = {
-		Enabled = true
+		Enabled = false
 	},
 	CameraShake = {
 		Enabled = true,
 		Range = 100,
-		Values = {10.5, 40, 0.1, 1}
+		Values = {3, 20, 0.1, 1} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
 		Speed = 400,
-		Delay = 5.771,
+		Delay = 5,
 		Reversed = false
 	},
 	Rebounding = {
 		Enabled = true,
-		Type = "Ambush",
+		Type = "Ambush", -- "Blitz"
 		Min = 2,
 		Max = 2,
-		Delay = 0
+		Delay = 0.1
 	},
 	Damage = {
 		Enabled = true,
 		Range = 40,
-		Amount = 0.01
+		Amount = 125
 	},
 	Crucifixion = {
 		Enabled = true,
@@ -74,7 +48,7 @@ local entity = spawner.Create({
 		Break = true
 	},
 	Death = {
-		Type = "Guiding",
+		Type = "Guiding", -- "Curious"
 		Hints = {"Death", "Hints", "Go", "Here"},
 		Cause = ""
 	}
@@ -119,16 +93,15 @@ entity:SetCallback("OnStartMoving", function()
 	print("Entity has started moving")
 end)
 
-entity:SetCallback("OnEnterRoom", function(room, firstTime)
+entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 	if firstTime == true then
 		print("Entity has entered room: ".. room.Name.. " for the first time")
-		entity.Config.Movement.Speed = entity.Config.Movement.Speed * 1.2
 	else
 		print("Entity has entered room: ".. room.Name.. " again")
 	end
 end)
 
-entity:SetCallback("OnLookAt", function(lineOfSight)
+entity:SetCallback("OnLookAt", function(lineOfSight: boolean)
 	if lineOfSight == true then
 		print("Player is looking at entity")
 	else
@@ -136,23 +109,9 @@ entity:SetCallback("OnLookAt", function(lineOfSight)
 	end
 end)
 
-entity:SetCallback("OnRebounding", function(startOfRebound)
+entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
 	if startOfRebound == true then
 		print("Entity has started rebounding")
-		print("New Speed:", entity.Config.Movement.Speed)
-
-		game.Lighting.MainColorCorrection.TintColor = Color3.fromRGB(255, 255, 255)
-		game.Lighting.MainColorCorrection.Contrast = 1
-		game.Lighting.MainColorCorrection.Saturation = -0.9
-
-		local tween = game:GetService("TweenService")
-		tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(2), {Contrast = 0}):Play()
-		tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(2), {Saturation = 0}):Play()
-
-		local TW = tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(5), {
-			TintColor = Color3.fromRGB(255, 255, 255)
-		})
-		TW:Play()
 	else
 		print("Entity has finished rebounding")
 	end
@@ -164,13 +123,6 @@ end)
 
 entity:SetCallback("OnDespawned", function()
 	print("Entity has despawned")
-	local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/Idk-lol2/a-60aa/refs/heads/main/fix%20bage.txt"))()
-	achievementGiver({
-		Title = "Torn Apart",
-		Desc = "Don't Leave Too Early.",
-		Reason = "Encounter Ripper",
-		Image = "rbxassetid://125217047990746"
-	})
 end)
 
 local TweenService = game:GetService("TweenService")
@@ -192,14 +144,15 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 			local camera = workspace.CurrentCamera
 
-			local entityModel = workspace:WaitForChild("Gloom")
+			local entityModel = workspace:WaitForChild("GloomMoving", 5)
+			if not entityModel then return end
+			
 			local primaryPart = entityModel:FindFirstChild("Gloom", true)
-
 			if not primaryPart then
 				primaryPart = entityModel.PrimaryPart or entityModel:FindFirstChildWhichIsA("BasePart", true)
 			end
 
-			if not (entityModel and humanoid and humanoidRootPart and primaryPart and camera) then
+			if not (humanoid and humanoidRootPart and primaryPart and camera) then
 				return
 			end
 
@@ -209,21 +162,23 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			humanoid.WalkSpeed = 0
 			humanoid.JumpPower = 0
 
-			-- Khóa điều khiển chuột / camera
-			local controlsModule = require(player:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule")):GetControls()
-			controlsModule:Disable()
+			-- Khóa điều khiển chuột / camera an toàn
+			local playerModule = player:WaitForChild("PlayerScripts"):FindFirstChild("PlayerModule")
+			local controlsModule
+			if playerModule then
+				controlsModule = require(playerModule):GetControls()
+				if controlsModule and controlsModule.Disable then
+					controlsModule:Disable()
+				end
+			end
 
-			local to = true
-			task.spawn(function()
-				while to and primaryPart.Parent and humanoidRootPart.Parent do
-					local targetCFrame = humanoidRootPart.CFrame
-					local tween = TweenService:Create(
-						primaryPart,
-						TweenInfo.new(2000000000000, Enum.EasingStyle.Quad),
-						{ CFrame = targetCFrame }
-					)
-					tween:Play()
-					tween.Completed:Wait()
+			-- Di chuyển entity tới người chơi mượt mà bằng Heartbeat thay vì Tween khổng lồ
+			local followConnection
+			followConnection = RunService.Heartbeat:Connect(function()
+				if primaryPart and primaryPart.Parent and humanoidRootPart and humanoidRootPart.Parent then
+					primaryPart.CFrame = humanoidRootPart.CFrame
+				else
+					if followConnection then followConnection:Disconnect() end
 				end
 			end)
 
@@ -271,6 +226,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				s.Parent = workspace
 				return s
 			end
+
 wait(1)
 
 			-- GUI jumpscare
@@ -316,7 +272,7 @@ wait(1)
 			local staticRunning = true
 			task.spawn(function()
 				local toggle = false
-				while staticRunning and screenGui.Parent do
+				while staticRunning and screenGui and screenGui.Parent do
 					toggle = not toggle
 					staticLabel.Image = toggle and staticImage1 or staticImage2
 					staticLabel.ImageTransparency = 0
@@ -361,36 +317,35 @@ wait(1)
 			staticRunning = false
 
 			task.wait(0)
-			firesignal(
-				game.ReplicatedStorage.RemotesFolder.DeathHint.OnClientEvent,
-				{
-					"You died to who you call Ripper",
-					"he will get faster every he go a room",
-					"Hide in a closet if he spawn."
-				},
-				"Blue"
-			)
+			
+			-- Sửa lỗi firesignal kiểm tra môi trường chạy script khôn ngoan hơn
+			local deathHintRemote = game.ReplicatedStorage:FindFirstChild("RemotesFolder") and game.ReplicatedStorage.RemotesFolder:FindFirstChild("DeathHint")
+			local hintsTable = {
+				"You died to who you call Ripper",
+				"he will get faster every he go a room",
+				"Hide in a closet if he spawn."
+			}
+			
+			if typeof(firesignal) == "function" and deathHintRemote then
+				firesignal(deathHintRemote.OnClientEvent, hintsTable, "Blue")
+			elseif deathHintRemote and deathHintRemote:IsA("RemoteEvent") then
+				-- Nếu chạy trong Roblox Studio thông thường, kích hoạt UI thủ công hoặc giả lập ở đây
+				deathHintRemote:FireServer(hintsTable, "Blue") 
+			else
+				warn("Không tìm thấy hàm firesignal hoặc RemoteEvent DeathHint của DOORS!")
+			end
 
-			to = false
+			if followConnection then
+				followConnection:Disconnect()
+			end
 
 			if screenGui and screenGui.Parent then
 				screenGui:Destroy()
 			end
 
-			if staticSound then
-				staticSound:Stop()
-				staticSound:Destroy()
-			end
-
-			if expandSound1 then
-				expandSound1:Stop()
-				expandSound1:Destroy()
-			end
-
-			if expandSound2 then
-				expandSound2:Stop()
-				expandSound2:Destroy()
-			end
+			if staticSound then staticSound:Stop() staticSound:Destroy() end
+			if expandSound1 then expandSound1:Stop() expandSound1:Destroy() end
+			if expandSound2 then expandSound2:Stop() expandSound2:Destroy() end
 
 			if humanoid then
 				humanoid.Health = 0
@@ -409,41 +364,23 @@ wait(1)
 			if humanoid and humanoid.Health > 0 then
 				humanoid.WalkSpeed = originalWalkSpeed
 				humanoid.JumpPower = originalJumpPower
-				controlsModule:Enable()
+				if controlsModule and controlsModule.Enable then
+					controlsModule:Enable()
+				end
 			end
 		end)
 	end
 end)
 
 --[[
-
 DEVELOPER NOTE:
 By overwriting 'CrucifixionOverwrite' the default crucifixion callback will be replaced with your custom callback.
 
 entity:SetCallback("CrucifixionOverwrite", function()
     print("Custom crucifixion callback")
-	local entityModel = workspace:WaitForChild("Ripper")
-	local primaryPart = entityModel:FindFirstChild("RushNew")
-
-	local ripeAttachment = primaryPart:FindFirstChild("Attachment", true)
-	if ripeAttachment then
-	    local emitter = ripeAttachment:FindFirstChild("ParticleEmitter2")
-	    if emitter and emitter:IsA("ParticleEmitter") then
-	        emitter.Texture = "rbxassetid://83070783350540"
-	        emitter.Enabled = true
-	        emitter.TimeScale = 0
-	    end
-	end
-
-	local sound = Instance.new("Sound", workspace)
-	sound.SoundId = "rbxassetid://139178565799394"
-	sound.Volume = 10
-	sound.PlaybackSpeed = 0.85
-	sound:Play()
 end)
-
 ]]--
 
 ---====== Run entity ======---
 
-entity:Run()
+entity:Run(true)
