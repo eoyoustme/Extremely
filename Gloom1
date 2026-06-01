@@ -236,7 +236,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				end
 			end
 
-			wait(1)
+			wait(0.5)
 
 			-- GUI jumpscare
 			local screenGui = Instance.new("ScreenGui")
@@ -292,10 +292,17 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			-- Fade in jumpscare image trong 1 giây, trong lúc static vẫn chạy
 			local fadeInTween = TweenService:Create(
 				jumpLabel,
-				TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+				TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
 				{ ImageTransparency = 0 }
 			)
 			fadeInTween:Play()
+			
+			local fadeInTween2 = TweenService:Create(
+				staticLabel,
+				TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+				{ ImageTransparency = 0 }
+			)
+			fadeInTween2:Play()
 
 
 			task.wait(2)
