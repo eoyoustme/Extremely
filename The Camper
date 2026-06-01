@@ -8,7 +8,7 @@ local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 local entity = Spawner:Create({
 	Entity = {
 		Name = "The Camper",
-		Asset = "rbxassetid://131413325387233",
+		Asset = "https://github.com/eoyoustme/Extremely/blob/main/The%20Camper.rbxm?raw=true",
 		HeightOffset = 0
 	},
 	Lights = {
