@@ -1,4 +1,4 @@
-local Speed = 21
+local Speed = 18
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -179,7 +179,7 @@ redFrame.Name = "RedFrame"
 redFrame.Size = UDim2.fromScale(1, 1)
 redFrame.Position = UDim2.fromScale(0, 0)
 redFrame.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-redFrame.BackgroundTransparency = 0.45
+redFrame.BackgroundTransparency = 0.85
 redFrame.BorderSizePixel = 0
 redFrame.Parent = redGui
 
@@ -197,7 +197,7 @@ local Jumpscare = GetGitSound(
 	"Subter"
 )
 Jumpscare.Parent = workspace
-Jumpscare.Volume = 6
+Jumpscare.Volume = 3
 Jumpscare.PlaybackSpeed = 1
 Jumpscare:Play()
 
