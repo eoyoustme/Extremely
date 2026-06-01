@@ -91,7 +91,7 @@ elseif pick == 3 then
 
 elseif pick == 4 then
 	-- Entity xấu 3
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/ohh/refs/heads/main/Depthter%20bad%20luck"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Glitcher2"))()
 			require(plr.PlayerGui.MainUI.Initiator.Main_Game)
 			omg:Destroy()
 		.caption("Oh no! You have bad luck, an entity has spawned", true)
