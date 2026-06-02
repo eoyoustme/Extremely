@@ -13,8 +13,8 @@ local entity = spawner.Create({
 	},
 	Lights = {
 		Flicker = {
-			Enabled = false,
-			Duration = 1
+			Enabled = true,
+			Duration = 3
 		},
 		Shatter = true,
 		Repair = false
