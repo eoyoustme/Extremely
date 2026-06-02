@@ -137,16 +137,6 @@ end)
 
 entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
-	local achievementGiver = loadstring(game("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
-
-	---====== Display achievement ======---
-	achievementGiver({
-		Title = "Many Rebound",
-		Desc = "I don't want you forgot me",
-		Reason = "Encounter Rebound And Survive:)",
-		Image = "rbxassetid://11666287209"
-	})
-	end
 end)
 
 entity:SetCallback("OnDespawned", function()
