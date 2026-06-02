@@ -43,18 +43,46 @@ pcall(function()
 end)
 
 local entityList = {
-	{url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/The%20Camper", delay = 130},
-	{url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Waiter", delay = 200},
-    {url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Glitcher2", delay = 300},
+	{
+		name = "The Camper",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/The%20Camper",
+		chance = 10
+	},
+	{
+		name = "Waiter",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Waiter",
+		chance = 7
+	},
+	{
+		name = "Glitcher2",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Glitcher2",
+		chance = 5
+	},
+	{
+		name = "Hunter",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Hunter",
+		chance = 3
 	}
+}
 
-for _, entity in ipairs(entityList) do
-	coroutine.wrap(function()
-		while true do
-			wait(entity.delay)
-			pcall(function()
-				loadstring(game:HttpGet(entity.url))()
-			end)
+local function rollChance(percent)
+	return math.random(1, 100) <= percent
+end
+
+local function spawnEntity(entityData)
+	pcall(function()
+		loadstring(game:HttpGet(entityData.url))()
+	end)
+end
+
+math.randomseed(tick() % 1 * 1e7)
+
+while true do
+	wait(10)
+
+	for _, entityData in ipairs(entityList) do
+		if rollChance(entityData.chance) then
+			spawnEntity(entityData)
 		end
-	end)()
+	end
 end
