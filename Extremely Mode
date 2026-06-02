@@ -51,7 +51,7 @@ local entityList = {
 	{
 		name = "Waiter",
 		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Waiter",
-		chance = 7
+		chance = 8
 	},
 	{
 		name = "Glitcher2",
@@ -81,7 +81,7 @@ local entityList = {
 	{
 		name = "Rebound",
 		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Rebound",
-		chance = 75
+		chance = 7
 	}
 }
 
