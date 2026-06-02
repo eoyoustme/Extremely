@@ -83,7 +83,7 @@ local entity = Spawner:Create({
 	},
 	Movement = {
 		Speed = 80,
-		Delay = 6,
+		Delay = 3,
 		Reversed = true
 	},
 	Rebounding = {
@@ -117,7 +117,7 @@ entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
 	local bruh = workspace.Rebound.Rebound
 	local TweenService = game:GetService("TweenService")
-	wait(3)
+	wait(1.5)
 	local cue2 = Instance.new("Sound")
 	cue2.Parent = game.Workspace
 	cue2.Name = "Spawn"
