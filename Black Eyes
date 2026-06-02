@@ -1,0 +1,176 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local Debris = game:GetService("Debris")
+local workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+
+local Kill = true
+local triggered = false
+
+local modelUrl = "https://github.com/eoyoustme/Extremely/blob/main/Black%20Eyes.rbxm?raw=true"
+local modelFile = "BlackEyes.rbxm"
+
+if not isfile(modelFile) then
+	writefile(modelFile, game:HttpGet(modelUrl))
+end
+
+local ok, objects = pcall(function()
+	return game:GetObjects((getcustomasset or getsynasset)(modelFile))
+end)
+
+if not ok or not objects or not objects[1] then
+	warn("Failed to load Black Eyes model")
+	return
+end
+
+local eye = objects[1]
+eye.Parent = workspace
+
+local eyes = eye:FindFirstChildWhichIsA("BasePart") or eye:FindFirstChildWhichIsA("Part")
+if not eyes then
+	warn("Black Eyes model has no BasePart")
+	eye:Destroy()
+	return
+end
+
+local currentRooms = workspace:WaitForChild("CurrentRooms")
+local rooms = currentRooms:GetChildren()
+local lastRoom = rooms[#rooms - 1] or rooms[#rooms]
+
+if lastRoom and lastRoom:FindFirstChild("Parts") and lastRoom.Parts:FindFirstChild("Floor") then
+	eyes.CFrame = lastRoom.Parts.Floor.CFrame + Vector3.new(0, 5, 0)
+else
+	eyes.CFrame = workspace.CurrentCamera.CFrame + Vector3.new(0, 0, -20)
+end
+
+local sound = Instance.new("Sound")
+sound.Parent = workspace
+sound.Name = "BlackEyesSpawn"
+sound.SoundId = "rbxassetid://1168009240"
+sound.Volume = 10
+sound.PlaybackSpeed = 0.15
+sound:Play()
+
+task.wait(2)
+
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local camera = workspace.CurrentCamera
+
+local function triggerDamageEffects()
+	if triggered then
+		return
+	end
+	triggered = true
+	Kill = false
+
+	if eye and eye.Parent then
+		eye:Destroy()
+	end
+
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "BlackEyesOverlay"
+	screenGui.IgnoreGuiInset = true
+	screenGui.DisplayOrder = 999999
+	screenGui.ResetOnSpawn = false
+	screenGui.Parent = player:WaitForChild("PlayerGui")
+
+	local image = Instance.new("ImageLabel")
+	image.Name = "OverlayImage"
+	image.BackgroundTransparency = 1
+	image.BorderSizePixel = 0
+	image.Position = UDim2.fromScale(0, 0)
+	image.Size = UDim2.fromScale(1, 1)
+	image.Image = "rbxassetid://10154713810"
+	image.ImageTransparency = 0.85
+	image.ScaleType = Enum.ScaleType.Stretch
+	image.Parent = screenGui
+
+	local overlaySound = Instance.new("Sound")
+	overlaySound.Name = "BlackEyesHit"
+	overlaySound.Parent = workspace
+	overlaySound.SoundId = "rbxassetid://9126213993"
+	overlaySound.Volume = 10
+	overlaySound.PlaybackSpeed = 0.5
+	overlaySound:Play()
+
+	local Reboundcolor = Instance.new("ColorCorrectionEffect")
+	Reboundcolor.Name = "Warn"
+	Reboundcolor.TintColor = Color3.fromRGB(125, 125, 125)
+	Reboundcolor.Saturation = -0.7
+	Reboundcolor.Contrast = 0.2
+	Reboundcolor.Parent = Lighting
+	Debris:AddItem(Reboundcolor, 24)
+
+	TweenService:Create(
+		Reboundcolor,
+		TweenInfo.new(15),
+		{
+			TintColor = Color3.fromRGB(255, 255, 255),
+			Saturation = 0,
+			Contrast = 0
+		}
+	):Play()
+
+	if Lighting:FindFirstChild("MainColorCorrection") then
+		TweenService:Create(
+			Lighting.MainColorCorrection,
+			TweenInfo.new(5),
+			{ TintColor = Color3.fromRGB(255, 255, 255) }
+		):Play()
+	end
+
+	local fadeTween = TweenService:Create(
+		image,
+		TweenInfo.new(15, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+		{ ImageTransparency = 1 }
+	)
+	fadeTween:Play()
+
+	task.delay(15, function()
+		if screenGui and screenGui.Parent then
+			screenGui:Destroy()
+		end
+		if overlaySound then
+			overlaySound:Stop()
+			overlaySound:Destroy()
+		end
+	end)
+end
+
+task.spawn(function()
+	while Kill and eye and eye.Parent and humanoid and humanoid.Health > 0 do
+		task.wait(0.05)
+
+		local _, onScreen = camera:WorldToViewportPoint(eyes.Position)
+		if onScreen then
+			humanoid:TakeDamage(30)
+
+			if humanoid.Health < humanoid.MaxHealth then
+				triggerDamageEffects()
+
+				if humanoid.Health <= 0 then
+					local stats = game.ReplicatedStorage:FindFirstChild("GameStats")
+					if stats and stats:FindFirstChild("Player_" .. player.Name) then
+						local total = stats["Player_" .. player.Name]:FindFirstChild("Total")
+						if total and total:FindFirstChild("DeathCause") then
+							total.DeathCause.Value = "Black Eyes"
+						end
+					end
+				end
+
+				break
+			end
+		end
+	end
+end)
+
+game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
+Kill = false
+
+if eye and eye.Parent then
+	eye:Destroy()
+end
