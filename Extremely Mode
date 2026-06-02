@@ -101,7 +101,6 @@ local function IsSeekActive()
 		return false
 	end
 
-	-- Các tên thường gặp của Seek / Seek chase
 	local namesToCheck = {
 		"Seek",
 		"SeekMoving",
