@@ -4,7 +4,7 @@ local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 
 local entity = Spawner:Create({
 	Entity = {
-		Name = "Hunter",
+		Name = "HunterMoving",
 		Asset = "https://github.com/eoyoustme/Extremely/blob/main/Hunter.rbxm?raw=true",
 		HeightOffset = 2
 	},
@@ -125,7 +125,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 			local camera = workspace.CurrentCamera
 
-			local entityModel = workspace:WaitForChild("Hunter", 5)
+			local entityModel = workspace:WaitForChild("HunterMoving", 5)
 			if not entityModel then
 				return
 			end
