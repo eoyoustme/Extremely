@@ -1,60 +1,3 @@
-local TweenService = game:GetService("TweenService")
-local Lighting = game.Lighting
-local cc = Lighting:WaitForChild("MainColorCorrection")
-local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
-local cam = workspace.CurrentCamera
-
--- Tạo CameraShaker
-local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(cf)
-	cam.CFrame = cam.CFrame * cf
-end)
-camShake:Start()
-
--- Âm thanh
-local cue = Instance.new("Sound")
-cue.Parent = workspace
-cue.SoundId = "rbxassetid://109723092746488"
-cue.Volume = 10
-cue.PlaybackSpeed = 0.55
-
-local cue2 = Instance.new("Sound")
-cue2.Parent = workspace -- ĐÃ FIX: Sửa từ cue sang cue2
-cue2.SoundId = "rbxassetid://132520159755262" -- ĐÃ FIX: Sửa từ cue sang cue2
-cue2.Volume = 10 -- ĐÃ FIX: Sửa từ cue sang cue2
-cue2.PlaybackSpeed = 0.2 -- ĐÃ FIX: Sửa từ cue sang cue2
-
--- 🔥 Load âm thanh trước
-cue.Loaded:Wait()
-cue2.Loaded:Wait()
-
--- ✅ Đặt TimePosition sau khi load xong
-cue.TimePosition = 0
-
--- Phát cùng lúc lighting
-cue:Play()
-cue2:Play()
-
--- Lighting bắt đầu ngay
-local Reboundcolor = Instance.new("ColorCorrectionEffect")
-Reboundcolor.Name = "Warn"
-Reboundcolor.TintColor = Color3.fromRGB(0, 135, 255)
-Reboundcolor.Saturation = -0.7
-Reboundcolor.Contrast = 0.2
-Reboundcolor.Parent = game:GetService("Lighting")
-game:GetService("Debris"):AddItem(Reboundcolor, 24)
-
-TweenService:Create(
-	Reboundcolor,
-	TweenInfo.new(15),
-	{ TintColor = Color3.fromRGB(200, 200, 200), Saturation = 0, Contrast = 0 }
-):Play()
-
-local TW = TweenService:Create(
-	game.Lighting.MainColorCorrection,
-	TweenInfo.new(5),
-	{ TintColor = Color3.fromRGB(255, 255, 255) }
-)
-TW:Play()
 
 ---====== Load spawner ======---
 
@@ -118,6 +61,63 @@ local entity = spawner.Create({
 
 entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
+local TweenService = game:GetService("TweenService")
+local Lighting = game.Lighting
+local cc = Lighting:WaitForChild("MainColorCorrection")
+local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
+local cam = workspace.CurrentCamera
+
+-- Tạo CameraShaker
+local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(cf)
+	cam.CFrame = cam.CFrame * cf
+end)
+camShake:Start()
+
+-- Âm thanh
+local cue = Instance.new("Sound")
+cue.Parent = workspace
+cue.SoundId = "rbxassetid://109723092746488"
+cue.Volume = 10
+cue.PlaybackSpeed = 0.55
+
+local cue2 = Instance.new("Sound")
+cue2.Parent = workspace -- ĐÃ FIX: Sửa từ cue sang cue2
+cue2.SoundId = "rbxassetid://132520159755262" -- ĐÃ FIX: Sửa từ cue sang cue2
+cue2.Volume = 10 -- ĐÃ FIX: Sửa từ cue sang cue2
+cue2.PlaybackSpeed = 0.2 -- ĐÃ FIX: Sửa từ cue sang cue2
+
+-- 🔥 Load âm thanh trước
+cue.Loaded:Wait()
+cue2.Loaded:Wait()
+
+-- ✅ Đặt TimePosition sau khi load xong
+cue.TimePosition = 0
+
+-- Phát cùng lúc lighting
+cue:Play()
+cue2:Play()
+
+-- Lighting bắt đầu ngay
+local Reboundcolor = Instance.new("ColorCorrectionEffect")
+Reboundcolor.Name = "Warn"
+Reboundcolor.TintColor = Color3.fromRGB(0, 135, 255)
+Reboundcolor.Saturation = -0.7
+Reboundcolor.Contrast = 0.2
+Reboundcolor.Parent = game:GetService("Lighting")
+game:GetService("Debris"):AddItem(Reboundcolor, 24)
+
+TweenService:Create(
+	Reboundcolor,
+	TweenInfo.new(15),
+	{ TintColor = Color3.fromRGB(200, 200, 200), Saturation = 0, Contrast = 0 }
+):Play()
+
+local TW = TweenService:Create(
+	game.Lighting.MainColorCorrection,
+	TweenInfo.new(5),
+	{ TintColor = Color3.fromRGB(255, 255, 255) }
+)
+TW:Play()
 end)
 
 entity:SetCallback("OnStartMoving", function()
