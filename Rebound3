@@ -16,7 +16,7 @@ local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 
 local entity = Spawner:Create({
 	Entity = {
-		Name = "Rebound1",
+		Name = "Rebound3",
 		Asset = "https://github.com/eoyoustme/Extremely/blob/main/Rebound.rbxm?raw=true",
 		HeightOffset = 0
 	},
@@ -70,7 +70,7 @@ local entity = Spawner:Create({
 
 entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
-	local bruh = workspace.Rebound1.Rebound
+	local bruh = workspace.Rebound3.Rebound
 	local TweenService = game:GetService("TweenService")
 	wait(1.5)
 	local cue2 = Instance.new("Sound")
