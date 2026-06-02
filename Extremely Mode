@@ -64,11 +64,6 @@ local entityList = {
 		chance = 3
 	},
 	{
-		name = "Rebound",
-		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Rebound",
-		chance = 75
-	},
-	{
 		name = "Depth",
 		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Depth4",
 		chance = 15
@@ -82,6 +77,11 @@ local entityList = {
 		name = "Looker",
 		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Looker",
 		chance = 35
+	},
+	{
+		name = "Rebound",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Rebound",
+		chance = 75
 	}
 }
 
