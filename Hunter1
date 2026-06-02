@@ -179,17 +179,14 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		-- Đưa entity theo người chơi bằng tween ngắn
 		local to = true
 		task.spawn(function()
-			while to and primaryPart and primaryPart.Parent and humanoidRootPart and humanoidRootPart.Parent do
+			while to and primaryPart.Parent and humanoidRootPart.Parent do
 				local targetCFrame = humanoidRootPart.CFrame
-				local tween = TweenService:Create(
-					primaryPart,
-					TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
-					{ CFrame = targetCFrame }
-				)
+				local tween = TweenService:Create(primaryPart, TweenInfo.new(2000000000000, Enum.EasingStyle.Quad), {CFrame = targetCFrame})
 				tween:Play()
-				task.wait(0.05)
+				tween.Completed:Wait()
 			end
 		end)
+		task.wait(0.05)
 
 		local ripeAttachment = primaryPart:FindFirstChild("Base", true)
 		if ripeAttachment then
@@ -308,7 +305,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		jumpLabel.Position = UDim2.fromScale(0.5, 0.5)
 		jumpLabel.Size = UDim2.new(0, 150, 0, 150)
 		jumpLabel.ScaleType = Enum.ScaleType.Stretch
-		jumpLabel.Image = "rbxassetid://11110560177"
+		jumpLabel.Image = "rbxassetid://16332986504"
 		jumpLabel.ImageTransparency = 0
 		jumpLabel.Visible = true
 		jumpLabel.Parent = screenGui
@@ -316,7 +313,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		local staticImage1 = "rbxassetid://94547864377343"
 		local staticImage2 = "rbxassetid://236542974"
 
-		local staticSound = MakeSound(108357375604334, 1, 1)
+		local staticSound = MakeSound(134625236300564, 1, 1)
 		staticSound.Looped = true
 		staticSound:Play()
 
@@ -358,7 +355,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 		task.wait(1)
 
-		local expandSound1 = MakeSound(132305462382803, 1, 1)
+		local expandSound1 = MakeSound(135750666095391, 1, 1)
 		local expandSound2 = MakeSound(133358860191747, 1, 1)
 		expandSound1:Play()
 		expandSound2:Play()
