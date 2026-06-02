@@ -16,11 +16,11 @@ wait(2)
 require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("OG Hunger(new)", true)
 
 local Lighting = game:GetService("Lighting")
-Lighting.Ambient = Color3.new(0, 1, 0)
+Lighting.Ambient = Color3.new(1, 0, 0)
 Lighting.Brightness = 3
 Lighting.FogEnd = 120
 Lighting.FogStart = 0
-Lighting.FogColor = Color3.new(0, 1, 0)
+Lighting.FogColor = Color3.new(0, 0, 0)
 
 local Lighting = game:GetService("Lighting")
 Lighting.Ambient = Color3.new(0, 1, 0)
@@ -62,7 +62,13 @@ local entityList = {
 		name = "Hunter",
 		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Hunter",
 		chance = 3
+	},
+	{
+		name = "Rebound",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Rebound",
+		chance = 7.5
 	}
+
 }
 
 local function rollChance(percent)
