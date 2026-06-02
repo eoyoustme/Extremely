@@ -57,16 +57,8 @@ local scare = Instance.new("Sound")
 scare.Parent = game.Workspace
 scare.Name = "MyEarsBurn"
 scare.SoundId = "rbxassetid://9114221327"
-scare.PlaybackSpeed = 3
+scare.PlaybackSpeed = 1
 scare.Volume = 1
-
-local shift = Instance.new("PitchShiftSoundEffect")
-shift.Octave = 0.5
-shift.Parent = scare
-
-local distort = Instance.new("DistortionSoundEffect")
-distort.Parent = scare
-distort.Level = 1
 
 scare:Play()
 
@@ -91,12 +83,12 @@ local entity = Spawner:Create({
 		Repair = false
 	},
 	Earthquake = {
-		Enabled = true
+		Enabled = false
 	},
 	CameraShake = {
 		Enabled = true,
 		Range = 100,
-		Values = {30, 70, 0.1, 2} -- Magnitude, Roughness, FadeIn, FadeOut
+		Values = {15, 35, 0.1, 2} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
 		Speed = 50,
