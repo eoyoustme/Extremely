@@ -4,8 +4,8 @@ local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 
 local entity = Spawner:Create({
 	Entity = {
-		Name = "GloomMoving",
-		Asset = "https://github.com/eoyoustme/Extremely/blob/main/Gloom.rbxm?raw=true",
+		Name = "Hunter",
+		Asset = "https://github.com/eoyoustme/Extremely/blob/main/Hunter.rbxm?raw=true",
 		HeightOffset = 2
 	},
 	Lights = {
@@ -22,24 +22,24 @@ local entity = Spawner:Create({
 	CameraShake = {
 		Enabled = true,
 		Range = 100,
-		Values = {15, 50, 0.1, 0.1} -- Magnitude, Roughness, FadeIn, FadeOut
+		Values = {30, 100, 0.1, 0.1} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
-		Speed = 400,
+		Speed = 200,
 		Delay = 5,
-		Reversed = false
+		Reversed = true
 	},
 	Rebounding = {
 		Enabled = true,
 		Type = "Ambush", -- "Blitz"
-		Min = 2,
-		Max = 2,
-		Delay = 0.1
+		Min = 4,
+		Max = 4,
+		Delay = 0
 	},
 	Damage = {
 		Enabled = true,
 		Range = 40,
-		Amount = 0.1
+		Amount = 50
 	},
 	Crucifixion = {
 		Enabled = true,
@@ -58,35 +58,13 @@ local entity = Spawner:Create({
 
 entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
-
-	local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
-	local camara = game.Workspace.CurrentCamera
-
-	local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
-		camara.CFrame = camara.CFrame * shakeCf
-	end)
-
-	camShake:Start()
-	camShake:ShakeOnce(10, 3, 1, 6, 2, 2)
-
-	task.wait(2)
-
+	local Reboundcolor = Instance.new("ColorCorrectionEffect",game.Lighting) game.Debris:AddItem(Reboundcolor,24)
+	Reboundcolor.Name = "Warn"
+	Reboundcolor.TintColor = Color3.fromRGB(200, 200, 200) Reboundcolor.Saturation = -0.7 Reboundcolor.Contrast = 0.2
+	game.TweenService:Create(Reboundcolor,TweenInfo.new(15),{TintColor = Color3.fromRGB(200, 200, 200),Saturation = 0, Contrast = 0}):Play()
 	local TweenService = game:GetService("TweenService")
-	local Tweeninfo = TweenInfo.new(2.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-	local color = {Color = Color3.fromRGB(85, 0, 255)}
-
-	local latestRoom = game.ReplicatedStorage.GameData.LatestRoom.Value
-	local room = workspace.CurrentRooms:FindFirstChild(tostring(latestRoom))
-
-	if room then
-		for _, v in pairs(room:GetDescendants()) do
-			if v:IsA("Light") then
-				TweenService:Create(v, Tweeninfo, color):Play()
-			elseif v.Parent and v.Parent.Name == "LightFixture" then
-				TweenService:Create(v.Parent, Tweeninfo, color):Play()
-			end
-		end
-	end
+	local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(5),{TintColor = Color3.fromRGB(255, 255, 255)})
+	TW:Play()
 end)
 
 entity:SetCallback("OnStartMoving", function()
@@ -134,9 +112,6 @@ local UserInputService = game:GetService("UserInputService")
 entity:SetCallback("OnDamagePlayer", function(newHealth)
 	if newHealth == 0 then
 		print("Entity has killed the player")
-	else
-		print("Entity has damaged the player")
-
 		task.spawn(function()
 			local player = Players.LocalPlayer
 			local character = player.Character or player.CharacterAdded:Wait()
@@ -144,10 +119,10 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 			local camera = workspace.CurrentCamera
 
-			local entityModel = workspace:WaitForChild("GloomMoving", 5)
+			local entityModel = workspace:WaitForChild("Hunter", 5)
 			if not entityModel then return end
 
-			local primaryPart = entityModel:FindFirstChild("Gloom", true)
+			local primaryPart = entityModel:FindFirstChild("Hunter", true)
 			if not primaryPart then
 				primaryPart = entityModel.PrimaryPart or entityModel:FindFirstChildWhichIsA("BasePart", true)
 			end
@@ -186,9 +161,9 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 			local ripeAttachment = primaryPart:FindFirstChild("Base", true)
 			if ripeAttachment then
-				local emitter = ripeAttachment:FindFirstChild("Face")
+				local emitter = ripeAttachment:FindFirstChild("face")
 				if emitter and emitter:IsA("ParticleEmitter") then
-					emitter.Texture = "rbxassetid://11110560177"
+					emitter.Texture = "rbxassetid://16332986504"
 					emitter.Enabled = true
 					emitter.TimeScale = 0
 				end
@@ -267,7 +242,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			jumpLabel.Position = UDim2.fromScale(0.5, 0.5)
 			jumpLabel.Size = UDim2.new(0, 150, 0, 150)
 			jumpLabel.ScaleType = Enum.ScaleType.Stretch
-			jumpLabel.Image = "rbxassetid://11110560177"
+			jumpLabel.Image = "rbxassetid://16332986504"
 			jumpLabel.ImageTransparency = 1
 			jumpLabel.Visible = true
 			jumpLabel.Parent = screenGui
@@ -296,7 +271,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				{ ImageTransparency = 0 }
 			)
 			fadeInTween:Play()
-			
+
 			local fadeInTween2 = TweenService:Create(
 				staticLabel,
 				TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
@@ -383,6 +358,8 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				end
 			end
 		end)
+	else
+		print("Entity has damaged the player")
 	end
 end)
 
