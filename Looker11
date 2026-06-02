@@ -1,0 +1,131 @@
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local function spawnShocker()
+	local ok, objects = pcall(function()
+		return game:GetObjects(game:HttpGet("https://github.com/eoyoustme/Extremely/blob/main/Looker.rbxm?raw=true"))
+	end)
+
+	if not ok or not objects or not objects[1] then
+		warn("Failed to load Looker model")
+		return
+	end
+
+	local shockerModel = objects[1]
+	local camera = Workspace.CurrentCamera
+
+	local rootPart = shockerModel:FindFirstChild("HumanoidRootPart") or shockerModel:FindFirstChildWhichIsA("BasePart")
+	if not rootPart then
+		warn("Looker model has no root part")
+		shockerModel:Destroy()
+		return
+	end
+
+	shockerModel.PrimaryPart = rootPart
+	shockerModel:PivotTo(camera.CFrame * CFrame.new(0, 0, -7))
+	shockerModel.Parent = Workspace
+
+	local oogaBoogaaPart = shockerModel:WaitForChild("OOGA BOOGAAAA")
+	local horrorScream = oogaBoogaaPart:WaitForChild("HORROR SCREAM 15")
+	local boneSound = oogaBoogaaPart:FindFirstChild("Bone")
+
+	local lookDuration = 2
+	local lookStart = nil
+	local hasTriggered = false
+	local hasFallen = false
+
+	local function fallToGround()
+		if hasFallen then
+			return
+		end
+		hasFallen = true
+
+		oogaBoogaaPart.Anchored = false
+		oogaBoogaaPart.CanCollide = false
+
+		task.delay(1.2, function()
+			if shockerModel then
+				shockerModel:Destroy()
+			end
+		end)
+	end
+
+	local connection
+	connection = RunService.RenderStepped:Connect(function()
+		if not character or not character:FindFirstChild("HumanoidRootPart") then
+			return
+		end
+
+		if hasTriggered then
+			if connection then
+				connection:Disconnect()
+			end
+			return
+		end
+
+		local directionToShocker = (oogaBoogaaPart.Position - camera.CFrame.Position).Unit
+		local playerLookVector = camera.CFrame.LookVector
+		local dot = directionToShocker:Dot(playerLookVector)
+
+		if dot > 0.85 then
+			if not lookStart then
+				lookStart = tick()
+			elseif tick() - lookStart >= lookDuration then
+				hasTriggered = true
+				if connection then
+					connection:Disconnect()
+				end
+
+				horrorScream:Play()
+				if boneSound then
+					boneSound:Play()
+				end
+
+				humanoid:TakeDamage(30)
+
+				local targetPos = character.HumanoidRootPart.Position + Vector3.new(0, 2, 0)
+				local tweenInfo = TweenInfo.new(1.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out)
+				local tween = TweenService:Create(oogaBoogaaPart, tweenInfo, { Position = targetPos })
+				tween:Play()
+
+				tween.Completed:Connect(function()
+					fallToGround()
+				end)
+
+				local stats = ReplicatedStorage:FindFirstChild("GameStats")
+				if stats and stats:FindFirstChild("Player_" .. player.Name) and stats["Player_" .. player.Name]:FindFirstChild("Total") and stats["Player_" .. player.Name].Total:FindFirstChild("DeathCause") then
+					stats["Player_" .. player.Name].Total.DeathCause.Value = "Shocker"
+				end
+
+				if ReplicatedStorage:FindFirstChild("RemotesFolder") and ReplicatedStorage.RemotesFolder:FindFirstChild("DeathHint") then
+					pcall(function()
+						firesignal(ReplicatedStorage.RemotesFolder.DeathHint.OnClientEvent, {
+							"You died to who you call Shocker...",
+							"Don't look at it or it stuns you!"
+						}, "Blue")
+					end)
+				end
+			end
+		else
+			if connection then
+				connection:Disconnect()
+			end
+			fallToGround()
+		end
+	end)
+
+	task.delay(5, function()
+		if not hasTriggered and not hasFallen then
+			fallToGround()
+		end
+	end)
+end
+
+spawnShocker()
