@@ -8,18 +8,43 @@ local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid")
 
-local function spawnShocker()
+local function LoadModelFromGitHub(url, fileName)
+	fileName = fileName or "Looker.rbxm"
+
+	if not isfile(fileName) then
+		writefile(fileName, game:HttpGet(url))
+	end
+
+	local assetFn = getcustomasset or getsynasset
+	if not assetFn then
+		warn("No getcustomasset / getsynasset available")
+		return nil
+	end
+
 	local ok, objects = pcall(function()
-		return game:GetObjects(game:HttpGet("https://github.com/eoyoustme/Extremely/blob/main/Looker.rbxm?raw=true"))
+		return game:GetObjects(assetFn(fileName))
 	end)
 
 	if not ok or not objects or not objects[1] then
-		warn("Failed to load Looker model")
+		warn("Failed to load model from local file:", fileName)
+		return nil
+	end
+
+	return objects[1]
+end
+
+local function spawnShocker()
+	local shockerModel = LoadModelFromGitHub("https://raw.githubusercontent.com/eoyoustme/Extremely/main/Looker.rbxm", "Looker.rbxm")
+	if not shockerModel then
 		return
 	end
 
-	local shockerModel = objects[1]
 	local camera = Workspace.CurrentCamera
+	if not camera then
+		warn("No CurrentCamera")
+		shockerModel:Destroy()
+		return
+	end
 
 	local rootPart = shockerModel:FindFirstChild("HumanoidRootPart") or shockerModel:FindFirstChildWhichIsA("BasePart")
 	if not rootPart then
@@ -100,8 +125,11 @@ local function spawnShocker()
 				end)
 
 				local stats = ReplicatedStorage:FindFirstChild("GameStats")
-				if stats and stats:FindFirstChild("Player_" .. player.Name) and stats["Player_" .. player.Name]:FindFirstChild("Total") and stats["Player_" .. player.Name].Total:FindFirstChild("DeathCause") then
-					stats["Player_" .. player.Name].Total.DeathCause.Value = "Shocker"
+				if stats and stats:FindFirstChild("Player_" .. player.Name) then
+					local total = stats["Player_" .. player.Name]:FindFirstChild("Total")
+					if total and total:FindFirstChild("DeathCause") then
+						total.DeathCause.Value = "Shocker"
+					end
 				end
 
 				if ReplicatedStorage:FindFirstChild("RemotesFolder") and ReplicatedStorage.RemotesFolder:FindFirstChild("DeathHint") then
