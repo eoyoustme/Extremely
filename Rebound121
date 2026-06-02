@@ -236,7 +236,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 		local scare = Instance.new("Sound")
 		scare.Name = "MyEarsBurn"
 		scare.SoundId = "rbxassetid://85271883712040"
-		scare.PlaybackSpeed = 3
+		scare.PlaybackSpeed = 1.5
 		scare.Volume = 999
 		scare.Parent = JumpscareGui
 
