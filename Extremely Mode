@@ -40,6 +40,7 @@ cue2:Play()
 pcall(function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/ohh/refs/heads/main/stamina"))()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Intro"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Crucifix"))()
 end)
 
 local entityList = {
