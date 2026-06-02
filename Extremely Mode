@@ -71,7 +71,7 @@ local entityList = {
 	{
 		name = "Depth",
 		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Depth4",
-		chance = 20
+		chance = 15
 	}
 
 }
