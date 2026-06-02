@@ -78,6 +78,11 @@ local entityList = {
 		name = "Black Eyes",
 		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Black%20Eyes",
 		chance = 9
+	},
+	{
+		name = "Looker",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Looker",
+		chance = 35
 	}
 
 }
