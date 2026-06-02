@@ -53,15 +53,6 @@ function GetGitSound(GithubSnd,SoundName)
 	return sound
 end
 
-local scare = Instance.new("Sound")
-scare.Parent = game.Workspace
-scare.Name = "MyEarsBurn"
-scare.SoundId = "rbxassetid://9114221327"
-scare.PlaybackSpeed = 1
-scare.Volume = 1
-
-scare:Play()
-
 ---====== Load spawner ======---
 
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
@@ -88,10 +79,10 @@ local entity = Spawner:Create({
 	CameraShake = {
 		Enabled = true,
 		Range = 100,
-		Values = {15, 35, 0.1, 2} -- Magnitude, Roughness, FadeIn, FadeOut
+		Values = {7.5, 15, 0.1, 2} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
-		Speed = 50,
+		Speed = 80,
 		Delay = 6,
 		Reversed = true
 	},
@@ -126,11 +117,11 @@ entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
 	local bruh = workspace.Rebound.Rebound
 	local TweenService = game:GetService("TweenService")
-	wait(4)
+	wait(3)
 	local cue2 = Instance.new("Sound")
 	cue2.Parent = game.Workspace
 	cue2.Name = "Spawn"
-	cue2.SoundId = "rbxassetid://9114221862"
+	cue2.SoundId = "rbxassetid://9114221327"
 	cue2.Volume = 5
 	cue2.TimePosition = 0
 	cue2.PlaybackSpeed = 1
