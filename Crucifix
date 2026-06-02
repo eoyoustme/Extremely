@@ -1,0 +1,122 @@
+-- Shadow Normal Script (6% chance ONLY if keyhitbox exists)
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local LatestRoom = ReplicatedStorage:WaitForChild("GameData"):WaitForChild("LatestRoom")
+
+-- Load shadow asset
+local shadowAsset = game:GetObjects("rbxassetid://103760757397667")[1]
+if not shadowAsset then
+	warn("Không load được shadow asset")
+	return
+end
+
+-- Tìm keyhitbox
+local function findKeyHitbox()
+	for _, obj in ipairs(workspace:GetDescendants()) do
+		if obj:IsA("BasePart") and obj.Name:lower() == "keyhitbox" then
+			return obj
+		end
+	end
+	return nil
+end
+
+-- Spawn shadow
+local function spawnShadow(keyhitbox)
+	while true do
+	local shadow = shadowAsset:Clone()
+	shadow.Parent = workspace
+
+	local handle = shadow:FindFirstChild("Handle", true)
+		or shadow:FindFirstChildWhichIsA("BasePart", true)
+	if not handle then return end
+
+	if not shadow.PrimaryPart then
+		shadow.PrimaryPart = handle
+	end
+
+local spawnPos = keyhitbox.CFrame * CFrame.new(0, 2, 0)
+shadow:SetPrimaryPartCFrame(spawnPos)
+
+
+	for _, p in ipairs(shadow:GetDescendants()) do
+		if p:IsA("BasePart") then
+			p.Anchored = true
+			p.CanCollide = false
+		end
+	end
+
+	local usedOnce = false
+	local exploded = false
+
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ActionText = "Take"
+	prompt.ObjectText = "???"
+	prompt.MaxActivationDistance = 5
+	prompt.HoldDuration = 0
+	prompt.Style = Enum.ProximityPromptStyle.Custom
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = handle
+
+	prompt.Triggered:Connect(function(plr)
+		if plr ~= player or exploded then return end
+
+		-- Lần 1
+		if not usedOnce then
+			usedOnce = true
+			pcall(function()
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/back/refs/heads/main/cruc"))()
+			end)
+
+			return
+		end
+
+		-- Lần 2 → chết
+		exploded = true
+
+		for _, p in ipairs(shadow:GetDescendants()) do
+			if p:IsA("BasePart") then
+				TweenService:Create(p, TweenInfo.new(0.3), {
+					Transparency = 1,
+					Size = p.Size * 2
+				}):Play()
+			end
+		end
+
+		task.wait(0.15)
+		humanoid.Health = 0
+
+		task.delay(1, function()
+			if shadow then shadow:Destroy() end
+		end)
+	end)
+end
+
+-- Khi sang phòng mới
+LatestRoom.Changed:Connect(function()
+	task.wait(0.3)
+
+	-- 1️⃣ KIỂM TRA KEYHITBOX TRƯỚC
+	local keyhitbox = findKeyHitbox()
+	if not keyhitbox then
+		return -- ❌ không có keyhitbox → không roll %
+	end
+
+	-- 2️⃣ CHỈ LÚC NÀY MỚI RANDOM
+	if math.random(53, 100) > 100 then
+		return
+	end
+
+	-- 3️⃣ TRÚNG → SPAWN
+	spawnShadow(keyhitbox)
+require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("crucifix have spawn", true)
+end)
+
+print("[Shadow] Loaded | Chance only if keyhitbox exists")
+end
