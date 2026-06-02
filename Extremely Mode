@@ -27,7 +27,6 @@ Lighting.Ambient = Color3.new(0, 1, 0)
 Lighting.Brightness = 3
 Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
 
-
 local cue2 = Instance.new("Sound")
 cue2.Parent = game.Workspace
 cue2.Name = "Spawn"
@@ -40,7 +39,7 @@ cue2:Play()
 pcall(function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/ohh/refs/heads/main/stamina"))()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Intro"))()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Crucifix"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Crucifix"))()
 end)
 
 local entityList = {
@@ -84,7 +83,6 @@ local entityList = {
 		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Looker",
 		chance = 35
 	}
-
 }
 
 local function rollChance(percent)
@@ -97,14 +95,51 @@ local function spawnEntity(entityData)
 	end)
 end
 
-math.randomseed(tick() % 1 * 1e7)
+local function IsSeekActive()
+	local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+	if not currentRooms then
+		return false
+	end
+
+	-- Các tên thường gặp của Seek / Seek chase
+	local namesToCheck = {
+		"Seek",
+		"SeekMoving",
+		"SeekChase",
+		"SeekEntity",
+		"SeekDoor"
+	}
+
+	for _, name in ipairs(namesToCheck) do
+		if game.Workspace:FindFirstChild(name, true) then
+			return true
+		end
+		if currentRooms:FindFirstChild(name, true) then
+			return true
+		end
+	end
+
+	-- Dò thêm theo tên chứa "seek"
+	for _, inst in ipairs(game.Workspace:GetDescendants()) do
+		local n = string.lower(inst.Name)
+		if string.find(n, "seek") then
+			return true
+		end
+	end
+
+	return false
+end
+
+math.randomseed(os.clock() * 1e6)
 
 while true do
-	wait(10)
+	task.wait(10)
 
-	for _, entityData in ipairs(entityList) do
-		if rollChance(entityData.chance) then
-			spawnEntity(entityData)
+	if not IsSeekActive() then
+		for _, entityData in ipairs(entityList) do
+			if rollChance(entityData.chance) then
+				spawnEntity(entityData)
+			end
 		end
 	end
 end
