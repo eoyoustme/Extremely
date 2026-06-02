@@ -110,7 +110,7 @@ entity:SetCallback("OnSpawned", function()
 			}
 			for _, tex in ipairs(textures) do
 				emitter.Texture = tex
-				task.wait()
+				task.wait(0.1)
 			end
 		end
 	end)
