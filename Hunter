@@ -1,3 +1,9 @@
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
 
 ---====== Create entity ======---
@@ -116,10 +122,6 @@ end)
 entity:SetCallback("OnDespawned", function()
 	print("Entity has despawned")
 end)
-
-local Players = game:GetService("Players")
-local workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
 
 entity:SetCallback("OnDamagePlayer", function(newHealth)
 	if newHealth == 0 then
@@ -312,12 +314,23 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		jumpLabel.Parent = screenGui
 
 		local staticImage1 = "rbxassetid://94547864377343"
+		local staticImage2 = "rbxassetid://236542974"
 
 		local staticSound = MakeSound(108357375604334, 1, 1)
 		staticSound.Looped = true
 		staticSound:Play()
 
-		staticLabel.Image = staticImage1
+		-- Static chớp luân phiên 2 ảnh
+		local staticRunning = true
+		task.spawn(function()
+			local toggle = false
+			while staticRunning and screenGui and screenGui.Parent do
+				toggle = not toggle
+				staticLabel.Image = toggle and staticImage1 or staticImage2
+				staticLabel.ImageTransparency = 0
+				task.wait(0.05)
+			end
+		end)
 
 		task.wait(2)
 
