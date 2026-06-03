@@ -27,8 +27,8 @@ local entity = Spawner:Create({
 		Values = {3.0, 50, 0.1, 0.1}
 	},
 	Movement = {
-		Speed = 50,
-		Delay = 1.26665,
+		Speed = 250,
+		Delay = 2.26665,
 		Reversed = false
 	},
 	Rebounding = {
@@ -160,17 +160,14 @@ end)
 entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
 	if startOfRebound == true then
 		print("Entity has started rebounding")
-	else
-		print("Entity has finished rebounding")
-		speedRampRunning = false
-		resetSpeed()
-
 		local sound = Instance.new("Sound")
 		sound.SoundId = "rbxassetid://2609993518"
 		sound.Volume = 10
 		sound.Parent = workspace
 		sound:Play()
 		game:GetService("Debris"):AddItem(sound, 5)
+	else
+		print("Entity has finished rebounding")
 	end
 end)
 
