@@ -10,7 +10,7 @@ local Humanoid = Character:WaitForChild("Humanoid")
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
 -- Liên kết raw từ GitHub của bạn
-local MODEL_SOURCE = "https://github.com/eoyoustme/Extremely/blob/main/Treat.rbxm?raw=true"
+local MODEL_SOURCE = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Treat.rbxm"
 
 local Speed = 15
 local SpawnDistance = 500
