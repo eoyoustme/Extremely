@@ -146,7 +146,13 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		return
 	end
 	task.spawn(function()
+	local lighting = game.Lighting
+	lighting.MainColorCorrection.TintColor = Color3.fromRGB(0, 166, 255)
+	lighting.MainColorCorrection.Contrast = 0.2
+	TweenService:Create(lighting.MainColorCorrection, TweenInfo.new(2.5), {Contrast = 0}):Play()
+	TweenService:Create(lighting.MainColorCorrection, TweenInfo.new(20), {TintColor = Color3.fromRGB(255, 255, 255)}):Play()
 		local character = player.Character or player.CharacterAdded:Wait()
+
 		local humanoid = character:WaitForChild("Humanoid")
 		local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 
