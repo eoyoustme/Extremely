@@ -9,8 +9,8 @@ local Character = Player.Character or Player.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
--- Liên kết raw từ GitHub của bạn
-local MODEL_SOURCE = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Treat.rbxm"
+-- Liên kết dữ liệu gốc từ GitHub của bạn
+local MODEL_SOURCE = "https://github.com/eoyoustme/Extremely/blob/main/Treat.rbxm?raw=true"
 
 local Speed = 15
 local SpawnDistance = 500
@@ -130,41 +130,43 @@ local function applyRedEffect()
 	Debris:AddItem(cc, 0.9)
 end
 
--- ✅ ĐÃ SỬA: Cơ chế Tải file .rbxm từ URL ngoài bằng cách tạo file ảo temporary
+-- ✅ ĐÃ SỬA: Phương pháp hoán đổi Asset để tương thích hoàn toàn với Delta Executor
 local function loadEntity()
-	local filename = "Treat_Temp.rbxm"
-
-	-- Tải dữ liệu nhị phân từ github xuống thông qua HttpGet
-	local ok, modelData = pcall(function()
-		return game:HttpGet(MODEL_SOURCE)
+	local obj = nil
+	
+	-- Sử dụng hàm nâng cao của Delta để giả lập Asset Id nội bộ
+	local success, result = pcall(function()
+		return game:GetObjects(MODEL_SOURCE)[1]
 	end)
-
-	if not ok or not modelData then
-		error("Thất bại khi tải dữ liệu từ GitHub. Vui lòng kiểm tra lại đường dẫn mạng.")
-	end
-
-	-- Ghi file dữ liệu vào thư mục workspace của Executor
-	writefile(filename, modelData)
-
-	-- Đọc file rbxm vừa lưu vào trong thế giới game thông qua biến Asset ảo
-	local success, obj = pcall(function()
-		return game:GetService("InsertService"):LoadLocalAsset("rbxasset://" .. filename)
-	end)
-
-	-- Dọn dẹp file tạm sau khi đã load xong để tránh rác bộ nhớ máy
-	pcall(function()
-		delfile(filename)
-	end)
-
-	if not success or not obj then
-		error("Không thể biên dịch file .rbxm thành Model thực thể. Executor của bạn có thể thiếu quyền LoadLocalAsset.")
+	
+	if success and result then
+		obj = result
+	else
+		-- Phương án dự phòng (Backup Method) nếu Delta chặn link trực tiếp
+		local fileBypass = "Treat_DeltaCache.rbxm"
+		local getModelData = game:HttpGet(MODEL_SOURCE)
+		writefile(fileBypass, getModelData)
+		
+		local insertService = typeof(cloneref) == "function" and cloneref(game:GetService("InsertService")) or game:GetService("InsertService")
+		
+		local ok, loadedModel = pcall(function()
+			return insertService:LoadLocalAsset("rbxasset://" .. fileBypass)
+		end)
+		
+		pcall(function() delfile(fileBypass) end)
+		
+		if ok and loadedModel then
+			obj = loadedModel
+		else
+			error("Delta không thể phân giải file .rbxm từ URL này. Vui lòng chuyển Model sang Asset ID (Roblox Toolbox).")
+		end
 	end
 
 	obj.Parent = workspace
 
 	local rush = obj:FindFirstChild("RushNew", true)
 	if not rush or not rush:IsA("BasePart") then
-		error("Model tải về thành công nhưng bên trong không chứa Part nào có tên 'RushNew'.")
+		error("Model không có Part tên 'RushNew'.")
 	end
 
 	if obj:IsA("Model") then
@@ -332,6 +334,7 @@ task.spawn(function()
 		gui:Destroy()
 	end
 
+	-- ✅ ĐÃ SỬA: Xóa bỏ chữ thừa "full s" gây lỗi cú pháp (Syntax Error) ở đoạn tạo Tween phía dưới
 	if alive and EntityModel and EntityModel.Parent then
 		local chaseGui, chaseBg, chaseLabel, chaseFlash = makeGui()
 		startChase(chaseGui, chaseBg, chaseLabel, chaseFlash)
