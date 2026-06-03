@@ -64,8 +64,8 @@ entity:SetCallback("OnSpawned", function()
 	sound.SoundId = "rbxassetid://3359047385"
 	sound.Volume = 10
 	sound:Play()
-	script.Parent = workspace
-	
+	sound.Parent = workspace
+
 	local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
 	local camara = game.Workspace.CurrentCamera
 	local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
@@ -73,7 +73,7 @@ entity:SetCallback("OnSpawned", function()
 	end)
 	camShake:Start()
 	camShake:ShakeOnce(10,3,0.1,6,2,0.5)
-	
+
 	local Lighting = game:GetService("Lighting")
 	local TweenService = game:GetService("TweenService")
 
@@ -275,25 +275,27 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				end
 				imageLabel.Visible = false
 			end)
-			local sound = Instance.new("Sound")
-			sound.SoundId = "rbxassetid://129947625767979"
-			sound.Volume = 6
-			sound.PlaybackSpeed = 0.5
-			sound:Play()
-			
+			local sound2 = Instance.new("Sound")
+			sound2.SoundId = "rbxassetid://129947625767979"
+			sound2.Volume = 6
+			sound2.PlaybackSpeed = 0.5
+			sound2:Play()
+			sound2.Parent = workspace
+
 			script.Parent = workspace
-			local sound = Instance.new("Sound")
-			sound.SoundId = "rbxassetid://127143662126727"
-			sound.Volume = 6
-			sound.PlaybackSpeed = 0.5
-			sound:Play()
-			
-			script.Parent = workspace
-			local sound = Instance.new("Sound")
-			sound.SoundId = "rbxassetid://135717320640923"
-			sound.Volume = 6
-			sound:Play()
-			
+			local sound3 = Instance.new("Sound")
+			sound3.SoundId = "rbxassetid://127143662126727"
+			sound3.Volume = 6
+			sound3.PlaybackSpeed = 0.5
+			sound3:Play()
+			sound3.Parent = workspace
+
+			local sound4 = Instance.new("Sound")
+			sound4.SoundId = "rbxassetid://135717320640923"
+			sound4.Volume = 6
+			sound4:Play()
+			sound4.Parent = workspace
+
 			script.Parent = workspace
 
 			task.wait(1.8)
