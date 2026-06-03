@@ -270,9 +270,9 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			task.spawn(function()
 				while tick() - flashStartTime < flashDuration do
 					imageLabel.Image = jumpscareImage1
-					task.wait(0)
+					task.wait(0.1)
 					imageLabel.Image = jumpscareImage2
-					task.wait(0)
+					task.wait(0.1)
 				end
 				imageLabel.Visible = false
 			end)
