@@ -1,0 +1,317 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
+local Lighting = game:GetService("Lighting")
+
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+local MODEL_SOURCE = "https://github.com/eoyoustme/Extremely/blob/main/Treat.rbxm?raw=true"
+
+local Speed = 15
+local SpawnDistance = 500
+local ChaseDuration = 30
+
+local alive = true
+local chasing = false
+
+local EntityModel = nil
+local RushPart = nil
+
+local function getCharacter()
+	Character = Player.Character or Player.CharacterAdded:Wait()
+	Humanoid = Character:WaitForChild("Humanoid")
+	HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+end
+
+Player.CharacterAdded:Connect(function()
+	getCharacter()
+end)
+
+local function getTargetPart()
+	if Character and Character.Parent then
+		local head = Character:FindFirstChild("Head")
+		if head then
+			return head
+		end
+
+		local hrp = Character:FindFirstChild("HumanoidRootPart")
+		if hrp then
+			return hrp
+		end
+	end
+
+	return HumanoidRootPart
+end
+
+local function makeGui()
+	local oldGui = Player:WaitForChild("PlayerGui"):FindFirstChild("TreatWarnGui")
+	if oldGui then
+		oldGui:Destroy()
+	end
+
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "TreatWarnGui"
+	gui.ResetOnSpawn = false
+	gui.IgnoreGuiInset = true
+	gui.DisplayOrder = 999999
+	gui.Parent = Player:WaitForChild("PlayerGui")
+
+	local bg = Instance.new("Frame")
+	bg.Name = "BG"
+	bg.Size = UDim2.fromScale(1, 1)
+	bg.Position = UDim2.fromScale(0, 0)
+	bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	bg.BackgroundTransparency = 1
+	bg.BorderSizePixel = 0
+	bg.Parent = gui
+
+	local label = Instance.new("TextLabel")
+	label.Name = "Text"
+	label.AnchorPoint = Vector2.new(0.5, 0.5)
+	label.Position = UDim2.fromScale(0.5, 0.2)
+	label.Size = UDim2.new(0.7, 0, 0.12, 0)
+	label.BackgroundTransparency = 1
+	label.Text = ""
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.TextStrokeTransparency = 0
+	label.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+	label.Font = Enum.Font.GothamBlack
+	label.TextScaled = true
+	label.Parent = bg
+
+	local flash = Instance.new("Frame")
+	flash.Name = "Flash"
+	flash.Size = UDim2.fromScale(1, 1)
+	flash.Position = UDim2.fromScale(0, 0)
+	flash.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	flash.BackgroundTransparency = 1
+	flash.BorderSizePixel = 0
+	flash.Parent = bg
+
+	return gui, bg, label, flash
+end
+
+local function flashScreen(flashFrame)
+	if not flashFrame then
+		return
+	end
+
+	flashFrame.BackgroundTransparency = 0.65
+	local tween = TweenService:Create(
+		flashFrame,
+		TweenInfo.new(0.12, Enum.EasingStyle.Linear),
+		{BackgroundTransparency = 1}
+	)
+	tween:Play()
+end
+
+local function playPulseSound(parentObj)
+	local sound = Instance.new("Sound")
+	sound.SoundId = "rbxassetid://3359047385"
+	sound.Volume = 2
+	sound.PlaybackSpeed = 1
+	sound.Parent = parentObj
+	sound:Play()
+	Debris:AddItem(sound, 5)
+end
+
+local function applyRedEffect()
+	local cc = Instance.new("ColorCorrectionEffect")
+	cc.Name = "TreatRed"
+	cc.TintColor = Color3.fromRGB(255, 0, 0)
+	cc.Saturation = -0.15
+	cc.Contrast = 0.25
+	cc.Parent = Lighting
+	Debris:AddItem(cc, 0.9)
+end
+
+local function loadEntity()
+	local ok, obj = pcall(function()
+		return game:GetObjects(MODEL_SOURCE)[1]
+	end)
+
+	if not ok or not obj then
+		error("Không load được model Treat. Nếu URL rbxm không hoạt động, hãy đổi MODEL_SOURCE sang asset id của model.")
+	end
+
+	obj.Parent = workspace
+
+	local rush = obj:FindFirstChild("RushNew", true)
+	if not rush or not rush:IsA("BasePart") then
+		error("Model không có Part tên 'RushNew'.")
+	end
+
+	if obj:IsA("Model") then
+		obj.PrimaryPart = rush
+	end
+
+	for _, v in ipairs(obj:GetDescendants()) do
+		if v:IsA("BasePart") then
+			v.CanCollide = false
+		end
+	end
+
+	rush.Anchored = true
+
+	return obj, rush
+end
+
+local function setEntityCFrame(cf)
+	if EntityModel and EntityModel.Parent then
+		if EntityModel:IsA("Model") then
+			EntityModel:PivotTo(cf)
+			return
+		end
+	end
+
+	if RushPart and RushPart.Parent then
+		RushPart.CFrame = cf
+	end
+end
+
+local function getEntityPosition()
+	if RushPart and RushPart.Parent then
+		return RushPart.Position
+	end
+
+	if EntityModel and EntityModel.Parent and EntityModel:IsA("Model") then
+		local pp = EntityModel.PrimaryPart or EntityModel:FindFirstChildWhichIsA("BasePart", true)
+		if pp then
+			return pp.Position
+		end
+	end
+
+	return nil
+end
+
+local function spawnEntityFarAway()
+	EntityModel, RushPart = loadEntity()
+
+	getCharacter()
+
+	local angle = math.random() * math.pi * 2
+	local offset = Vector3.new(math.cos(angle), 0, math.sin(angle)) * SpawnDistance
+	local spawnPos = HumanoidRootPart.Position + offset
+	local facePos = HumanoidRootPart.Position
+
+	setEntityCFrame(CFrame.new(spawnPos, facePos))
+end
+
+local function startChase(gui, bg, label, flash)
+	chasing = true
+	label.Text = "RUN! IS NEAR YOU"
+	label.TextColor3 = Color3.fromRGB(255, 0, 0)
+	bg.BackgroundTransparency = 0.25
+
+	local chaseStart = tick()
+	local lastPulse = 0
+
+	local moveConn
+	moveConn = RunService.Heartbeat:Connect(function(dt)
+		if not alive or not chasing then
+			if moveConn then
+				moveConn:Disconnect()
+			end
+			return
+		end
+
+		if not Character or not Character.Parent then
+			getCharacter()
+		end
+
+		local targetPart = getTargetPart()
+		if not targetPart or not targetPart.Parent then
+			return
+		end
+
+		local pos = getEntityPosition()
+		if not pos then
+			return
+		end
+
+		local targetPos = targetPart.Position
+		local delta = targetPos - pos
+		local dist = delta.Magnitude
+
+		if dist > 0.001 then
+			local dir = delta.Unit
+			local step = Speed * dt
+			local newPos = pos + dir * step
+			setEntityCFrame(CFrame.new(newPos, targetPos))
+		end
+
+		if tick() - lastPulse >= 1 then
+			lastPulse = tick()
+			flashScreen(flash)
+			applyRedEffect()
+			local host = RushPart or EntityModel or workspace
+			playPulseSound(host)
+		end
+
+		if tick() - chaseStart >= ChaseDuration then
+			chasing = false
+			alive = false
+			if moveConn then
+				moveConn:Disconnect()
+			end
+		end
+	end)
+
+	task.wait(ChaseDuration + 0.1)
+
+	if gui and gui.Parent then
+		local blinkHost = 0
+		while blinkHost < 6 do
+			bg.BackgroundTransparency = 0.2
+			flash.BackgroundTransparency = 0.15
+			task.wait(0.1)
+			bg.BackgroundTransparency = 1
+			flash.BackgroundTransparency = 1
+			task.wait(0.1)
+			blinkHost += 1
+		end
+		gui:Destroy()
+	end
+
+	if EntityModel and EntityModel.Parent then
+		EntityModel:Destroy()
+	end
+end
+
+task.spawn(function()
+	local gui, bg, label, flash = makeGui()
+
+	spawnEntityFarAway()
+
+	label.Text = "IS 500 STUD OVER YOU"
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+	task.wait(1)
+
+	for i = 5, 1, -1 do
+		if not alive then
+			return
+		end
+
+		label.Text = tostring(i)
+		flashScreen(flash)
+		task.wait(1)
+	end
+
+	label.Text = "0"
+	flashScreen(flash)
+	task.wait(0.2)
+
+	if gui and gui.Parent then
+		gui:Destroy()
+	end
+
+	if alive and EntityModel and EntityModel.Parent then
+		local chaseGui, chaseBg, chaseLabel, chaseFlash = makeGui()
+		startChase(chaseGui, chaseBg, chaseLabel, chaseFlash)
+	end
+end)
