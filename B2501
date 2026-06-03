@@ -112,14 +112,14 @@ entity:SetCallback("OnStartMoving", function()
 
 	task.spawn(function()
 		while speedRampRunning do
-			task.wait(0.05)
+			task.wait(0)
 
 			if not speedRampRunning then
 				break
 			end
 
 			if entity.Config and entity.Config.Movement then
-				entity.Config.Movement.Speed = math.clamp(entity.Config.Movement.Speed * 1.3, 0, 400)
+				entity.Config.Movement.Speed = math.clamp(entity.Config.Movement.Speed * 2, 0, 400)
 				print("Speed:", entity.Config.Movement.Speed)
 			end
 
