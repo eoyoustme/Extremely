@@ -100,6 +100,7 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 		entity.Config.Movement.Speed = entity.Config.Movement.Speed * 1.25
 	else
 		print("Entity has entered room: ".. room.Name.. " again")
+		entity.Config.Movement.Speed = entity.Config.Movement.Speed * 1.25
 	end
 end)
 
