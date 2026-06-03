@@ -256,14 +256,15 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			imageLabel.Size = UDim2.new(1, 0, 1, 0)
 			imageLabel.AnchorPoint = Vector2.new(0, 0)
 			imageLabel.ScaleType = Enum.ScaleType.Stretch
-			imageLabel.Image = ""
+			imageLabel.Image = "rbxassetid://8587322025"
 			imageLabel.Visible = true
 			imageLabel.Parent = screenGui
+			imageLabel.ImageTransparency = 0.7
 
-			local jumpscareImage1 = "rbxassetid://0"
-			local jumpscareImage2 = "rbxassetid://0"
+			local jumpscareImage1 = "rbxassetid://12717943430"
+			local jumpscareImage2 = "rbxassetid://8587322025"
 
-			local flashDuration = 1
+			local flashDuration = 1.8
 			local flashStartTime = tick()
 
 			task.spawn(function()
