@@ -9,6 +9,7 @@ local Character = Player.Character or Player.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
+-- Liên kết raw từ GitHub của bạn
 local MODEL_SOURCE = "https://github.com/eoyoustme/Extremely/blob/main/Treat.rbxm?raw=true"
 
 local Speed = 15
@@ -129,20 +130,41 @@ local function applyRedEffect()
 	Debris:AddItem(cc, 0.9)
 end
 
+-- ✅ ĐÃ SỬA: Cơ chế Tải file .rbxm từ URL ngoài bằng cách tạo file ảo temporary
 local function loadEntity()
-	local ok, obj = pcall(function()
-		return game:GetObjects(MODEL_SOURCE)[1]
+	local filename = "Treat_Temp.rbxm"
+
+	-- Tải dữ liệu nhị phân từ github xuống thông qua HttpGet
+	local ok, modelData = pcall(function()
+		return game:HttpGet(MODEL_SOURCE)
 	end)
 
-	if not ok or not obj then
-		error("Không load được model Treat. Nếu URL rbxm không hoạt động, hãy đổi MODEL_SOURCE sang asset id của model.")
+	if not ok or not modelData then
+		error("Thất bại khi tải dữ liệu từ GitHub. Vui lòng kiểm tra lại đường dẫn mạng.")
+	end
+
+	-- Ghi file dữ liệu vào thư mục workspace của Executor
+	writefile(filename, modelData)
+
+	-- Đọc file rbxm vừa lưu vào trong thế giới game thông qua biến Asset ảo
+	local success, obj = pcall(function()
+		return game:GetService("InsertService"):LoadLocalAsset("rbxasset://" .. filename)
+	end)
+
+	-- Dọn dẹp file tạm sau khi đã load xong để tránh rác bộ nhớ máy
+	pcall(function()
+		delfile(filename)
+	end)
+
+	if not success or not obj then
+		error("Không thể biên dịch file .rbxm thành Model thực thể. Executor của bạn có thể thiếu quyền LoadLocalAsset.")
 	end
 
 	obj.Parent = workspace
 
 	local rush = obj:FindFirstChild("RushNew", true)
 	if not rush or not rush:IsA("BasePart") then
-		error("Model không có Part tên 'RushNew'.")
+		error("Model tải về thành công nhưng bên trong không chứa Part nào có tên 'RushNew'.")
 	end
 
 	if obj:IsA("Model") then
