@@ -9,7 +9,7 @@ local Character = Player.Character or Player.CharacterAdded:Wait()
 local Humanoid = Character:WaitForChild("Humanoid")
 local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
 
--- Liên kết dữ liệu gốc từ GitHub của bạn
+-- Link file gốc của bạn
 local MODEL_SOURCE = "https://github.com/eoyoustme/Extremely/blob/main/Treat.rbxm?raw=true"
 
 local Speed = 15
@@ -35,24 +35,17 @@ end)
 local function getTargetPart()
 	if Character and Character.Parent then
 		local head = Character:FindFirstChild("Head")
-		if head then
-			return head
-		end
+		if head then return head end
 
 		local hrp = Character:FindFirstChild("HumanoidRootPart")
-		if hrp then
-			return hrp
-		end
+		if hrp then return hrp end
 	end
-
 	return HumanoidRootPart
 end
 
 local function makeGui()
 	local oldGui = Player:WaitForChild("PlayerGui"):FindFirstChild("TreatWarnGui")
-	if oldGui then
-		oldGui:Destroy()
-	end
+	if oldGui then oldGui:Destroy() end
 
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "TreatWarnGui"
@@ -64,7 +57,6 @@ local function makeGui()
 	local bg = Instance.new("Frame")
 	bg.Name = "BG"
 	bg.Size = UDim2.fromScale(1, 1)
-	bg.Position = UDim2.fromScale(0, 0)
 	bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 	bg.BackgroundTransparency = 1
 	bg.BorderSizePixel = 0
@@ -87,7 +79,6 @@ local function makeGui()
 	local flash = Instance.new("Frame")
 	flash.Name = "Flash"
 	flash.Size = UDim2.fromScale(1, 1)
-	flash.Position = UDim2.fromScale(0, 0)
 	flash.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
 	flash.BackgroundTransparency = 1
 	flash.BorderSizePixel = 0
@@ -97,24 +88,15 @@ local function makeGui()
 end
 
 local function flashScreen(flashFrame)
-	if not flashFrame then
-		return
-	end
-
+	if not flashFrame then return end
 	flashFrame.BackgroundTransparency = 0.65
-	local tween = TweenService:Create(
-		flashFrame,
-		TweenInfo.new(0.12, Enum.EasingStyle.Linear),
-		{BackgroundTransparency = 1}
-	)
-	tween:Play()
+	TweenService:Create(flashFrame, TweenInfo.new(0.12, Enum.EasingStyle.Linear), {BackgroundTransparency = 1}):Play()
 end
 
 local function playPulseSound(parentObj)
 	local sound = Instance.new("Sound")
 	sound.SoundId = "rbxassetid://3359047385"
 	sound.Volume = 2
-	sound.PlaybackSpeed = 1
 	sound.Parent = parentObj
 	sound:Play()
 	Debris:AddItem(sound, 5)
@@ -130,43 +112,40 @@ local function applyRedEffect()
 	Debris:AddItem(cc, 0.9)
 end
 
--- ✅ ĐÃ SỬA: Phương pháp hoán đổi Asset để tương thích hoàn toàn với Delta Executor
+-- ✅ CƠ CHẾ LOAD GIỐNG SCRIPT SUBTERBALDI (Dành riêng cho Delta)
 local function loadEntity()
-	local obj = nil
+	local filename = "Treat_Delta.rbxm"
 	
-	-- Sử dụng hàm nâng cao của Delta để giả lập Asset Id nội bộ
-	local success, result = pcall(function()
-		return game:GetObjects(MODEL_SOURCE)[1]
+	-- Bước 1: HttpGet lấy data từ Github
+	local ok, modelData = pcall(function()
+		return game:HttpGet(MODEL_SOURCE)
 	end)
 	
-	if success and result then
-		obj = result
-	else
-		-- Phương án dự phòng (Backup Method) nếu Delta chặn link trực tiếp
-		local fileBypass = "Treat_DeltaCache.rbxm"
-		local getModelData = game:HttpGet(MODEL_SOURCE)
-		writefile(fileBypass, getModelData)
-		
-		local insertService = typeof(cloneref) == "function" and cloneref(game:GetService("InsertService")) or game:GetService("InsertService")
-		
-		local ok, loadedModel = pcall(function()
-			return insertService:LoadLocalAsset("rbxasset://" .. fileBypass)
-		end)
-		
-		pcall(function() delfile(fileBypass) end)
-		
-		if ok and loadedModel then
-			obj = loadedModel
-		else
-			error("Delta không thể phân giải file .rbxm từ URL này. Vui lòng chuyển Model sang Asset ID (Roblox Toolbox).")
-		end
+	if not ok or not modelData then
+		error("Lỗi: Delta không thể kết nối tới GitHub để lấy dữ liệu file!")
+	end
+	
+	-- Bước 2: writefile vào bộ nhớ máy ảo của Delta
+	writefile(filename, modelData)
+	
+	-- Bước 3: LoadLocalAsset thông qua cloneref bảo mật của Delta
+	local insertService = typeof(cloneref) == "function" and cloneref(game:GetService("InsertService")) or game:GetService("InsertService")
+	local success, obj = pcall(function()
+		return insertService:LoadLocalAsset("rbxasset://" .. filename)
+	end)
+	
+	-- Xóa file tạm ngay lập tức để tránh nặng máy
+	pcall(function() delfile(filename) end)
+	
+	if not success or not obj then
+		error("Lỗi file: File Treat.rbxm trên GitHub bị hỏng dữ liệu, Delta không thể giải nén!")
 	end
 
 	obj.Parent = workspace
 
 	local rush = obj:FindFirstChild("RushNew", true)
 	if not rush or not rush:IsA("BasePart") then
-		error("Model không có Part tên 'RushNew'.")
+		error("Lỗi cấu trúc Model: Không tìm thấy Part có tên 'RushNew'!")
 	end
 
 	if obj:IsA("Model") then
@@ -180,7 +159,6 @@ local function loadEntity()
 	end
 
 	rush.Anchored = true
-
 	return obj, rush
 end
 
@@ -191,38 +169,29 @@ local function setEntityCFrame(cf)
 			return
 		end
 	end
-
 	if RushPart and RushPart.Parent then
 		RushPart.CFrame = cf
 	end
 end
 
 local function getEntityPosition()
-	if RushPart and RushPart.Parent then
-		return RushPart.Position
-	end
-
+	if RushPart and RushPart.Parent then return RushPart.Position end
 	if EntityModel and EntityModel.Parent and EntityModel:IsA("Model") then
 		local pp = EntityModel.PrimaryPart or EntityModel:FindFirstChildWhichIsA("BasePart", true)
-		if pp then
-			return pp.Position
-		end
+		if pp then return pp.Position end
 	end
-
 	return nil
 end
 
 local function spawnEntityFarAway()
 	EntityModel, RushPart = loadEntity()
-
 	getCharacter()
 
 	local angle = math.random() * math.pi * 2
 	local offset = Vector3.new(math.cos(angle), 0, math.sin(angle)) * SpawnDistance
 	local spawnPos = HumanoidRootPart.Position + offset
-	local facePos = HumanoidRootPart.Position
-
-	setEntityCFrame(CFrame.new(spawnPos, facePos))
+	
+	setEntityCFrame(CFrame.new(spawnPos, HumanoidRootPart.Position))
 end
 
 local function startChase(gui, bg, label, flash)
@@ -237,25 +206,16 @@ local function startChase(gui, bg, label, flash)
 	local moveConn
 	moveConn = RunService.Heartbeat:Connect(function(dt)
 		if not alive or not chasing then
-			if moveConn then
-				moveConn:Disconnect()
-			end
+			if moveConn then moveConn:Disconnect() end
 			return
 		end
 
-		if not Character or not Character.Parent then
-			getCharacter()
-		end
-
+		if not Character or not Character.Parent then getCharacter() end
 		local targetPart = getTargetPart()
-		if not targetPart or not targetPart.Parent then
-			return
-		end
+		if not targetPart or not targetPart.Parent then return end
 
 		local pos = getEntityPosition()
-		if not pos then
-			return
-		end
+		if not pos then return end
 
 		local targetPos = targetPart.Position
 		local delta = targetPos - pos
@@ -264,63 +224,50 @@ local function startChase(gui, bg, label, flash)
 		if dist > 0.001 then
 			local dir = delta.Unit
 			local step = Speed * dt
-			local newPos = pos + dir * step
-			setEntityCFrame(CFrame.new(newPos, targetPos))
+			setEntityCFrame(CFrame.new(pos + dir * step, targetPos))
 		end
 
 		if tick() - lastPulse >= 1 then
 			lastPulse = tick()
 			flashScreen(flash)
 			applyRedEffect()
-			local host = RushPart or EntityModel or workspace
-			playPulseSound(host)
+			playPulseSound(RushPart or EntityModel or workspace)
 		end
 
 		if tick() - chaseStart >= ChaseDuration then
 			chasing = false
 			alive = false
-			if moveConn then
-				moveConn:Disconnect()
-			end
+			if moveConn then moveConn:Disconnect() end
 		end
 	end)
 
 	task.wait(ChaseDuration + 0.1)
 
 	if gui and gui.Parent then
-		local blinkHost = 0
-		while blinkHost < 6 do
+		for i = 1, 6 do
 			bg.BackgroundTransparency = 0.2
 			flash.BackgroundTransparency = 0.15
 			task.wait(0.1)
 			bg.BackgroundTransparency = 1
 			flash.BackgroundTransparency = 1
 			task.wait(0.1)
-			blinkHost += 1
 		end
 		gui:Destroy()
 	end
 
-	if EntityModel and EntityModel.Parent then
-		EntityModel:Destroy()
-	end
+	if EntityModel and EntityModel.Parent then EntityModel:Destroy() end
 end
 
 task.spawn(function()
 	local gui, bg, label, flash = makeGui()
-
 	spawnEntityFarAway()
 
 	label.Text = "IS 500 STUD OVER YOU"
 	label.TextColor3 = Color3.fromRGB(255, 255, 255)
-
 	task.wait(1)
 
 	for i = 5, 1, -1 do
-		if not alive then
-			return
-		end
-
+		if not alive then return end
 		label.Text = tostring(i)
 		flashScreen(flash)
 		task.wait(1)
@@ -330,11 +277,8 @@ task.spawn(function()
 	flashScreen(flash)
 	task.wait(0.2)
 
-	if gui and gui.Parent then
-		gui:Destroy()
-	end
+	if gui and gui.Parent then gui:Destroy() end
 
-	-- ✅ ĐÃ SỬA: Xóa bỏ chữ thừa "full s" gây lỗi cú pháp (Syntax Error) ở đoạn tạo Tween phía dưới
 	if alive and EntityModel and EntityModel.Parent then
 		local chaseGui, chaseBg, chaseLabel, chaseFlash = makeGui()
 		startChase(chaseGui, chaseBg, chaseLabel, chaseFlash)
