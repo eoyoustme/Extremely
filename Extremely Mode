@@ -11,7 +11,7 @@ cue2.Volume = 5
 cue2.PlaybackSpeed = 0.25
 cue2:Play()
 
-require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("Extremely mode remake has actives", true)
+require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("Extremely mode has actives", true)
 wait(2)
 require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("OG Hunger(new)", true)
 
