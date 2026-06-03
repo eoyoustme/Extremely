@@ -28,7 +28,7 @@ local entity = Spawner:Create({
 		Values = {3.0, 50, 0.1, 0.1} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
-		Speed = 20,
+		Speed = 0,
 		Delay = 0.26665,
 		Reversed = false
 	},
@@ -91,7 +91,7 @@ local function startSpeedRamp()
 
 	task.spawn(function()
 		while speedLoopRunning do
-			speedCurrent = math.min(speedCurrent + 1, 400)
+			speedCurrent = math.min(speedCurrent + 10, 400)
 			setEntitySpeed(speedCurrent)
 
 			if speedCurrent >= 400 then
