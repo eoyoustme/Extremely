@@ -166,6 +166,5 @@ end)
 ---====== Run entity ======---
 
 entity:Run(true)
-
 game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Frag3"))()
