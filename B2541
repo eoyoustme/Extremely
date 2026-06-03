@@ -24,16 +24,16 @@ local entity = Spawner:Create({
 	CameraShake = {
 		Enabled = true,
 		Range = 100,
-		Values = {3.0, 50, 0.1, 0.1} -- Magnitude, Roughness, FadeIn, FadeOut
+		Values = {3.0, 50, 0.1, 0.1}
 	},
 	Movement = {
-		Speed = 20,
+		Speed = 80,
 		Delay = 0.26665,
 		Reversed = false
 	},
 	Rebounding = {
 		Enabled = true,
-		Type = "Ambush", -- "Blitz"
+		Type = "Ambush",
 		Min = 2,
 		Max = 2,
 		Delay = 0
@@ -50,27 +50,47 @@ local entity = Spawner:Create({
 		Break = true
 	},
 	Death = {
-		Type = "Guiding", -- "Curious"
+		Type = "Guiding",
 		Hints = {"You die The Camper", "He is Creature of anguished", "If he appear Everything will get color red", "Don't look him if you look your eye will got bleed"},
 		Cause = "B-25"
 	}
 })
 
----====== Hàm cập nhật tốc độ Real-time ======---
-local function updateEntitySpeed(newSpeed)
-	-- Cập nhật vào cấu hình bộ nhớ của Spawner
-	if entity and entity.Config and entity.Config.Movement then
-		entity.Config.Movement.Speed = newSpeed
+---====== Speed ramp ======---
+
+local speedRampRunning = false
+local currentSpeed = 0
+
+local function setMovementSpeed(v)
+	v = math.clamp(v, 0, 400)
+
+	if entity.Config and entity.Config.Movement then
+		entity.Config.Movement.Speed = v
 	end
 
-	-- Ép trực tiếp giá trị vào thuộc tính Speed vật lý của Model ngoài Workspace để thực thể thay đổi tốc độ ngay lập tức
-	local b25Model = workspace:FindFirstChild("B25")
-	if b25Model then
-		local config = b25Model:FindFirstChild("Config") or b25Model:FindFirstChild("Configuration")
+	if entity.Configuration and entity.Configuration.Movement then
+		entity.Configuration.Movement.Speed = v
+	end
+
+	if entity.config and entity.config.Movement then
+		entity.config.Movement.Speed = v
+	end
+
+	local modelName = (entity.Entity and entity.Entity.Name) or "B25"
+	local model = workspace:FindFirstChild(modelName)
+
+	if model then
+		for _, d in ipairs(model:GetDescendants()) do
+			if d:IsA("ValueBase") and d.Name == "Speed" then
+				d.Value = v
+			end
+		end
+
+		local config = model:FindFirstChild("Config") or model:FindFirstChild("Configuration")
 		if config then
-			local speedVal = config:FindFirstChild("Speed")
-			if speedVal and speedVal:IsA("ValueBase") then
-				speedVal.Value = newSpeed
+			local speedObj = config:FindFirstChild("Speed")
+			if speedObj and speedObj:IsA("ValueBase") then
+				speedObj.Value = v
 			end
 		end
 	end
@@ -82,6 +102,7 @@ local running = true
 
 entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
+
 	local part = workspace:WaitForChild("B25")
 	local object = part:WaitForChild("RushNew")
 	local attachment = object:WaitForChild("MonsterGui")
@@ -98,8 +119,11 @@ entity:SetCallback("OnSpawned", function()
 				"rbxassetid://14176175100",
 				"rbxassetid://14952583096"
 			}
+
 			for _, Img in ipairs(Image) do
-				if not running then break end
+				if not running then
+					break
+				end
 				emitter.Image = Img
 				task.wait(0.1)
 			end
@@ -109,22 +133,35 @@ end)
 
 entity:SetCallback("OnStartMoving", function()
 	print("Entity has started moving")
+
+	if speedRampRunning then
+		return
+	end
+
+	speedRampRunning = true
+	currentSpeed = 0
+	setMovementSpeed(0)
+
+	task.spawn(function()
+		while speedRampRunning and currentSpeed < 400 do
+			task.wait(0.05)
+
+			if not speedRampRunning then
+				break
+			end
+
+			currentSpeed = math.min(currentSpeed + 1, 400)
+			setMovementSpeed(currentSpeed)
+			print("Speed:", currentSpeed)
+		end
+	end)
 end)
 
--- ✅ ĐÃ SỬA: Tăng tốc nhân đôi (x2) chính xác mỗi khi qua phòng mới
 entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
-	local currentSpeed = entity.Config.Movement.Speed
-	local targetSpeed = currentSpeed * 2 -- Nhân đôi tốc độ cũ
-
-	-- Giới hạn tốc độ tối đa là 400 để thực thể không bị lỗi đi xuyên map quá nhanh
-	if targetSpeed > 400 then targetSpeed = 400 end 
-
 	if firstTime == true then
-		print("Entity has entered room: ".. room.Name.. " for the first time. Speed: " .. targetSpeed)
-		updateEntitySpeed(targetSpeed)
+		print("Entity has entered room: ".. room.Name.. " for the first time")
 	else
-		print("Entity has entered room: ".. room.Name.. " again. Speed: " .. targetSpeed)
-		updateEntitySpeed(targetSpeed)
+		print("Entity has entered room: ".. room.Name.. " again")
 	end
 end)
 
@@ -151,7 +188,6 @@ entity:SetCallback("OnLookAt", function(lineOfSight: boolean)
 		background.BorderSizePixel = 0
 		background.Parent = screenGui
 
-		-- Tạo ImageLabel
 		local imageLabel = Instance.new("ImageLabel")
 		imageLabel.Name = "ImageLabel"
 		imageLabel.BackgroundTransparency = 1
@@ -159,7 +195,7 @@ entity:SetCallback("OnLookAt", function(lineOfSight: boolean)
 		imageLabel.Position = UDim2.fromScale(0.5, 0.5)
 		imageLabel.Size = UDim2.new(0, 0.001, 0, 0.001)
 		imageLabel.ImageTransparency = 0.8
-		imageLabel.Image = "rbxassetid://2862136" 
+		imageLabel.Image = "rbxassetid://2862136"
 		imageLabel.Parent = background
 
 		task.wait(3)
@@ -174,10 +210,9 @@ entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
 		print("Entity has started rebounding")
 	else
 		print("Entity has finished rebounding")
-
-		-- Giảm tốc độ đi khi lùi (0.1) như code cũ của bạn
-		local resetSpeed = entity.Config.Movement.Speed * 0.1
-		updateEntitySpeed(resetSpeed)
+		speedRampRunning = false
+		currentSpeed = 0
+		setMovementSpeed(0)
 
 		local sound = Instance.new("Sound")
 		sound.SoundId = "rbxassetid://2609993518"
@@ -190,11 +225,17 @@ end)
 
 entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
-	running = false 
+	running = false
+	speedRampRunning = false
+	currentSpeed = 0
+	setMovementSpeed(0)
 end)
 
 entity:SetCallback("OnDespawned", function()
 	print("Entity has despawned")
+	speedRampRunning = false
+	currentSpeed = 0
+	setMovementSpeed(0)
 end)
 
 entity:SetCallback("OnDamagePlayer", function(newHealth: number)
@@ -207,7 +248,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 		local playerGui = player:WaitForChild("PlayerGui")
 		local rng = Random.new()
 
-		-- Tạo ScreenGui
 		local screenGui = Instance.new("ScreenGui")
 		screenGui.Name = "JumpscareGui"
 		screenGui.ResetOnSpawn = false
@@ -215,7 +255,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 		screenGui.DisplayOrder = 999999
 		screenGui.Parent = playerGui
 
-		-- Tạo background
 		local background = Instance.new("Frame")
 		background.Name = "Background"
 		background.Size = UDim2.fromScale(1, 1)
@@ -224,7 +263,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 		background.BorderSizePixel = 0
 		background.Parent = screenGui
 
-		-- Tạo ImageLabel
 		local imageLabel = Instance.new("ImageLabel")
 		imageLabel.Name = "ImageLabel"
 		imageLabel.BackgroundTransparency = 1
@@ -234,7 +272,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 		imageLabel.Image = "rbxassetid://15392627860"
 		imageLabel.Parent = background
 
-		-- Tạo Sound
 		local jumpscareSound = Instance.new("Sound")
 		jumpscareSound.Name = "Jumpscare"
 		jumpscareSound.SoundId = "rbxassetid://6459610652"
@@ -295,7 +332,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 			end
 
 			imageLabel.Rotation = rng:NextInteger(-30, 30)
-			task.wait(0.01) 
+			task.wait(0.01)
 		end
 
 		screenGui:Destroy()
