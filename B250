@@ -59,40 +59,10 @@ local entity = Spawner:Create({
 ---====== Speed ramp ======---
 
 local speedRampRunning = false
-local currentSpeed = 0
 
-local function setMovementSpeed(v)
-	v = math.clamp(v, 0, 400)
-
-	if entity.Config and entity.Config.Movement then
-		entity.Config.Movement.Speed = v
-	end
-
-	if entity.Configuration and entity.Configuration.Movement then
-		entity.Configuration.Movement.Speed = v
-	end
-
-	if entity.config and entity.config.Movement then
-		entity.config.Movement.Speed = v
-	end
-
-	local modelName = (entity.Entity and entity.Entity.Name) or "B25"
-	local model = workspace:FindFirstChild(modelName)
-
-	if model then
-		for _, d in ipairs(model:GetDescendants()) do
-			if d:IsA("ValueBase") and d.Name == "Speed" then
-				d.Value = v
-			end
-		end
-
-		local config = model:FindFirstChild("Config") or model:FindFirstChild("Configuration")
-		if config then
-			local speedObj = config:FindFirstChild("Speed")
-			if speedObj and speedObj:IsA("ValueBase") then
-				speedObj.Value = v
-			end
-		end
+local function resetSpeed()
+	if entity and entity.Config and entity.Config.Movement then
+		entity.Config.Movement.Speed = 0
 	end
 end
 
@@ -139,20 +109,24 @@ entity:SetCallback("OnStartMoving", function()
 	end
 
 	speedRampRunning = true
-	currentSpeed = 0
-	setMovementSpeed(0)
 
 	task.spawn(function()
-		while speedRampRunning and currentSpeed < 400 do
+		while speedRampRunning do
 			task.wait(0.05)
 
 			if not speedRampRunning then
 				break
 			end
 
-			currentSpeed = math.min(currentSpeed + 1, 400)
-			setMovementSpeed(currentSpeed)
-			print("Speed:", currentSpeed)
+			if entity.Config and entity.Config.Movement then
+				entity.Config.Movement.Speed = math.clamp(entity.Config.Movement.Speed * 1.3, 0, 400)
+				print("Speed:", entity.Config.Movement.Speed)
+			end
+
+			if entity.Config and entity.Config.Movement and entity.Config.Movement.Speed >= 400 then
+				entity.Config.Movement.Speed = 400
+				break
+			end
 		end
 	end)
 end)
@@ -211,8 +185,7 @@ entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
 	else
 		print("Entity has finished rebounding")
 		speedRampRunning = false
-		currentSpeed = 0
-		setMovementSpeed(0)
+		resetSpeed()
 
 		local sound = Instance.new("Sound")
 		sound.SoundId = "rbxassetid://2609993518"
@@ -227,15 +200,13 @@ entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
 	running = false
 	speedRampRunning = false
-	currentSpeed = 0
-	setMovementSpeed(0)
+	resetSpeed()
 end)
 
 entity:SetCallback("OnDespawned", function()
 	print("Entity has despawned")
 	speedRampRunning = false
-	currentSpeed = 0
-	setMovementSpeed(0)
+	resetSpeed()
 end)
 
 entity:SetCallback("OnDamagePlayer", function(newHealth: number)
