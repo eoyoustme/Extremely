@@ -28,7 +28,7 @@ local entity = Spawner:Create({
 		Values = {3.0, 50, 0.1, 0.1} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
-		Speed = 0,
+		Speed = 20,
 		Delay = 0.26665,
 		Reversed = false
 	},
@@ -59,63 +59,7 @@ local entity = Spawner:Create({
 
 ---====== Speed ramp helper ======---
 
-local speedLoopRunning = false
-local speedCurrent = 0
-local running = true -- ĐÃ FIX: Chuyển lên làm biến cục bộ chung để OnDespawning có thể tắt được vòng lặp hình ảnh
 
-local function setEntitySpeed(value)
-	value = math.clamp(value, 0, 400)
-
-	-- ĐÃ FIX: Thay đổi cách cấu hình trực tiếp vào meta-config của Spawner V2
-	if entity then
-		for _, key in ipairs({"Config", "Configuration", "config"}) do
-			if entity[key] and entity[key].Movement then
-				entity[key].Movement.Speed = value
-			end
-		end
-	end
-	
-	-- ĐÃ FIX: Đồng thời ép trực tiếp thuộc tính Speed vào Object vật lý trong Workspace nếu Spawner tạo ra
-	local b25Model = workspace:FindFirstChild("B25")
-	if b25Model then
-		local config = b25Model:FindFirstChild("Config") or b25Model:FindFirstChild("Configuration")
-		if config then
-			local speedVal = config:FindFirstChild("Speed")
-			if speedVal and speedVal:IsA("ValueBase") then
-				speedVal.Value = value
-			end
-		end
-	end
-end
-
-local function startSpeedRamp()
-	if speedLoopRunning then
-		return
-	end
-
-	speedLoopRunning = true
-	speedCurrent = 0
-	setEntitySpeed(0)
-
-	task.spawn(function()
-		while speedLoopRunning do
-			speedCurrent = math.min(speedCurrent + 10, 400)
-			setEntitySpeed(speedCurrent)
-
-			if speedCurrent >= 400 then
-				break
-			end
-
-			task.wait(0.05)
-		end
-	end)
-end
-
-local function resetSpeed()
-	speedLoopRunning = false
-	speedCurrent = 0
-	setEntitySpeed(0)
-end
 
 ---====== Debug entity ======---
 
@@ -148,12 +92,12 @@ end)
 
 entity:SetCallback("OnStartMoving", function()
 	print("Entity has started moving")
-	startSpeedRamp()
 end)
 
 entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 	if firstTime == true then
 		print("Entity has entered room: ".. room.Name.. " for the first time")
+		entity.Config.Movement.Speed = entity.Config.Movement.Speed * 1.25
 	else
 		print("Entity has entered room: ".. room.Name.. " again")
 	end
@@ -203,10 +147,10 @@ end)
 entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
 	if startOfRebound == true then
 		print("Entity has started rebounding")
-		startSpeedRamp() -- Tự động tăng tốc lại từ đầu mỗi khi thực thể rebound quay xe
 	else
 		print("Entity has finished rebounding")
-		resetSpeed()
+		entity.Config.Movement.Speed = entity.Config.Movement.Speed * 0.1
+
 		local sound = Instance.new("Sound")
 		sound.SoundId = "rbxassetid://2609993518"
 		sound.Volume = 10
@@ -223,7 +167,6 @@ end)
 
 entity:SetCallback("OnDespawned", function()
 	print("Entity has despawned")
-	resetSpeed()
 end)
 
 entity:SetCallback("OnDamagePlayer", function(newHealth: number)
