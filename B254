@@ -27,7 +27,7 @@ local entity = Spawner:Create({
 		Values = {3.0, 50, 0.1, 0.1} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
-		Speed = 80,
+		Speed = 20,
 		Delay = 0.26665,
 		Reversed = false
 	},
@@ -115,7 +115,7 @@ end)
 entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 	local currentSpeed = entity.Config.Movement.Speed
 	local targetSpeed = currentSpeed * 2 -- Nhân đôi tốc độ cũ
-	
+
 	-- Giới hạn tốc độ tối đa là 400 để thực thể không bị lỗi đi xuyên map quá nhanh
 	if targetSpeed > 400 then targetSpeed = 400 end 
 
@@ -174,7 +174,7 @@ entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
 		print("Entity has started rebounding")
 	else
 		print("Entity has finished rebounding")
-		
+
 		-- Giảm tốc độ đi khi lùi (0.1) như code cũ của bạn
 		local resetSpeed = entity.Config.Movement.Speed * 0.1
 		updateEntitySpeed(resetSpeed)
@@ -272,7 +272,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 			TweenInfo.new(2, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
 			{
 				Size = UDim2.new(0, 1250, 0, 1250)
-			}full s
+			}
 		)
 
 		fullTween:Play()
