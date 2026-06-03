@@ -8,6 +8,24 @@ function GetGitSound(GithubSnd,SoundName)
 	return sound
 end
 
+local scare = Instance.new("Sound")
+scare.Parent = game.Workspace
+scare.Name = "MyEarsBurn"
+scare.SoundId = "rbxassetid://5567523008"
+scare.PlaybackSpeed = 3
+scare.Volume = 1
+
+local shift = Instance.new("PitchShiftSoundEffect")
+shift.Octave = 0.5
+shift.Parent = scare
+
+local distort = Instance.new("DistortionSoundEffect")
+distort.Parent = scare
+distort.Level = 1
+
+local TweenService = game:GetService("TweenService")
+local spookee = TweenService:Create(scare, TweenInfo.new(0.3),{Volume = 0})
+
 ---====== Load spawner ======---
 
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
@@ -37,7 +55,7 @@ local entity = Spawner:Create({
 		Values = {7.5, 15, 0.1, 2} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
-		Speed = 170,
+		Speed = 200,
 		Delay = 7,
 		Reversed = true
 	},
@@ -146,7 +164,7 @@ end)
 entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 	if newHealth <= 0 then
 		print("Entity has killed the player")
-loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/ohh/refs/heads/main/Rebound%20jumpscare"))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/ohh/refs/heads/main/Rebound%20jumpscare"))()
 	else
 		print("Entity has damaged the player")
 	end
@@ -166,5 +184,6 @@ end)
 ---====== Run entity ======---
 
 entity:Run(true)
+
 game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
 loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Frag3"))()
