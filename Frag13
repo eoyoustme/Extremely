@@ -53,6 +53,16 @@ function GetGitSound(GithubSnd,SoundName)
 	return sound
 end
 
+function GetGitSound2(GithubSnd,SoundName)
+	local url=GithubSnd
+	if not isfile(SoundName..".mp3") then
+		writefile(SoundName..".mp3", game:HttpGet(url))
+	end
+	local sound=Instance.new("Sound")
+	sound.SoundId=(getcustomasset or getsynasset)(SoundName..".mp3")
+	return sound
+end
+
 local scare = Instance.new("Sound")
 scare.Parent = game.Workspace
 scare.Name = "MyEarsBurn"
@@ -136,8 +146,8 @@ entity:SetCallback("OnSpawned", function()
 
 	local bruh = workspace.Rebound.RushNew
 	local TweenService = game:GetService("TweenService")
-	
-	local move2 = GetGitSound("https://github.com/eoyoustme/Extremely/blob/main/ReboundPreMove1.mp3?raw=true","Spawn")
+
+	local move2 = GetGitSound2("https://github.com/eoyoustme/Extremely/blob/main/ReboundPreMove1.mp3?raw=true","Spawn")
 	move2.Parent = workspace
 	move2.Name = "Spawn"
 	move2.Volume = 15
