@@ -151,6 +151,7 @@ entity:SetCallback("OnSpawned", function()
 	sound.SoundId = "rbxassetid://6734393210"
 	sound.Volume = 3
 	sound.Parent = workspace
+	sound:Play()
 	
 	local ids = Instance.new("DistortionSoundEffect")
 	ids.Level = 0.65
@@ -167,6 +168,7 @@ entity:SetCallback("OnSpawned", function()
 	sound1.SoundId = "rbxassetid://5246103002"
 	sound1.Volume = 3
 	sound1.Parent = workspace
+	sound1:Play()
 
 	local ids1 = Instance.new("DistortionSoundEffect")
 	ids1.Level = 0.65
@@ -190,6 +192,7 @@ entity:SetCallback("OnSpawned", function()
 	sound3.SoundId = "rbxassetid://139319051979882"
 	sound3.Volume = 5
 	sound3.Parent = workspace
+	sound3:Play()
 
 	local revers = Instance.new("ReverbSoundEffect")
 	revers.DecayTime = 1.5
