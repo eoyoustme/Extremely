@@ -1,11 +1,11 @@
 function GetGitSound(GithubSnd,SoundName)
-	local url=GithubSnd
-	if not isfile(SoundName..".mp3") then
-		writefile(SoundName..".mp3", game:HttpGet(url))
-	end
-	local sound=Instance.new("Sound")
-	sound.SoundId=(getcustomasset or getsynasset)(SoundName..".mp3")
-	return sound
+ local url=GithubSnd
+ if not isfile(SoundName..".mp3") then
+  writefile(SoundName..".mp3", game:HttpGet(url))
+ end
+ local sound=Instance.new("Sound")
+ sound.SoundId=(getcustomasset or getsynasset)(SoundName..".mp3")
+ return sound
 end
 
 ---====== Load spawner ======---
@@ -16,7 +16,7 @@ local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/Regul
 
 local entity = Spawner:Create({
 	Entity = {
-		Name = "Rebound3",
+		Name = "Rebound",
 		Asset = "https://github.com/eoyoustme/Extremely/blob/main/Rebound%20Fragment.rbxm?raw=true",
 		HeightOffset = 0
 	},
@@ -37,7 +37,7 @@ local entity = Spawner:Create({
 		Values = {7.5, 15, 0.1, 2} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
-		Speed = 170,
+		Speed = 200,
 		Delay = 7,
 		Reversed = true
 	},
@@ -70,7 +70,7 @@ local entity = Spawner:Create({
 
 entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
-	local bruh = workspace.Rebound3.RushNew
+	local bruh = workspace.Rebound.RushNew
 	local TweenService = game:GetService("TweenService")
 	wait(3.6)
 	local cue2 = Instance.new("Sound")
@@ -146,7 +146,7 @@ end)
 entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 	if newHealth <= 0 then
 		print("Entity has killed the player")
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/ohh/refs/heads/main/Rebound%20jumpscare"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/ohh/refs/heads/main/Rebound%20jumpscare"))()
 	else
 		print("Entity has damaged the player")
 	end
