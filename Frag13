@@ -111,7 +111,7 @@ local entity = Spawner:Create({
 	},
 	Movement = {
 		Speed = 200,
-		Delay = 7,
+		Delay = 6.5,
 		Reversed = true
 	},
 	Rebounding = {
@@ -186,7 +186,7 @@ entity:SetCallback("OnSpawned", function()
 	pitch.Parent = sound1
 
 	
-	wait(2.5)
+	wait(2)
 	
 	local sound3 = Instance.new("Sound")
 	sound3.SoundId = "rbxassetid://139319051979882"
