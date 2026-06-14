@@ -50,7 +50,7 @@ end
 local function setModelAnchored(state)
 	for _, inst in ipairs(Dummy:GetDescendants()) do
 		if inst:IsA("BasePart") then
-			inst.Anchored = true
+			inst.Anchored = state
 			inst.CanCollide = false
 			inst.CanTouch = false
 			inst.CanQuery = false
@@ -63,7 +63,7 @@ setModelAnchored(true)
 local function getSafeSpawnPosition()
 	local charHRP = Character:FindFirstChild("HumanoidRootPart")
 	if not charHRP then
-		return Vector3.new(0, 10, 0)
+		return Vector3.new(0, 30, 0)
 	end
 
 	local angle = math.random() * math.pi * 2
@@ -71,7 +71,7 @@ local function getSafeSpawnPosition()
 	local horizontalPos = charHRP.Position + offset
 
 	local rayOrigin = horizontalPos + Vector3.new(0, 200, 0)
-	local rayDirection = Vector3.new(0, -600, 0)
+	local rayDirection = Vector3.new(0, 10, 0)
 
 	local rayParams = RaycastParams.new()
 	rayParams.FilterType = Enum.RaycastFilterType.Exclude
