@@ -37,7 +37,8 @@ local Dummy = objects[1]
 Dummy.Parent = workspace
 
 local entityRoot = Dummy:FindFirstChild("RushNew", true) or Dummy.PrimaryPart or Dummy:FindFirstChildWhichIsA("BasePart", true)
-entityRoot.Anchored = true
+entityRoot.CanCollide = true
+entityRoot.CanQuery = true
 if not entityRoot then
 	warn("Model is missing RushNew/BasePart")
 	Dummy:Destroy()
