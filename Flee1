@@ -74,7 +74,7 @@ local function getSpawnPositionInFront()
 		return Vector3.new(0, 30, 0)
 	end
 
-	local forwardPos = hrp.Position + (hrp.CFrame.LookVector * 20)
+	local forwardPos = hrp.Position + (hrp.CFrame.LookVector * 5)
 
 	local rayOrigin = forwardPos + Vector3.new(0, 150, 0)
 	local rayDirection = Vector3.new(0, -300, 0)
@@ -98,7 +98,7 @@ Dummy:PivotTo(CFrame.new(spawnPos, Character.HumanoidRootPart.Position))
 
 local attackZone = Instance.new("Part")
 attackZone.Name = "AttackZone"
-attackZone.Size = Vector3.new(10, 10, 10) -- bán kính 5 studs
+attackZone.Size = Vector3.new(5,5,5) -- bán kính 5 studs
 attackZone.Transparency = 1
 attackZone.Anchored = true
 attackZone.CanCollide = false
@@ -132,13 +132,14 @@ attackZone.Touched:Connect(function(hit)
 	if hit and hit:IsDescendantOf(Character) then
 		if Humanoid and Humanoid.Health > 0 then
 			Humanoid:TakeDamage(1000)
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Flee%20Jumpscare"))()
 		end
 
 		local stats = ReplicatedStorage:FindFirstChild("GameStats")
 		if stats and stats:FindFirstChild("Player_" .. Player.Name) then
 			local playerStat = stats["Player_" .. Player.Name]
 			if playerStat:FindFirstChild("Total") and playerStat.Total:FindFirstChild("DeathCause") then
-				playerStat.Total.DeathCause.Value = "SubterBaldi"
+				playerStat.Total.DeathCause.Value = "Flee"
 			end
 		end
 	end
