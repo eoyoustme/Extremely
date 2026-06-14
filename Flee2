@@ -1,3 +1,10 @@
+local sound = Instance.new("Sound")
+sound.SoundId = "rbxassetid://125686568414089"
+sound.Volume = 10
+sound:Play()
+
+wait(3)
+
 local Speed = 15
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -74,23 +81,9 @@ local function getSpawnPositionInFront()
 		return Vector3.new(0, 30, 0)
 	end
 
-	local forwardPos = hrp.Position + (hrp.CFrame.LookVector * 5)
-
-	local rayOrigin = forwardPos + Vector3.new(0, 150, 0)
-	local rayDirection = Vector3.new(0, -300, 0)
-
-	local rayParams = RaycastParams.new()
-	rayParams.FilterType = Enum.RaycastFilterType.Exclude
-	rayParams.FilterDescendantsInstances = { Character, Dummy }
-	rayParams.IgnoreWater = true
-
-	local result = Workspace:Raycast(rayOrigin, rayDirection, rayParams)
-	if result then
-		local yOffset = (Dummy:GetExtentsSize().Y * 0.5) + 1
-		return Vector3.new(result.Position.X, result.Position.Y + yOffset, result.Position.Z)
-	end
-
-	return forwardPos + Vector3.new(0, 3, 0)
+	-- Spawn đúng trước mặt player 20 studs, không raycast xuống đất
+	local forwardPos = hrp.Position + (hrp.CFrame.LookVector * 20)
+	return forwardPos
 end
 
 local spawnPos = getSpawnPositionInFront()
@@ -98,7 +91,7 @@ Dummy:PivotTo(CFrame.new(spawnPos, Character.HumanoidRootPart.Position))
 
 local attackZone = Instance.new("Part")
 attackZone.Name = "AttackZone"
-attackZone.Size = Vector3.new(5,5,5) -- bán kính 5 studs
+attackZone.Size = Vector3.new(5, 5, 5)
 attackZone.Transparency = 1
 attackZone.Anchored = true
 attackZone.CanCollide = false
@@ -109,7 +102,7 @@ attackZone.Parent = Dummy
 
 local attackEnabled = false
 local chaseEnabled = false
-local teleportStep = 1
+local teleportStep = 0.5
 
 local function setAttackEnabled(state)
 	attackEnabled = state
@@ -164,7 +157,7 @@ local function followPlayerTeleport()
 
 	if not shouldChase then
 		chaseEnabled = false
-		teleportStep = 1
+		teleportStep = 0.5
 		setAttackEnabled(false)
 		Dummy:PivotTo(CFrame.new(entityRoot.Position, hrp.Position))
 		attackZone.CFrame = Dummy:GetPivot()
@@ -180,7 +173,7 @@ local function followPlayerTeleport()
 	if dist <= 7 then
 		Dummy:PivotTo(CFrame.new(hrp.Position, hrp.Position + hrp.CFrame.LookVector))
 		attackZone.CFrame = Dummy:GetPivot()
-		teleportStep = 1
+		teleportStep = 0.5
 		return
 	end
 
@@ -195,7 +188,7 @@ local function followPlayerTeleport()
 	Dummy:PivotTo(CFrame.new(newPos, hrp.Position))
 	attackZone.CFrame = Dummy:GetPivot()
 
-	teleportStep = math.min(20, teleportStep + 2)
+	teleportStep = math.min(14, teleportStep + 2)
 end
 
 local teleportConn
@@ -259,7 +252,7 @@ task.spawn(function()
 		if Humanoid.WalkSpeed <= 18 then
 			setAttackEnabled(false)
 			chaseEnabled = false
-			teleportStep = 1
+			teleportStep = 0.5
 		else
 			setAttackEnabled(true)
 			chaseEnabled = true
