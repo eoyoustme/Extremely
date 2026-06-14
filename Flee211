@@ -4,9 +4,8 @@ sound.Volume = 10
 sound.Parent = workspace
 sound:Play()
 
-wait(3)
+task.wait(3)
 
-local Speed = 1
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -83,8 +82,7 @@ local function getSpawnPositionInFront()
 	end
 
 	-- Spawn đúng trước mặt player 20 studs, không raycast xuống đất
-	local forwardPos = hrp.Position + (hrp.CFrame.LookVector * 20)
-	return forwardPos
+	return hrp.Position + (hrp.CFrame.LookVector * 20)
 end
 
 local spawnPos = getSpawnPositionInFront()
@@ -102,8 +100,9 @@ attackZone.Massless = true
 attackZone.Parent = Dummy
 
 local attackEnabled = false
+local attackLocked = false
 local chaseEnabled = false
-local teleportStep = 0.5
+local teleportDistance = 5
 
 local function setAttackEnabled(state)
 	attackEnabled = state
@@ -112,6 +111,10 @@ end
 
 attackZone.Touched:Connect(function(hit)
 	if not attackEnabled then
+		return
+	end
+
+	if attackLocked then
 		return
 	end
 
@@ -124,8 +127,11 @@ attackZone.Touched:Connect(function(hit)
 	end
 
 	if hit and hit:IsDescendantOf(Character) then
+		attackLocked = true
+		setAttackEnabled(false)
+
 		if Humanoid and Humanoid.Health > 0 then
-			Humanoid:TakeDamage(1000)
+			Humanoid:TakeDamage(50)
 			loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Flee%20Jumpscare"))()
 		end
 
@@ -158,43 +164,50 @@ local function followPlayerTeleport()
 
 	if not shouldChase then
 		chaseEnabled = false
-		teleportStep = 0.5
-		setAttackEnabled(false)
-		Dummy:PivotTo(CFrame.new(entityRoot.Position, hrp.Position))
+		if not attackLocked then
+			setAttackEnabled(false)
+		end
+		Dummy:PivotTo(CFrame.new(Dummy:GetPivot().Position, hrp.Position))
 		attackZone.CFrame = Dummy:GetPivot()
 		return
 	end
 
 	chaseEnabled = true
-	setAttackEnabled(true)
+	if not attackLocked then
+		setAttackEnabled(true)
+	end
 
 	local originPos = Dummy:GetPivot().Position
-	local dist = (hrp.Position - originPos).Magnitude
+	local direction = hrp.Position - originPos
+	local dist = direction.Magnitude
 
 	if dist <= 7 then
 		Dummy:PivotTo(CFrame.new(hrp.Position, hrp.Position + hrp.CFrame.LookVector))
 		attackZone.CFrame = Dummy:GetPivot()
-		teleportStep = 0.5
 		return
 	end
 
-	local direction = (hrp.Position - originPos)
-	if direction.Magnitude < 0.001 then
+	if dist < 0.001 then
 		return
 	end
 
-	local moveDist = math.min(teleportStep, math.max(0, dist - 0.5))
+	local moveDist = math.min(teleportDistance, dist)
 	local newPos = originPos + direction.Unit * moveDist
 
 	Dummy:PivotTo(CFrame.new(newPos, hrp.Position))
 	attackZone.CFrame = Dummy:GetPivot()
-
-	teleportStep = math.min(14, teleportStep + 2)
 end
 
-local teleportConn
-teleportConn = RunService.RenderStepped:Connect(function()
-	if Dummy and Dummy.Parent then
+task.spawn(function()
+	while task.wait(0.1) do
+		if not Dummy or not Dummy.Parent then
+			break
+		end
+
+		if not Character or not Character.Parent then
+			continue
+		end
+
 		followPlayerTeleport()
 	end
 end)
@@ -210,10 +223,6 @@ local function cleanup()
 	cleaned = true
 
 	setAttackEnabled(false)
-
-	if teleportConn then
-		teleportConn:Disconnect()
-	end
 
 	if Dummy and Dummy.Parent then
 		Dummy:Destroy()
@@ -231,36 +240,6 @@ roomConn = latestRoom.Changed:Connect(function()
 	end
 end)
 
-task.spawn(function()
-	while task.wait(0.1) do
-		if cleaned then
-			break
-		end
-
-		if not Dummy or not Dummy.Parent then
-			break
-		end
-
-		if not Character or not Character.Parent then
-			continue
-		end
-
-		local hrp = Character:FindFirstChild("HumanoidRootPart")
-		if not hrp then
-			continue
-		end
-
-		if Humanoid.WalkSpeed <= 18 then
-			setAttackEnabled(false)
-			chaseEnabled = false
-			teleportStep = 0.005
-		else
-			setAttackEnabled(true)
-			chaseEnabled = true
-		end
-	end
-end)
-
 Dummy:PivotTo(Dummy:GetPivot())
 attackZone.CFrame = Dummy:GetPivot()
-setAttackEnabled(Humanoid.WalkSpeed > 18)
+setAttackEnabled(Humanoid.WalkSpeed > 18 and not attackLocked)
