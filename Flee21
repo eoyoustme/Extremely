@@ -1,11 +1,12 @@
 local sound = Instance.new("Sound")
 sound.SoundId = "rbxassetid://125686568414089"
 sound.Volume = 10
+sound.Parent = workspace
 sound:Play()
 
 wait(3)
 
-local Speed = 15
+local Speed = 1
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -252,7 +253,7 @@ task.spawn(function()
 		if Humanoid.WalkSpeed <= 18 then
 			setAttackEnabled(false)
 			chaseEnabled = false
-			teleportStep = 0.5
+			teleportStep = 0.005
 		else
 			setAttackEnabled(true)
 			chaseEnabled = true
