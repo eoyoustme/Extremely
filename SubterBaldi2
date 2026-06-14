@@ -37,8 +37,6 @@ local Dummy = objects[1]
 Dummy.Parent = workspace
 
 local entityRoot = Dummy:FindFirstChild("RushNew", true) or Dummy.PrimaryPart or Dummy:FindFirstChildWhichIsA("BasePart", true)
-entityRoot.CanCollide = true
-entityRoot.CanQuery = true
 if not entityRoot then
 	warn("Model is missing RushNew/BasePart")
 	Dummy:Destroy()
@@ -49,12 +47,18 @@ if Dummy.PrimaryPart == nil then
 	Dummy.PrimaryPart = entityRoot
 end
 
-for _, inst in ipairs(Dummy:GetDescendants()) do
-	if inst:IsA("BasePart") then
-		inst.CanCollide = false
-		inst.Anchored = false
+local function setModelAnchored(state)
+	for _, inst in ipairs(Dummy:GetDescendants()) do
+		if inst:IsA("BasePart") then
+			inst.Anchored = state
+			inst.CanCollide = false
+			inst.CanTouch = false
+			inst.CanQuery = false
+		end
 	end
 end
+
+setModelAnchored(true)
 
 local function getSafeSpawnPosition()
 	local charHRP = Character:FindFirstChild("HumanoidRootPart")
@@ -85,7 +89,6 @@ end
 
 local spawnPos = getSafeSpawnPosition()
 Dummy:PivotTo(CFrame.new(spawnPos, Character.HumanoidRootPart.Position))
-task.wait(1)
 
 local canChase = false
 
@@ -147,9 +150,8 @@ local originalFOV = Camera.FieldOfView
 local originalWalkSpeed = Humanoid.WalkSpeed
 
 local function GetGitSound(GithubSnd, SoundName)
-	local url = GithubSnd
 	if not isfile(SoundName .. ".mp3") then
-		writefile(SoundName .. ".mp3", game:HttpGet(url))
+		writefile(SoundName .. ".mp3", game:HttpGet(GithubSnd))
 	end
 
 	local sound = Instance.new("Sound")
@@ -200,7 +202,6 @@ local function ApplyFireToMap()
 end
 
 local latestRoom = ReplicatedStorage:WaitForChild("GameData"):WaitForChild("LatestRoom")
-
 latestRoom.Changed:Connect(function()
 	ApplyFireToMap()
 end)
@@ -235,7 +236,7 @@ local Jumpscare = GetGitSound(
 	"sbuter"
 )
 Jumpscare.Parent = workspace
-Jumpscare.Volume = 5
+Jumpscare.Volume = 1
 Jumpscare.PlaybackSpeed = 1
 Jumpscare:Play()
 
@@ -243,7 +244,9 @@ task.delay(ChaseDelay, function()
 	if not Dummy or not Dummy.Parent then
 		return
 	end
+
 	canChase = true
+	setModelAnchored(false)
 	Humanoid.WalkSpeed = 20
 end)
 
