@@ -52,7 +52,7 @@ for _, inst in ipairs(Dummy:GetDescendants()) do
 	end
 end
 
-Dummy:PivotTo(Character.HumanoidRootPart.CFrame + Vector3.new(math.random(-2, 50), 0, math.random(-2, 50)))
+Dummy:PivotTo(Character.HumanoidRootPart.CFrame + Vector3.new(math.random(2, 50), 0, math.random(2, 50)))
 task.wait(1)
 
 local function followPlayer()
@@ -194,13 +194,15 @@ colorFx.Parent = Lighting
 Camera.FieldOfView = 90
 
 local Jumpscare = GetGitSound(
-	"https://github.com/eoyoustme/Extremely/blob/main/Schoolhouse%20Madness%202%20Subterbaldi%20Ost.mp3?raw=true",
-	"Subter"
+	"https://github.com/eoyoustme/rebouna/blob/main/Sbuuter.mp3?raw=true",
+	"sbuter"
 )
 Jumpscare.Parent = workspace
-Jumpscare.Volume = 3
+Jumpscare.Volume = 5
 Jumpscare.PlaybackSpeed = 1
 Jumpscare:Play()
+
+wait(7)
 
 Humanoid.WalkSpeed = 20
 
@@ -231,7 +233,7 @@ task.spawn(function()
 				Humanoid:TakeDamage(1000)
 				local stats = ReplicatedStorage:FindFirstChild("GameStats")
 				if stats and stats:FindFirstChild("Player_" .. Player.Name) then
-					stats["Player_" .. Player.Name].Total.DeathCause.Value = "Chaser"
+					stats["Player_" .. Player.Name].Total.DeathCause.Value = "SubterBaldi"
 				end
 			end
 		end
@@ -240,7 +242,7 @@ end)
 
 ApplyFireToMap()
 
-task.delay(60, function()
+task.delay(75, function()
 	if cleanupDone then
 		return
 	end
@@ -274,6 +276,6 @@ task.delay(60, function()
 	end
 
 	if Dummy and Dummy.Parent then
-			Dummy:Destroy()
+		Dummy:Destroy()
 	end
 end)
