@@ -50,7 +50,7 @@ end
 local function setModelAnchored(state)
 	for _, inst in ipairs(Dummy:GetDescendants()) do
 		if inst:IsA("BasePart") then
-			inst.Anchored = state
+			inst.Anchored = true
 			inst.CanCollide = false
 			inst.CanTouch = false
 			inst.CanQuery = false
