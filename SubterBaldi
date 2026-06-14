@@ -1,4 +1,6 @@
 local Speed = 15
+local SpawnRadius = 50
+local ChaseDelay = 7
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -52,10 +54,44 @@ for _, inst in ipairs(Dummy:GetDescendants()) do
 	end
 end
 
-Dummy:PivotTo(Character.HumanoidRootPart.CFrame + Vector3.new(math.random(2, 50), 0, math.random(2, 50)))
+local function getSafeSpawnPosition()
+	local charHRP = Character:FindFirstChild("HumanoidRootPart")
+	if not charHRP then
+		return Vector3.new(0, 10, 0)
+	end
+
+	local angle = math.random() * math.pi * 2
+	local offset = Vector3.new(math.cos(angle) * SpawnRadius, 0, math.sin(angle) * SpawnRadius)
+	local horizontalPos = charHRP.Position + offset
+
+	local rayOrigin = horizontalPos + Vector3.new(0, 200, 0)
+	local rayDirection = Vector3.new(0, -600, 0)
+
+	local rayParams = RaycastParams.new()
+	rayParams.FilterType = Enum.RaycastFilterType.Exclude
+	rayParams.FilterDescendantsInstances = { Character, Dummy }
+	rayParams.IgnoreWater = true
+
+	local result = Workspace:Raycast(rayOrigin, rayDirection, rayParams)
+	if result then
+		local yOffset = (Dummy:GetExtentsSize().Y * 0.5) + 2
+		return Vector3.new(result.Position.X, result.Position.Y + yOffset, result.Position.Z)
+	end
+
+	return horizontalPos + Vector3.new(0, 10, 0)
+end
+
+local spawnPos = getSafeSpawnPosition()
+Dummy:PivotTo(CFrame.new(spawnPos, Character.HumanoidRootPart.Position))
 task.wait(1)
 
+local canChase = false
+
 local function followPlayer()
+	if not canChase then
+		return
+	end
+
 	if not Character.Parent then
 		return
 	end
@@ -132,7 +168,6 @@ local function ApplyFireToMap()
 		return
 	end
 
-	-- Giữ FOV / tốc độ ở mức này trong lúc chase còn chạy
 	ForceChaseStats()
 
 	for _, inst in ipairs(currentRooms:GetDescendants()) do
@@ -202,9 +237,13 @@ Jumpscare.Volume = 5
 Jumpscare.PlaybackSpeed = 1
 Jumpscare:Play()
 
-wait(7)
-
-Humanoid.WalkSpeed = 20
+task.delay(ChaseDelay, function()
+	if not Dummy or not Dummy.Parent then
+		return
+	end
+	canChase = true
+	Humanoid.WalkSpeed = 20
+end)
 
 task.spawn(function()
 	while task.wait() do
