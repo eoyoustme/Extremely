@@ -1,0 +1,271 @@
+local Speed = 15
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
+
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+local Camera = Workspace.CurrentCamera
+
+local function refreshCharacter()
+	Character = Player.Character or Player.CharacterAdded:Wait()
+	Humanoid = Character:WaitForChild("Humanoid")
+	HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+end
+
+Player.CharacterAdded:Connect(function()
+	task.wait(0.1)
+	refreshCharacter()
+end)
+
+local modelUrl = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Flee.rbxm"
+local modelFile = "Flee.rbxm"
+
+if not isfile(modelFile) then
+	writefile(modelFile, game:HttpGet(modelUrl))
+end
+
+local ok, objects = pcall(function()
+	return game:GetObjects((getcustomasset or getsynasset)(modelFile))
+end)
+
+if not ok or not objects or not objects[1] then
+	warn("Failed to load model from GitHub")
+	return
+end
+
+local Dummy = objects[1]
+Dummy.Parent = workspace
+
+local entityRoot = Dummy:FindFirstChild("RushNew", true) or Dummy.PrimaryPart or Dummy:FindFirstChildWhichIsA("BasePart", true)
+if not entityRoot then
+	warn("Model is missing RushNew/BasePart")
+	Dummy:Destroy()
+	return
+end
+
+if Dummy.PrimaryPart == nil then
+	Dummy.PrimaryPart = entityRoot
+end
+
+local function setModelAnchored(state)
+	for _, inst in ipairs(Dummy:GetDescendants()) do
+		if inst:IsA("BasePart") then
+			inst.Anchored = state
+			if inst.Name ~= "AttackZone" then
+				inst.CanCollide = false
+				inst.CanTouch = false
+				inst.CanQuery = false
+			end
+		end
+	end
+end
+
+setModelAnchored(true)
+
+local function getSpawnPositionInFront()
+	local hrp = Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then
+		return Vector3.new(0, 30, 0)
+	end
+
+	local forwardPos = hrp.Position + (hrp.CFrame.LookVector * 20)
+
+	local rayOrigin = forwardPos + Vector3.new(0, 150, 0)
+	local rayDirection = Vector3.new(0, -300, 0)
+
+	local rayParams = RaycastParams.new()
+	rayParams.FilterType = Enum.RaycastFilterType.Exclude
+	rayParams.FilterDescendantsInstances = { Character, Dummy }
+	rayParams.IgnoreWater = true
+
+	local result = Workspace:Raycast(rayOrigin, rayDirection, rayParams)
+	if result then
+		local yOffset = (Dummy:GetExtentsSize().Y * 0.5) + 1
+		return Vector3.new(result.Position.X, result.Position.Y + yOffset, result.Position.Z)
+	end
+
+	return forwardPos + Vector3.new(0, 3, 0)
+end
+
+local spawnPos = getSpawnPositionInFront()
+Dummy:PivotTo(CFrame.new(spawnPos, Character.HumanoidRootPart.Position))
+
+local attackZone = Instance.new("Part")
+attackZone.Name = "AttackZone"
+attackZone.Size = Vector3.new(10, 10, 10) -- bán kính 5 studs
+attackZone.Transparency = 1
+attackZone.Anchored = true
+attackZone.CanCollide = false
+attackZone.CanTouch = true
+attackZone.CanQuery = false
+attackZone.Massless = true
+attackZone.Parent = Dummy
+
+local attackEnabled = false
+local chaseEnabled = false
+local teleportStep = 1
+
+local function setAttackEnabled(state)
+	attackEnabled = state
+	attackZone.CanTouch = state
+end
+
+attackZone.Touched:Connect(function(hit)
+	if not attackEnabled then
+		return
+	end
+
+	if not Character or not Character.Parent then
+		return
+	end
+
+	if Character:GetAttribute("Hiding") then
+		return
+	end
+
+	if hit and hit:IsDescendantOf(Character) then
+		if Humanoid and Humanoid.Health > 0 then
+			Humanoid:TakeDamage(1000)
+		end
+
+		local stats = ReplicatedStorage:FindFirstChild("GameStats")
+		if stats and stats:FindFirstChild("Player_" .. Player.Name) then
+			local playerStat = stats["Player_" .. Player.Name]
+			if playerStat:FindFirstChild("Total") and playerStat.Total:FindFirstChild("DeathCause") then
+				playerStat.Total.DeathCause.Value = "SubterBaldi"
+			end
+		end
+	end
+end)
+
+local function followPlayerTeleport()
+	if not Dummy.Parent then
+		return
+	end
+
+	if not Character or not Character.Parent then
+		return
+	end
+
+	local hrp = Character:FindFirstChild("HumanoidRootPart")
+	if not hrp then
+		return
+	end
+
+	local currentSpeed = Humanoid and Humanoid.WalkSpeed or 0
+	local shouldChase = currentSpeed > 18
+
+	if not shouldChase then
+		chaseEnabled = false
+		teleportStep = 1
+		setAttackEnabled(false)
+		Dummy:PivotTo(CFrame.new(entityRoot.Position, hrp.Position))
+		attackZone.CFrame = Dummy:GetPivot()
+		return
+	end
+
+	chaseEnabled = true
+	setAttackEnabled(true)
+
+	local originPos = Dummy:GetPivot().Position
+	local dist = (hrp.Position - originPos).Magnitude
+
+	if dist <= 7 then
+		Dummy:PivotTo(CFrame.new(hrp.Position, hrp.Position + hrp.CFrame.LookVector))
+		attackZone.CFrame = Dummy:GetPivot()
+		teleportStep = 1
+		return
+	end
+
+	local direction = (hrp.Position - originPos)
+	if direction.Magnitude < 0.001 then
+		return
+	end
+
+	local moveDist = math.min(teleportStep, math.max(0, dist - 0.5))
+	local newPos = originPos + direction.Unit * moveDist
+
+	Dummy:PivotTo(CFrame.new(newPos, hrp.Position))
+	attackZone.CFrame = Dummy:GetPivot()
+
+	teleportStep = math.min(20, teleportStep + 2)
+end
+
+local teleportConn
+teleportConn = RunService.RenderStepped:Connect(function()
+	if Dummy and Dummy.Parent then
+		followPlayerTeleport()
+	end
+end)
+
+local latestRoom = ReplicatedStorage:WaitForChild("GameData"):WaitForChild("LatestRoom")
+local roomChangeCount = 0
+local cleaned = false
+
+local function cleanup()
+	if cleaned then
+		return
+	end
+	cleaned = true
+
+	setAttackEnabled(false)
+
+	if teleportConn then
+		teleportConn:Disconnect()
+	end
+
+	if Dummy and Dummy.Parent then
+		Dummy:Destroy()
+	end
+end
+
+local roomConn
+roomConn = latestRoom.Changed:Connect(function()
+	roomChangeCount += 1
+	if roomChangeCount >= 5 then
+		if roomConn then
+			roomConn:Disconnect()
+		end
+		cleanup()
+	end
+end)
+
+task.spawn(function()
+	while task.wait(0.1) do
+		if cleaned then
+			break
+		end
+
+		if not Dummy or not Dummy.Parent then
+			break
+		end
+
+		if not Character or not Character.Parent then
+			continue
+		end
+
+		local hrp = Character:FindFirstChild("HumanoidRootPart")
+		if not hrp then
+			continue
+		end
+
+		if Humanoid.WalkSpeed <= 18 then
+			setAttackEnabled(false)
+			chaseEnabled = false
+			teleportStep = 1
+		else
+			setAttackEnabled(true)
+			chaseEnabled = true
+		end
+	end
+end)
+
+Dummy:PivotTo(Dummy:GetPivot())
+attackZone.CFrame = Dummy:GetPivot()
+setAttackEnabled(Humanoid.WalkSpeed > 18)
