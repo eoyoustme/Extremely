@@ -1,4 +1,3 @@
-game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
 ---====== Load spawner ======---
 
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
@@ -89,9 +88,6 @@ entity:SetCallback("OnSpawned", function()
 	local TweenService = game:GetService("TweenService")
 	local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(9),{Saturation = -10})
 	TW:Play()
-	
-	local TW2 = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(9),{Contrast = 3})
-	TW2:Play()
 end)
 
 entity:SetCallback("OnStartMoving", function()
