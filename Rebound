@@ -41,7 +41,7 @@ local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(sha
 end)
 camShake:Start()
 camShake:ShakeOnce(10,3,0.1,6,2,0.5)
-wait(2.8)
+wait(5.8)
 
 function GetGitSound(GithubSnd,SoundName)
 	local url=GithubSnd
