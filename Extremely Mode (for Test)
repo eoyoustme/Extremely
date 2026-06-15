@@ -142,7 +142,7 @@ end
 math.randomseed(os.clock() * 1e6)
 
 while true do
-	task.wait(12.8)
+	task.wait(10)
 
 	if not IsSeekActive() then
 		for _, entityData in ipairs(entityList) do
