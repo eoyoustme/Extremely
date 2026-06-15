@@ -86,7 +86,15 @@ entity:SetCallback("OnSpawned", function()
 	Reboundcolor.Name = "Warn"
 	Reboundcolor.TintColor = Color3.fromRGB(255, 0, 0) Reboundcolor.Saturation = -0.7 Reboundcolor.Contrast = 0.2
 	local TweenService = game:GetService("TweenService")
-	local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(9),{Saturation = -10})
+	local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(7),{Saturation = -10})
+	TW:Play()
+	
+	wait(7)
+	
+	local Reboundcolor2 = Instance.new("ColorCorrectionEffect",game.Lighting) game.Debris:AddItem(Reboundcolor,24)
+	Reboundcolor2.Name = "Warn2"
+	Reboundcolor2.TintColor = Color3.fromRGB(255, 255, 255) Reboundcolor.Saturation = -0.7 Reboundcolor.Contrast = 0.2
+	local TW2 = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(4),{Saturation = 0})
 	TW:Play()
 end)
 
@@ -120,12 +128,6 @@ end)
 
 entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
-	local Reboundcolor = Instance.new("ColorCorrectionEffect",game.Lighting) game.Debris:AddItem(Reboundcolor,24)
-	Reboundcolor.Name = "Warn"
-	Reboundcolor.TintColor = Color3.fromRGB(255, 255, 255) Reboundcolor.Saturation = -0.7 Reboundcolor.Contrast = 0.2
-	local TweenService = game:GetService("TweenService")
-	local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(0.1),{Saturation = -10})
-	TW:Play()
 end)
 
 entity:SetCallback("OnDespawned", function()
