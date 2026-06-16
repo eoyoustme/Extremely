@@ -1,0 +1,15 @@
+local function GetGitSound(GithubSnd, SoundName)
+	local url = GithubSnd
+	if not isfile(SoundName .. ".mp3") then
+		writefile(SoundName .. ".mp3", game:HttpGet(url))
+	end
+	local sound = Instance.new("Sound")
+	sound.SoundId = (getcustomasset or getsynasset)(SoundName .. ".mp3")
+	return sound
+end
+local Ambience = GetGitSound("https://github.com/eoyoustme/Extremely/blob/main/Ambience.mp3?raw=true","Ambience")
+Ambience.Parent = workspace
+Ambience.Volume = 2
+Ambience.Looped = true
+Ambience.PlaybackSpeed = 1
+Ambience:Play()
