@@ -27,19 +27,11 @@ Lighting.Ambient = Color3.new(0, 1, 0)
 Lighting.Brightness = 3
 Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
 
-local cue2 = Instance.new("Sound")
-cue2.Parent = game.Workspace
-cue2.Name = "Spawn"
-cue2.SoundId = "rbxassetid://9113731836"
-cue2.Volume = 3
-cue2.PlaybackSpeed = 1
-cue2.Looped = true
-cue2:Play()
-
 pcall(function()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/stamina"))()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Intro"))()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Crucifix"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Ambience"))()
 end)
 
 local entityList = {
