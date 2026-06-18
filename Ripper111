@@ -399,4 +399,4 @@ end)
 
 ---====== Run entity ======---
 
-entity:Run()
+entity:Run(true)
