@@ -1,6 +1,6 @@
 ---====== Load spawner ======---
 
-local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
+local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/back/refs/heads/main/test12"))()
 
 ---====== Create entity ======---
 
@@ -72,7 +72,7 @@ entity:SetCallback("OnSpawned", function()
 			TweenService:Create(v.Parent, Tweeninfo, color):Play()
 		end
 	end
-	
+
 	game.Lighting.MainColorCorrection.TintColor = Color3.fromRGB(255, 255, 255)
 	game.Lighting.MainColorCorrection.Contrast = 0.01
 	local tween = game:GetService("TweenService")
@@ -80,9 +80,9 @@ entity:SetCallback("OnSpawned", function()
 	local TweenService = game:GetService("TweenService")
 	local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(7.551),{TintColor = Color3.fromRGB(255, 0, 0)})
 	TW:Play()
-	
+
 	wait(5.771)
-	
+
 	game.Lighting.MainColorCorrection.TintColor = Color3.fromRGB(255, 0, 0)
 	game.Lighting.MainColorCorrection.Contrast = 0.01
 	local tween = game:GetService("TweenService")
@@ -90,7 +90,7 @@ entity:SetCallback("OnSpawned", function()
 	local TweenService = game:GetService("TweenService")
 	local TW2 = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(5.771),{TintColor = Color3.fromRGB(255, 255, 255)})
 	TW2:Play()
-	
+
 end)
 
 entity:SetCallback("OnStartMoving", function()
@@ -143,7 +143,7 @@ end)
 entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
 	local TweenService = game:GetService("TweenService")
-	
+
 	local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
 	local camara = game.Workspace.CurrentCamera
 	local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
@@ -151,8 +151,6 @@ entity:SetCallback("OnDespawning", function()
 	end)
 	camShake:Start()
 	camShake:ShakeOnce(10,7,0.9,0.9,0.9,0.9)
-	local TW5 = TweenService:Create(game.Workspace.Ripper.Ripe.Ambush, TweenInfo.new(5),{PlaybackSpeed = 0})
-	TW5:Play()
 
 	local sound = Instance.new("Sound", workspace)
 	sound.SoundId = "rbxassetid://1837829565"
