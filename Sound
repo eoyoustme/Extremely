@@ -1,0 +1,41 @@
+		local Players = game:GetService("Players")
+		local TweenService = game:GetService("TweenService")
+
+		local player = Players.LocalPlayer
+		local playerGui = player:WaitForChild("PlayerGui")
+		local rng = Random.new()
+
+		-- Tạo Sound
+		local jumpscareSound = Instance.new("Sound")
+		jumpscareSound.Name = "Jumpscare"
+		jumpscareSound.SoundId = "rbxassetid://109582246349306"
+		jumpscareSound.Volume = 10
+		jumpscareSound.Looped = true
+		jumpscareSound.PlaybackSpeed = 1
+		jumpscareSound.PlaybackRegionsEnabled = true
+		jumpscareSound.Parent = workspace
+		jumpscareSound.PlaybackRegion = NumberRange.new(0.3,0.6)
+
+		jumpscareSound:Play()
+		for i = 1, 15 do
+			local mode = rng:NextInteger(1, 6)
+
+			if mode == 1 then
+				jumpscareSound.PlaybackSpeed = 0.9
+			elseif mode == 2 then
+				jumpscareSound.PlaybackSpeed = 0.999
+			elseif mode == 3 then
+				jumpscareSound.PlaybackSpeed = 1
+			elseif mode == 4 then
+				jumpscareSound.PlaybackSpeed = 0.86
+			elseif mode == 5 then
+				jumpscareSound.PlaybackSpeed = 0.76
+			else
+				jumpscareSound.PlaybackSpeed = 0.8
+			end
+
+			task.wait(0.1)
+		end
+		
+		jumpscareSound:Stop()
+		jumpscareSound:Destroy()
