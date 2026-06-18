@@ -195,6 +195,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth: number)
 		print("Entity has killed the player")
 		replicatesignal(game.Players.LocalPlayer.Kill)
 loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Rebound%20jumps"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Sound"))()
 	else
 		print("Entity has damaged the player")
 	end
