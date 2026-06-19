@@ -183,11 +183,11 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				if emitter and emitter:IsA("ParticleEmitter") then
 					emitter.Texture = "rbxassetid://12737595583" -- texture mới
 					emitter.Enabled = true
-				end				
-			end
-			
-			wait(0.1)
-			emitter.TimeScale = 0
+				wait(0.1)
+				emitter.TimeScale = 0
+				end		
+				end
+
 
 			camera.CameraType = Enum.CameraType.Scriptable
 
