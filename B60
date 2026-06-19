@@ -260,7 +260,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		local tween = TweenService:Create(img, tweenInfo, {
 			ImageTransparency = 0,                    -- hiện lên
 			Rotation = 20,                             -- xoay nhẹ sang phải
-			Size = UDim2.new(0,1500, 0,1500)         -- phóng to chút
+			Size = UDim2.new(0.95, 0.95)         -- phóng to chút
 		})
 
 		tween:Play()
@@ -269,7 +269,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		-- Sau tween, bạn có thể thêm hiệu ứng khác nếu muốn
 		entityModel:Destroy()
 		game.Players.LocalPlayer.Character.Humanoid.Health -= 1000
-		game.ReplicatedStorage.GameStats["Player_".. game.Players.LocalPlayer.Name].Total.DeathCause.Value = "Multi Monster"
+		game.ReplicatedStorage.GameStats["Player_".. game.Players.LocalPlayer.Name].Total.DeathCause.Value = "Multi Monster (DRINK 20 PRIME)"
 		wait(2)
 		gui:Destroy()
 	end)
