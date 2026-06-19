@@ -146,11 +146,11 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		return
 	end
 	task.spawn(function()
-	local lighting = game.Lighting
-	lighting.MainColorCorrection.TintColor = Color3.fromRGB(0, 166, 255)
-	lighting.MainColorCorrection.Contrast = 1
-	TweenService:Create(lighting.MainColorCorrection, TweenInfo.new(2.5), {Contrast = 0}):Play()
-	TweenService:Create(lighting.MainColorCorrection, TweenInfo.new(20), {TintColor = Color3.fromRGB(255, 255, 255)}):Play()
+		local lighting = game.Lighting
+		lighting.MainColorCorrection.TintColor = Color3.fromRGB(0, 166, 255)
+		lighting.MainColorCorrection.Contrast = 1
+		TweenService:Create(lighting.MainColorCorrection, TweenInfo.new(2.5), {Contrast = 0}):Play()
+		TweenService:Create(lighting.MainColorCorrection, TweenInfo.new(20), {TintColor = Color3.fromRGB(255, 255, 255)}):Play()
 		local character = player.Character or player.CharacterAdded:Wait()
 
 		local humanoid = character:WaitForChild("Humanoid")
@@ -169,6 +169,18 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			end
 		end
 
+		local to = true
+		task.spawn(function()
+			while to and primaryPart.Parent and humanoidRootPart.Parent do
+				local targetCFrame = humanoidRootPart.CFrame
+				local tween = TweenService:Create(primaryPart, TweenInfo.new(2000000000000, Enum.EasingStyle.Quad), {CFrame = targetCFrame})
+				tween:Play()
+				tween.Completed:Wait()
+			end
+		end)
+
+		wait(0.3)
+
 		-- Âm thanh jumpscare
 		local sound = Instance.new("Sound", workspace)
 		sound.SoundId = "rbxassetid://103879029437685"
@@ -185,7 +197,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		entityModel.PrimaryPart = primaryPart
 
 		local targetPos = humanoidRootPart.Position + humanoidRootPart.CFrame.LookVector * 10
-		local moveTween = TweenService:Create(primaryPart, TweenInfo.new(0.2), {
+		local moveTween = TweenService:Create(primaryPart, TweenInfo.new(0.1), {
 			CFrame = CFrame.new(targetPos, camera.CFrame.Position)
 		})
 		moveTween:Play()
@@ -227,7 +239,8 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		--------------------------------------------------------------------
 		-- 😱 HIỆU ỨNG JUMPSCARE SAU 1 GIÂY (DISPLAY HÌNH ẢNH + TWEEN)
 		--------------------------------------------------------------------
-		task.wait(0.754)
+
+		task.wait(0.954)
 
 		-- GUI cho jumpscare
 		local gui = Instance.new("ScreenGui", player.PlayerGui)
@@ -247,7 +260,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		local tween = TweenService:Create(img, tweenInfo, {
 			ImageTransparency = 0,                    -- hiện lên
 			Rotation = 20,                             -- xoay nhẹ sang phải
-			Size = UDim2.fromScale(0,1500, 0,1500)         -- phóng to chút
+			Size = UDim2.new(0,1500, 0,1500)         -- phóng to chút
 		})
 
 		tween:Play()
