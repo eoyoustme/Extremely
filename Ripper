@@ -1,12 +1,12 @@
 ---====== Load spawner ======---
 
-local spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/back/refs/heads/main/test12"))()
+local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
 
 ---====== Create entity ======---
 
-local entity = spawner.Create({
+local entity = Spawner:Create({
 	Entity = {
-		Name = "Ripper",
+		Name = "RipperNotMoving",
 		Asset = "https://github.com/eoyoustme/Extremely/blob/main/Ripper.rbxm?raw=true",
 		HeightOffset = 4
 	},
@@ -15,7 +15,7 @@ local entity = spawner.Create({
 			Enabled = false,
 			Duration = 1
 		},
-		Shatter = false,
+		Shatter = true,
 		Repair = false
 	},
 	Earthquake = {
@@ -24,24 +24,24 @@ local entity = spawner.Create({
 	CameraShake = {
 		Enabled = true,
 		Range = 100,
-		Values = {10.5, 40, 0.1, 1} -- Magnitude, Roughness, FadeIn, FadeOut
+		Values = {5, 80, 0.1, 0.4} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
 		Speed = 125,
-		Delay = 7.771,
+		Delay = 6.771,
 		Reversed = false
 	},
 	Rebounding = {
 		Enabled = false,
 		Type = "Ambush", -- "Blitz"
-		Min = 2,
-		Max = 2,
-		Delay = 0.2
+		Min = 1,
+		Max = 1,
+		Delay = 2
 	},
 	Damage = {
 		Enabled = true,
 		Range = 40,
-		Amount = 0.01
+		Amount = 0.001
 	},
 	Crucifixion = {
 		Enabled = true,
@@ -60,37 +60,28 @@ local entity = spawner.Create({
 
 entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
-
+	local Reboundcolor = Instance.new("ColorCorrectionEffect",game.Lighting) game.Debris:AddItem(Reboundcolor,24)
+	Reboundcolor.Name = "Warn"
+	Reboundcolor.TintColor = Color3.fromRGB(255, 0, 0) Reboundcolor.Saturation = -0.7 Reboundcolor.Contrast = 0.2
+	game.TweenService:Create(Reboundcolor,TweenInfo.new(15),{TintColor = Color3.fromRGB(255, 255, 255),Saturation = 0, Contrast = 0}):Play()
 	local TweenService = game:GetService("TweenService")
-	local Tweeninfo = TweenInfo.new(2.5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
-	local color = {Color = Color3.new(255, 0, 0)}
-
-	for _, v in pairs(workspace.CurrentRooms[game.ReplicatedStorage.GameData.LatestRoom.Value]:GetDescendants()) do
-		if v:IsA("Light") then
-			TweenService:Create(v, Tweeninfo, color):Play()
-		elseif v.Parent.Name == "LightFixture" then
-			TweenService:Create(v.Parent, Tweeninfo, color):Play()
-		end
-	end
-
-	wait(5.771)
-
+	local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(7),{TintColor = Color3.fromRGB(255, 255, 255)})
+	TW:Play()
 end)
 
 entity:SetCallback("OnStartMoving", function()
 	print("Entity has started moving")
 end)
 
-entity:SetCallback("OnEnterRoom", function(room, firstTime)
+entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 	if firstTime == true then
 		print("Entity has entered room: ".. room.Name.. " for the first time")
-		entity.Config.Movement.Speed = entity.Config.Movement.Speed * 1.2
 	else
 		print("Entity has entered room: ".. room.Name.. " again")
 	end
 end)
 
-entity:SetCallback("OnLookAt", function(lineOfSight)
+entity:SetCallback("OnLookAt", function(lineOfSight: boolean)
 	if lineOfSight == true then
 		print("Player is looking at entity")
 	else
@@ -98,31 +89,13 @@ entity:SetCallback("OnLookAt", function(lineOfSight)
 	end
 end)
 
-entity:SetCallback("OnRebounding", function(startOfRebound)
+entity:SetCallback("OnRebounding", function(startOfRebound: boolean)
 	if startOfRebound == true then
 		print("Entity has started rebounding")
-		-- Tang t?c d? theo c?p s? nhân m?i l?n rebound k?t thúc
-		print("New Speed:", entity.Config.Movement.Speed)
-
-		-- Hi?u ?ng ánh sáng nhu cu
-		game.Lighting.MainColorCorrection.TintColor = Color3.fromRGB(255, 255, 255)
-		game.Lighting.MainColorCorrection.Contrast = 1
-		game.Lighting.MainColorCorrection.Saturation = -0.9
-
-		local tween = game:GetService("TweenService")
-		tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(2), {Contrast = 0}):Play()
-		tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(2), {Saturation = 0}):Play()
-
-		local TW = tween:Create(game.Lighting.MainColorCorrection, TweenInfo.new(5), {
-			TintColor = Color3.fromRGB(255, 255, 255)
-		})
-		TW:Play()
 	else
 		print("Entity has finished rebounding")
-
 	end
 end)
-
 
 entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
@@ -145,7 +118,6 @@ end)
 
 entity:SetCallback("OnDespawned", function()
 	print("Entity has despawned")
-
 end)
 
 local TweenService = game:GetService("TweenService")
@@ -167,7 +139,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
 			local camera = workspace.CurrentCamera
 
-			local entityModel = workspace:WaitForChild("Ripper")
+			local entityModel = workspace:WaitForChild("RipperNotMoving")
 			local primaryPart = entityModel:FindFirstChild("Ripe")
 
 			if not (entityModel and humanoid and humanoidRootPart and primaryPart and camera) then return end
@@ -319,7 +291,6 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 			----------------------------------------------------
 			imageLabel.ImageTransparency = 1
 			task.wait(0)
-			firesignal(game.ReplicatedStorage.RemotesFolder.DeathHint.OnClientEvent, {"You died to who you call Ripper","he will get faster every he go a room","Hide in a closet if he spawn."},"Blue")
 
 			to = false
 
@@ -358,25 +329,6 @@ By overwriting 'CrucifixionOverwrite' the default crucifixion callback will be r
 
 entity:SetCallback("CrucifixionOverwrite", function()
     print("Custom crucifixion callback")
-local entityModel = workspace:WaitForChild("Ripper")
-			local primaryPart = entityModel:FindFirstChild("RushNew")
-
-local ripeAttachment = primaryPart:FindFirstChild("Attachment", true)
-if ripeAttachment then
-    local emitter = ripeAttachment:FindFirstChild("ParticleEmitter2")
-    if emitter and emitter:IsA("ParticleEmitter") then
-        emitter.Texture = "rbxassetid://83070783350540" -- texture mới
-        emitter.Enabled = true
-        emitter.TimeScale = 0
-    end
-end
-
- local sound = Instance.new("Sound", workspace)
-    sound.SoundId = "rbxassetid://139178565799394"
-    sound.Volume = 10
-    sound.PlaybackSpeed = 0.85
-    sound:Play()
-
 end)
 
 ]]--
