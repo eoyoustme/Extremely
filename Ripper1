@@ -52,7 +52,7 @@ local entity = Spawner:Create({
 	Death = {
 		Type = "Guiding", -- "Curious"
 		Hints = {"Death", "Hints", "Go", "Here"},
-		Cause = ""
+		Cause = "Ripper"
 	}
 })
 
@@ -183,9 +183,11 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				if emitter and emitter:IsA("ParticleEmitter") then
 					emitter.Texture = "rbxassetid://12737595583" -- texture mới
 					emitter.Enabled = true
-					emitter.TimeScale = 0
-				end
+				end				
 			end
+			
+			wait(0.1)
+			emitter.TimeScale = 0
 
 			camera.CameraType = Enum.CameraType.Scriptable
 
