@@ -106,7 +106,7 @@ local function IsSeekActive()
 	local namesToCheck = {
 		"Seek",
 		"SeekMoving",
-		"SeekChase",
+		"SeekMovingNewClone",
 		"SeekEntity",
 		"SeekDoor"
 	}
