@@ -30,6 +30,7 @@ Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
     loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Ambience"))()
 
 pcall(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/talales/The-Nhankg/refs/heads/main/BALDI.exe"))()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/stamina"))()
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Intro"))()
 end)
