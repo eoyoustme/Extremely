@@ -1,3 +1,4 @@
+game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
 ---====== Load spawner ======---
 
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Ripper%20Spawner"))()
