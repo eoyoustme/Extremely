@@ -336,14 +336,14 @@ local function CrucifixEntity(entity: any, tool: Tool)
 		end
 		model:Destroy()
 	end)
-	
+
 	local sound = Instance.new("Sound")
 	sound.parent = game.Workspace
 	sound.Volume = 10
 	sound.PlaybackSpeed = 1.1
 	sound.Parent = workspace
 	sound:Play()
-	
+
 	local pitch = Instance.new("PitchShiftSoundEffect")
 	pitch.Octave = 0.6
 	pitch.Parent = sound
@@ -1063,7 +1063,7 @@ Module.Run = function(self, entity: any, copyEntity: boolean)
 		if not model:GetAttribute("Despawning") then
 			model:SetAttribute("Despawning", true)
 			task.spawn(entity.RunCallback, entity, "OnDespawning")
-			wait(2)
+			wait(5)
 			EntityMoveTo(model, model:GetPivot() - Vector3.new(0, 0, 0), config.Movement.Speed)
 			entity:Despawn()
 		end
