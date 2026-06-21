@@ -8,7 +8,7 @@ local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyou
 local entity = Spawner:Create({
 	Entity = {
 		Name = "RipperNotMoving",
-		Asset = "https://github.com/eoyoustme/Extremely/blob/main/Ripper.rbxm?raw=true",
+		Asset = "https://github.com/eoyoustme/Hardcore/blob/main/Ripper.rbxm?raw=true",
 		HeightOffset = 4
 	},
 	Lights = {
@@ -184,10 +184,12 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				if emitter and emitter:IsA("ParticleEmitter") then
 					emitter.Texture = "rbxassetid://12737595583" -- texture mới
 					emitter.Enabled = true
-				wait(0.1)
-				emitter.TimeScale = 0
+					emitter.Size = 10
+					emitter.Squash = 0
+					wait(0.1)
+					emitter.TimeScale = 0
 				end		
-				end
+			end
 
 
 			camera.CameraType = Enum.CameraType.Scriptable
