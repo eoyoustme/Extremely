@@ -180,15 +180,16 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 			local ripeAttachment = primaryPart:FindFirstChild("ripe", true)
 			if ripeAttachment then
-				local emitter = ripeAttachment:FindFirstChild("ParticleEmitter")
-				if emitter and emitter:IsA("ParticleEmitter") then
-					emitter.Texture = "rbxassetid://12737595583" -- texture mới
+				local emitter = ripeAttachment:FindFirstChildWhichIsA("ParticleEmitter")
+				if emitter then
+					emitter.Texture = "rbxassetid://12737595583"
+					emitter.Size = NumberSequence.new(10)
+					emitter.Squash = NumberSequence.new(0)
 					emitter.Enabled = true
-					emitter.Size = 10
-					emitter.Squash = 0
-					wait(0.1)
+					emitter:Emit(20)
+					task.wait(0.1)
 					emitter.TimeScale = 0
-				end		
+				end
 			end
 
 
