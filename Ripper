@@ -115,6 +115,16 @@ entity:SetCallback("OnDespawning", function()
 	sound.Volume = 10
 	sound.PlaybackSpeed = 1
 	sound:Play()
+	
+	local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
+
+	---====== Display achievement ======---
+	achievementGiver({
+		Title = "Torn Apart",
+		Desc = "Don't think you strong...",
+		Reason = "Encounter and survive RIPPER.",
+		Image = "rbxassetid://85259240471519"
+	})
 end)
 
 entity:SetCallback("OnDespawned", function()
