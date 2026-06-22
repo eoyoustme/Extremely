@@ -9,7 +9,7 @@ local entity = Spawner:Create({
 	Entity = {
 		Name = "RipperNotMoving",
 		Asset = "https://github.com/eoyoustme/Hardcore/blob/main/Ripper.rbxm?raw=true",
-		HeightOffset = 6
+		HeightOffset = 4
 	},
 	Lights = {
 		Flicker = {
@@ -25,7 +25,7 @@ local entity = Spawner:Create({
 	CameraShake = {
 		Enabled = true,
 		Range = 100,
-		Values = {5, 80, 0.1, 0.4} -- Magnitude, Roughness, FadeIn, FadeOut
+		Values = {15, 28.5, 0.1, 0.4} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
 		Speed = 125,
@@ -188,9 +188,9 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 				end
 			end)
 
-			local ripeAttachment = primaryPart:FindFirstChild("ripe", true)
+			local ripeAttachment = primaryPart:FindFirstChild("Attachment", true)
 			if ripeAttachment then
-				local emitter = ripeAttachment:FindFirstChildWhichIsA("ParticleEmitter")
+				local emitter = ripeAttachment:FindFirstChildWhichIsA("Face1")
 				if emitter then
 					emitter.Texture = "rbxassetid://12737595583"
 					emitter.Size = NumberSequence.new(10)
