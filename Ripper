@@ -115,7 +115,7 @@ entity:SetCallback("OnDespawning", function()
 	sound.Volume = 10
 	sound.PlaybackSpeed = 1
 	sound:Play()
-	
+
 	local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 
 	---====== Display achievement ======---
@@ -190,7 +190,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 			local ripeAttachment = primaryPart:FindFirstChild("Attachment", true)
 			if ripeAttachment then
-				local emitter = ripeAttachment:FindFirstChildWhichIsA("Face1")
+				local emitter = ripeAttachment:FindFirstChild("Face1")
 				if emitter then
 					emitter.Texture = "rbxassetid://12737595583"
 					emitter.Size = NumberSequence.new(10)
