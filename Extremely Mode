@@ -1,3 +1,147 @@
 require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("Mode make by thanhphok (Og Hunger(new)", true)
-wait(1)
-require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("Mode Is in Update you can't play now try again later i will notice soon", true)
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/ohh/refs/heads/main/Info"))()
+game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
+
+local cue2 = Instance.new("Sound")
+cue2.Parent = game.Workspace
+cue2.Name = "Spawn"
+cue2.SoundId = "rbxassetid://6420027936"
+cue2.Volume = 5
+cue2.PlaybackSpeed = 0.25
+cue2:Play()
+
+require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("Extremely mode has actives", true)
+wait(2)
+require(game.Players.LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game).caption("OG Hunger(new)", true)
+
+local Lighting = game:GetService("Lighting")
+Lighting.Ambient = Color3.new(1, 0, 0)
+Lighting.Brightness = 3
+Lighting.FogEnd = 120
+Lighting.FogStart = 0
+Lighting.FogColor = Color3.new(0, 0, 0)
+
+local Lighting = game:GetService("Lighting")
+Lighting.Ambient = Color3.new(0, 1, 0)
+Lighting.Brightness = 3
+Lighting.OutdoorAmbient = Color3.new(1, 1, 1)
+
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Ambience"))()
+
+pcall(function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/talales/The-Nhankg/refs/heads/main/BALDI.exe"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/stamina"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Intro"))()
+end)
+
+local entityList = {
+	{
+		name = "The Camper",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/The%20Camper",
+		chance = 10
+	},
+	{
+		name = "Waiter",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Waiter",
+		chance = 8
+	},
+	{
+		name = "Glitcher2",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Glitcher2",
+		chance = 5
+	},
+	{
+		name = "Hunter",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Hunter",
+		chance = 3
+	},
+	{
+		name = "Depth",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Depth4",
+		chance = 15
+	},
+	{
+		name = "Black Eyes",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Black%20Eyes",
+		chance = 9
+	},
+	{
+		name = "Looker",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Looker",
+		chance = 35
+	},
+	{
+		name = "Rebound",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Rebound",
+		chance = 7
+	},
+	{
+		name = "Flee",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Flee",
+		chance = 1
+	},
+	{
+		name = "Eater",
+		url = "https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Eater",
+		chance = 4
+	}
+}
+
+local function rollChance(percent)
+	return math.random(1, 100) <= percent
+end
+
+local function spawnEntity(entityData)
+	pcall(function()
+		loadstring(game:HttpGet(entityData.url))()
+	end)
+end
+
+local function IsSeekActive()
+	local currentRooms = game.Workspace:FindFirstChild("CurrentRooms")
+	if not currentRooms then
+		return false
+	end
+
+	local namesToCheck = {
+		"Seek",
+		"SeekMoving",
+		"SeekMovingNewClone",
+		"SeekEntity",
+		"SeekDoor"
+	}
+
+	for _, name in ipairs(namesToCheck) do
+		if game.Workspace:FindFirstChild(name, true) then
+			return true
+		end
+		if currentRooms:FindFirstChild(name, true) then
+			return true
+		end
+	end
+
+	-- Dò thêm theo tên chứa "seek"
+	for _, inst in ipairs(game.Workspace:GetDescendants()) do
+		local n = string.lower(inst.Name)
+		if string.find(n, "seek") then
+			return true
+		end
+	end
+
+	return false
+end
+
+math.randomseed(os.clock() * 1e6)
+
+while true do
+	task.wait(10)
+
+	if not IsSeekActive() then
+		for _, entityData in ipairs(entityList) do
+			if rollChance(entityData.chance) then
+				spawnEntity(entityData)
+			end
+		end
+	end
+end
