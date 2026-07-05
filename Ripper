@@ -87,7 +87,7 @@ local blacklist = {
 	"gold",
 	"dresser",
 	"floor",
-	"wall"
+	"door"
 }
 
 local function IsBlacklisted(name)
