@@ -86,9 +86,7 @@ local blacklist = {
 	"desk",
 	"gold",
 	"dresser",
-	"floor",
-	"door",
-    "wall_strip"
+	"floor"
 }
 
 local function IsBlacklisted(name)
@@ -117,6 +115,7 @@ local function IsInsideBlacklistedModel(obj)
 end
 
 entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
+	local enit = game.Workspace.A60
 	for _, obj in ipairs(room:GetDescendants()) do
 		if obj:IsA("BasePart") then
 			local model = obj:FindFirstAncestorOfClass("Model")
@@ -136,11 +135,13 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
             task.wait()
 			obj.Anchored = false
 			obj.Massless = true
+			obj.CanCollide = false
+			obj.CanQuery = false
 
 			obj.AssemblyLinearVelocity = Vector3.new(
-                                math.random(-60, 60),
-                                math.random(20, 50),
-                                math.random(-60, 60)
+				math.random(-150, 150),
+				math.random(50, 50),
+				math.random(-180, 180)
 			)
 
 			obj.AssemblyAngularVelocity = Vector3.new(
