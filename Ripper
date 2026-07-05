@@ -88,7 +88,7 @@ local blacklist = {
 	"dresser",
 	"floor",
 	"door",
-    "wall"
+    "wall_strip"
 }
 
 local function IsBlacklisted(name)
@@ -138,9 +138,9 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 			obj.Massless = true
 
 			obj.AssemblyLinearVelocity = Vector3.new(
-				math.random(-150, 150),
-				math.random(50, 50),
-				math.random(-180, 180)
+                                math.random(-60, 60),
+                                math.random(20, 50),
+                                math.random(-60, 60)
 			)
 
 			obj.AssemblyAngularVelocity = Vector3.new(
