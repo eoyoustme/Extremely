@@ -72,6 +72,47 @@ end)
 
 entity:SetCallback("OnStartMoving", function()
 	print("Entity has started moving")
+
+	task.spawn(function()
+		while true do
+			task.wait(0.5)
+
+			local player = game.Players.LocalPlayer
+			local char = player.Character
+
+			if char then
+				local hum = char:FindFirstChildWhichIsA("Humanoid")
+				local hrp = char:FindFirstChild("HumanoidRootPart")
+
+				local model = workspace:FindFirstChild("RipperNotMoving")
+				local entityPart = model and model:FindFirstChild("Ripe")
+
+				if hum and hrp and entityPart then
+					if (hrp.Position - entityPart.Position).Magnitude <= 50 then
+						if not char:GetAttribute("Hiding") and hum.Health > 0 then
+
+							local TweenService = game:GetService("TweenService")
+
+							entityPart.Anchored = true
+
+							local tween = TweenService:Create(
+								entityPart,
+								TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+								{
+									CFrame = hrp.CFrame
+								}
+							)
+
+							tween:Play()
+							tween.Completed:Wait()
+
+							break
+						end
+					end
+				end
+			end
+		end
+	end)
 end)
 
 local blacklist = {
@@ -132,8 +173,9 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 			end
 
 			obj.Anchored = true
-            task.wait()
+			task.wait()
 			obj.Anchored = false
+			obj.CFrame = obj.CFrame + Vector3.new(0, 0.05, 0)
 			obj.Massless = true
 			obj.CanCollide = false
 			obj.CanQuery = false
@@ -171,15 +213,21 @@ end)
 
 entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
-	local TweenService = game:GetService("TweenService")
-
-	local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
-	local camara = game.Workspace.CurrentCamera
-	local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
-		camara.CFrame = camara.CFrame * shakeCf
+	task.spawn(function()
+		local cam = workspace.CurrentCamera
+		if cam then
+			for i = 1, 30 do
+				local intensity = (30 - i) / 30
+				local shake = Vector3.new(
+					math.random(-20, 20)/10 * intensity, 
+					math.random(-20, 20)/10 * intensity, 
+					math.random(-20, 20)/10 * intensity
+				)
+				cam.CFrame = cam.CFrame * CFrame.new(shake)
+				task.wait(0.01)
+			end
+		end
 	end)
-	camShake:Start()
-	camShake:ShakeOnce(20,10,0.5,0.5,0.5,0.5)
 
 	local sound = Instance.new("Sound", workspace)
 	sound.SoundId = "rbxassetid://1837829565"
