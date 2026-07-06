@@ -1,4 +1,5 @@
 game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
+
 ---====== Load spawner ======---
 
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Ripper%20Spawner"))()
@@ -28,7 +29,7 @@ local entity = Spawner:Create({
 		Values = {15, 28.5, 0.1, 0.4} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
-		Speed = 125,
+		Speed = 215,
 		Delay = 6.771,
 		Reversed = false
 	},
@@ -41,7 +42,7 @@ local entity = Spawner:Create({
 	},
 	Damage = {
 		Enabled = true,
-		Range = 20,
+		Range = 500,
 		Amount = 0.001
 	},
 	Crucifixion = {
@@ -72,47 +73,6 @@ end)
 
 entity:SetCallback("OnStartMoving", function()
 	print("Entity has started moving")
-
-	task.spawn(function()
-		while true do
-			task.wait(0.5)
-
-			local player = game.Players.LocalPlayer
-			local char = player.Character
-
-			if char then
-				local hum = char:FindFirstChildWhichIsA("Humanoid")
-				local hrp = char:FindFirstChild("HumanoidRootPart")
-
-				local model = workspace:FindFirstChild("RipperNotMoving")
-				local entityPart = model and model:FindFirstChild("Ripe")
-
-				if hum and hrp and entityPart then
-					if (hrp.Position - entityPart.Position).Magnitude <= 50 then
-						if not char:GetAttribute("Hiding") and hum.Health > 0 then
-
-							local TweenService = game:GetService("TweenService")
-
-							entityPart.Anchored = true
-
-							local tween = TweenService:Create(
-								entityPart,
-								TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-								{
-									CFrame = hrp.CFrame
-								}
-							)
-
-							tween:Play()
-							tween.Completed:Wait()
-
-							break
-						end
-					end
-				end
-			end
-		end
-	end)
 end)
 
 local blacklist = {
@@ -215,18 +175,26 @@ entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
 	task.spawn(function()
 		local cam = workspace.CurrentCamera
-		if cam then
-			for i = 1, 30 do
-				local intensity = (30 - i) / 30
-				local shake = Vector3.new(
-					math.random(-20, 20)/10 * intensity, 
-					math.random(-20, 20)/10 * intensity, 
-					math.random(-20, 20)/10 * intensity
-				)
-				cam.CFrame = cam.CFrame * CFrame.new(shake)
-				task.wait(0.01)
-			end
+		if not cam then
+			return
 		end
+
+		local original = cam.CFrame
+
+		for i = 1, 30 do
+			local intensity = (30 - i) / 30
+
+			local offset = Vector3.new(
+				(math.random() - 0.5) * 4 * intensity,
+				(math.random() - 0.5) * 4 * intensity,
+				(math.random() - 0.5) * 4 * intensity
+			)
+
+			cam.CFrame = original * CFrame.new(offset)
+			task.wait(0.01)
+		end
+
+		cam.CFrame = original
 	end)
 
 	local sound = Instance.new("Sound", workspace)
@@ -261,6 +229,26 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		print("Entity has killed the player")
 	else
 		print("Entity has damaged the player")
+		
+		local TweenService = game:GetService("TweenService")
+
+		local model = workspace:WaitForChild("RipperNotMoving")
+		local part = model.Ripe
+		assert(part, "Model chưa có PrimaryPart!")
+
+		local player = game.Players.LocalPlayer
+		local hrp = (player.Character or player.CharacterAdded:Wait()):WaitForChild("HumanoidRootPart")
+
+		part.Anchored = true
+
+		local tween = TweenService:Create(
+			part,
+			TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+			{CFrame = hrp.CFrame * CFrame.new(0, 4, 0)}
+		)
+
+		tween:Play()
+		task.wait(0.7)
 
 		task.spawn(function()
 			local player = Players.LocalPlayer
