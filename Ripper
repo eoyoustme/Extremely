@@ -173,29 +173,13 @@ end)
 
 entity:SetCallback("OnDespawning", function()
 	print("Entity is despawning")
-	task.spawn(function()
-		local cam = workspace.CurrentCamera
-		if not cam then
-			return
-		end
-
-		local original = cam.CFrame
-
-		for i = 1, 30 do
-			local intensity = (30 - i) / 30
-
-			local offset = Vector3.new(
-				(math.random() - 0.5) * 4 * intensity,
-				(math.random() - 0.5) * 4 * intensity,
-				(math.random() - 0.5) * 4 * intensity
-			)
-
-			cam.CFrame = original * CFrame.new(offset)
-			task.wait(0.01)
-		end
-
-		cam.CFrame = original
+	local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
+	local camara = game.Workspace.CurrentCamera
+	local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
+		camara.CFrame = camara.CFrame * shakeCf
 	end)
+	camShake:Start()
+	camShake:ShakeOnce(10,3.5,0.1,2,15,0.5)
 
 	local sound = Instance.new("Sound", workspace)
 	sound.SoundId = "rbxassetid://1837829565"
