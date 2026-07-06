@@ -213,7 +213,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 		print("Entity has killed the player")
 	else
 		print("Entity has damaged the player")
-		
+
 		local TweenService = game:GetService("TweenService")
 
 		local model = workspace:WaitForChild("RipperNotMoving")
@@ -403,6 +403,13 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 			-- ?? Gi?t ngu?i choi
 			if humanoid then humanoid.Health = 0 end
+			
+			local sound = Instance.new("Sound")
+			sound.SoundId = "rbxassetid://4988621968"
+			sound.Volume = 10
+			sound.PlaybackSpeed = 0.7
+			sound.Parent = workspace
+			sound:Play()
 
 			-- ?? Cleanup
 			if entityModel and entityModel.Parent then
