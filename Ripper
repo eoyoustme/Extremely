@@ -192,7 +192,7 @@ entity:SetCallback("OnDespawning", function()
 	---====== Display achievement ======---
 	achievementGiver({
 		Title = "Torn Apart",
-		Desc = "Don't think you strong...",
+		Desc = "Don't Leave too Early",
 		Reason = "Encounter and survive RIPPER.",
 		Image = "rbxassetid://85259240471519"
 	})
