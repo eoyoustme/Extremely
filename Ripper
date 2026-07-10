@@ -179,27 +179,37 @@ entity:SetCallback("OnDespawning", function()
 		camara.CFrame = camara.CFrame * shakeCf
 	end)
 	camShake:Start()
-	camShake:ShakeOnce(20,7,0.1,2,15,0.5)
+	camShake:ShakeOnce(10,3.5,0.1, 1,15,0.5)
 
 	local sound = Instance.new("Sound", workspace)
-	sound.SoundId = "rbxassetid://1837829565"
+	sound.SoundId = "rbxassetid://6657340839"
 	sound.Volume = 10
 	sound.PlaybackSpeed = 1
 	sound:Play()
-	
-	wait(1)
-	
+
+	wait(0.65)
+
 	local tweenService = game:GetService("TweenService")
 	tweenService:Create(
 		sound,
-		TweenInfo.new(0.65,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),
+		TweenInfo.new(1,Enum.EasingStyle.Linear,Enum.EasingDirection.Out),
 		{
 			PlaybackSpeed = 0
 		}
 	):Play()
+
+	wait(0.85)
 	
+	local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
+	local camara = game.Workspace.CurrentCamera
+	local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
+		camara.CFrame = camara.CFrame * shakeCf
+	end)
+	camShake:Start()
+	camShake:ShakeOnce(30,11.5,0.1, 2,15,0.5)
+
 	local sound5 = Instance.new("Sound", workspace)
-	sound5.SoundId = "rbxassetid://6657340839"
+	sound5.SoundId = "rbxassetid://1837829565"
 	sound5.Volume = 10
 	sound5.PlaybackSpeed = 1
 	sound5:Play()
@@ -213,6 +223,9 @@ entity:SetCallback("OnDespawning", function()
 		Reason = "Encounter and survive RIPPER.",
 		Image = "rbxassetid://85259240471519"
 	})
+	wait(4)
+	sound:Destroy()
+	sound5:Destroy()
 end)
 
 entity:SetCallback("OnDespawned", function()
