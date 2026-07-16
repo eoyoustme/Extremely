@@ -942,15 +942,20 @@ RipperSpawner.Run = function(self, entity: any, copyEntity: boolean)
 		local reboundType = config.Rebounding.Type:upper()
 		if reboundType == "AMBUSH" then
 			local pathfindNodes = GetPathfindNodesAmbush(config)
-			local latestRoom = GetCurrentRoom(true)
+			local function IsLatestRoomExit(node)
+				local latestRoom = GetCurrentRoom(true)
 
-			local stopPosition = nil
-
-			if latestRoom then
-				local exit = latestRoom:FindFirstChild("RoomExit")
-				if exit then
-					stopPosition = exit.Position
+				if not latestRoom then
+					return false
 				end
+
+				local exit = latestRoom:FindFirstChild("RoomExit")
+
+				if exit and (node.Position - exit.Position).Magnitude < 2 then
+					return true
+				end
+
+				return false
 			end
 
 
@@ -962,16 +967,14 @@ RipperSpawner.Run = function(self, entity: any, copyEntity: boolean)
 				task.spawn(entity.RunCallback, entity, "OnReachNode", v)
 
 
-				-- tới RoomExit của LatestRoom thì dừng
-				if stopPosition and (v.Position - stopPosition).Magnitude < 2 then
-
-					model:SetAttribute("Paused", true)
+				if IsLatestRoomExit(v) then
 					break
 				end
+				model:SetAttribute("StopMovement", true)
 			end
 
 			-- Rebounding handling
-			if config.Rebounding.Enabled then
+			if config.Rebounding.Enabled and not model:GetAttribute("StopMovement") then
 				local reboundsCount = math.random(config.Rebounding.Min, config.Rebounding.Max)
 				for i = 1, reboundsCount do
 					task.wait(config.Rebounding.Delay)
