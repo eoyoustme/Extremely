@@ -1,5 +1,6 @@
 game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
 
+
 ---====== Load spawner ======---
 
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Ripper%20Spawner"))()
@@ -126,7 +127,7 @@ local function IsInsideBlacklistedModel(obj)
 end
 
 entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
-	local enit = game.Workspace.A60
+	local enit = game.Workspace.RipperNotMoving
 	for _, obj in ipairs(room:GetDescendants()) do
 		if obj:IsA("BasePart") then
 			local model = obj:FindFirstAncestorOfClass("Model")
@@ -221,7 +222,7 @@ entity:SetCallback("OnDespawning", function()
 	sound5.Volume = 10
 	sound5.PlaybackSpeed = 1
 	sound5:Play()
-	
+
 	local room = workspace.CurrentRooms:FindFirstChild(game.ReplicatedStorage.GameData.LatestRoom.Value)
 
 	local doorModel = room:FindFirstChild("Door")
