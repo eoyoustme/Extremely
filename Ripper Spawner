@@ -137,7 +137,7 @@ local CONST = {
 	}
 }
 
-local Module = {
+local RipperSpawner = {
 	ActiveEntities = {}
 }
 
@@ -634,7 +634,7 @@ LocalPlayer.CharacterAdded:Connect(OnCharacterAdded)
 
 -- \\ Main // --
 
-Module.Create = function(self, config: any): any?
+RipperSpawner.Create = function(self, config: any): any?
 	local newConfig = ApplyConfigDefaults(config, CONST.DEFAULT.CONFIG)
 	newConfig.Movement.Speed = CONST.BASE_ENTITY_SPEED / 100 * config.Movement.Speed
 
@@ -725,14 +725,14 @@ Module.Create = function(self, config: any): any?
 			end
 		end,
 		Run = function(self, copyEntity: boolean)
-			Module:Run(self, copyEntity)
+			RipperSpawner:Run(self, copyEntity)
 		end,
 		Despawn = function(self)
 			if self:IsAlive() then
 				self.Model:Destroy()
-				local i = table.find(Module.ActiveEntities, self)
+				local i = table.find(RipperSpawner.ActiveEntities, self)
 				if i then
-					table.remove(Module.ActiveEntities, i)
+					table.remove(RipperSpawner.ActiveEntities, i)
 				end
 				task.spawn(self.RunCallback, self, "OnDespawned")
 			end
@@ -740,7 +740,7 @@ Module.Create = function(self, config: any): any?
 	}
 end
 
-Module.Run = function(self, entity: any, copyEntity: boolean)
+RipperSpawner.Run = function(self, entity: any, copyEntity: boolean)
 	if copyEntity == true then
 		self:Run(CloneTable(entity), false)
 		return
@@ -942,10 +942,32 @@ Module.Run = function(self, entity: any, copyEntity: boolean)
 		local reboundType = config.Rebounding.Type:upper()
 		if reboundType == "AMBUSH" then
 			local pathfindNodes = GetPathfindNodesAmbush(config)
+			local latestRoom = GetCurrentRoom(true)
+
+			local stopPosition = nil
+
+			if latestRoom then
+				local exit = latestRoom:FindFirstChild("RoomExit")
+				if exit then
+					stopPosition = exit.Position
+				end
+			end
+
+
 			for _, v in next, pathfindNodes do
+
 				local cframe = v.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
+
 				EntityMoveTo(model, cframe, config.Movement.Speed)
 				task.spawn(entity.RunCallback, entity, "OnReachNode", v)
+
+
+				-- tới RoomExit của LatestRoom thì dừng
+				if stopPosition and (v.Position - stopPosition).Magnitude < 2 then
+
+					model:SetAttribute("Paused", true)
+					break
+				end
 			end
 
 			-- Rebounding handling
@@ -1054,8 +1076,8 @@ Module.Run = function(self, entity: any, copyEntity: boolean)
 		if not model:GetAttribute("Despawning") then
 			model:SetAttribute("Despawning", true)
 			task.spawn(entity.RunCallback, entity, "OnDespawning")
-			wait(3)
-			EntityMoveTo(model, model:GetPivot() - Vector3.new(0, 215, 0), config.Movement.Speed)
+			wait(2)
+			EntityMoveTo(model, model:GetPivot() - Vector3.new(0, 200, 0), config.Movement.Speed)
 			entity:Despawn()
 		end
 	end)
@@ -1095,7 +1117,7 @@ Modules.Clear = function(self)
 	end
 end
 
-Module.Unload = function(self)
+RipperSpawner.Unload = function(self)
 	self:Clear()
 	for i, v in self.Connections do
 		v:Disconnect()
@@ -1106,5 +1128,5 @@ Module.Unload = function(self)
 	end
 end
 
-getgenv().Ripper = Module
-return Module
+getgenv().Ripper = RipperSpawner
+return RipperSpawner
