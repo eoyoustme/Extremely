@@ -945,14 +945,15 @@ Ripper.Run = function(self, entity: any, copyEntity: boolean)
 		local reboundType = config.Rebounding.Type:upper()
 		if reboundType == "AMBUSH" then
 			local pathfindNodes = GetPathfindNodesAmbush(config)
-			local latestRoom = workspace.CurrentRooms:FindFirstChild(
-				game.ReplicatedStorage.GameData.LatestRoom.Value
-			)
+			local latestRoom = GetCurrentRoom(true)
 
-			local stopNode = nil
+			local stopPosition = nil
 
 			if latestRoom then
-				stopNode = latestRoom:FindFirstChild("RoomExit")
+				local exit = latestRoom:FindFirstChild("RoomExit")
+				if exit then
+					stopPosition = exit.Position
+				end
 			end
 
 
@@ -965,10 +966,9 @@ Ripper.Run = function(self, entity: any, copyEntity: boolean)
 
 
 				-- tới RoomExit của LatestRoom thì dừng
-				if stopNode and v == stopNode then
+				if stopPosition and (v.Position - stopPosition).Magnitude < 2 then
 
 					model:SetAttribute("Paused", true)
-
 					break
 				end
 			end
