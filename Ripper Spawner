@@ -1,9 +1,15 @@
 --[[
     __      __          _            _       ______       _   _ _            _____                                       __      _____  
- Ripper Spawner                                               |___/         |_|
+    \ \    / /         (_)          ( )     |  ____|     | | (_) |          / ____|                                      \ \    / /__ \ 
+     \ \  / /   _ _ __  ___  ___   _|/ ___  | |__   _ __ | |_ _| |_ _   _  | (___  _ __   __ ___      ___ __   ___ _ __   \ \  / /   ) |
+      \ \/ / | | | '_ \| \ \/ / | | | / __| |  __| | '_ \| __| | __| | | |  \___ \| '_ \ / _` \ \ /\ / / '_ \ / _ \ '__|   \ \/ /   / / 
+       \  /| |_| | | | | |>  <| |_| | \__ \ | |____| | | | |_| | |_| |_| |  ____) | |_) | (_| |\ V  V /| | | |  __/ |       \  /   / /_ 
+        \/  \__, |_| |_|_/_/\_\\__,_| |___/ |______|_| |_|\__|_|\__|\__, | |_____/| .__/ \__,_| \_/\_/ |_| |_|\___|_|        \/   |____|
+             __/ |                                                   __/ |        | |                                                   
+            |___/                                                   |___/         |_|
 ]]--
 
-if getgenv().RipperSpawner then return getgenv().RipperSpawner end
+if getgenv().Ripper then return getgenv().Ripper end
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Functions.lua"))()
 
@@ -131,7 +137,7 @@ local CONST = {
 	}
 }
 
-local Ripper = {
+local Module = {
 	ActiveEntities = {}
 }
 
@@ -331,17 +337,6 @@ local function CrucifixEntity(entity: any, tool: Tool)
 		model:Destroy()
 	end)
 
-	local sound = Instance.new("Sound")
-	sound.parent = game.Workspace
-	sound.Volume = 10
-	sound.PlaybackSpeed = 1.1
-	sound.Parent = workspace
-	sound:Play()
-
-	local pitch = Instance.new("PitchShiftSoundEffect")
-	pitch.Octave = 0.6
-	pitch.Parent = sound
-
 	-- Animation
 	TweenService:Create(pentagram.Circle, TweenInfo.new(2, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), { CFrame = pentagram.Circle.CFrame - Vector3.new(0, 25, 0) }):Play()
 	TweenService:Create(crucifix.BodyAngularVelocity, TweenInfo.new(4, Enum.EasingStyle.Sine, Enum.EasingDirection.In), { AngularVelocity = Vector3.new(0, 40, 0) }):Play()
@@ -444,9 +439,15 @@ local function DamagePlayer(entity: any)
 	local config = entity.Config
 	local newHealth = math.clamp(Humanoid.Health - config.Damage.Amount, 0, Humanoid.MaxHealth)
 
+	-- Update health
+	Humanoid.Health = newHealth
+	task.spawn(entity.RunCallback, entity, "OnDamagePlayer", newHealth)
+
 	if newHealth == 0 then
 		-- Death hints
 		if #config.Death.Hints > 0 then
+			PlayerGui.MainUI.Death:GetPropertyChangedSignal("Visible"):Wait()
+
 			-- Get death type
 			local colour;
 			for name, values in next, Storage.DeathTypes do
@@ -479,10 +480,6 @@ local function DamagePlayer(entity: any)
 			GameStats["Player_".. LocalPlayer.Name].Total.DeathCause.Value = cause
 		end
 	end
-
-	-- Update health
-	Humanoid.Health = newHealth
-	task.spawn(entity.RunCallback, entity, "OnDamagePlayer", newHealth)
 end
 
 local function GetNodesFromRoom(room: Model, reversed: boolean): { BasePart }
@@ -728,14 +725,14 @@ Module.Create = function(self, config: any): any?
 			end
 		end,
 		Run = function(self, copyEntity: boolean)
-			Ripper:Run(self, copyEntity)
+			Module:Run(self, copyEntity)
 		end,
 		Despawn = function(self)
 			if self:IsAlive() then
 				self.Model:Destroy()
-				local i = table.find(Ripper.ActiveEntities, self)
+				local i = table.find(Module.ActiveEntities, self)
 				if i then
-					table.remove(Ripper.ActiveEntities, i)
+					table.remove(Module.ActiveEntities, i)
 				end
 				task.spawn(self.RunCallback, self, "OnDespawned")
 			end
@@ -743,7 +740,7 @@ Module.Create = function(self, config: any): any?
 	}
 end
 
-Ripper.Run = function(self, entity: any, copyEntity: boolean)
+Module.Run = function(self, entity: any, copyEntity: boolean)
 	if copyEntity == true then
 		self:Run(CloneTable(entity), false)
 		return
@@ -945,32 +942,10 @@ Ripper.Run = function(self, entity: any, copyEntity: boolean)
 		local reboundType = config.Rebounding.Type:upper()
 		if reboundType == "AMBUSH" then
 			local pathfindNodes = GetPathfindNodesAmbush(config)
-			local latestRoom = GetCurrentRoom(true)
-
-			local stopPosition = nil
-
-			if latestRoom then
-				local exit = latestRoom:FindFirstChild("RoomExit")
-				if exit then
-					stopPosition = exit.Position
-				end
-			end
-
-
 			for _, v in next, pathfindNodes do
-
 				local cframe = v.CFrame + Vector3.new(0, 3 + config.Entity.HeightOffset, 0)
-
 				EntityMoveTo(model, cframe, config.Movement.Speed)
 				task.spawn(entity.RunCallback, entity, "OnReachNode", v)
-
-
-				-- tới RoomExit của LatestRoom thì dừng
-				if stopPosition and (v.Position - stopPosition).Magnitude < 2 then
-
-					model:SetAttribute("Paused", true)
-					break
-				end
 			end
 
 			-- Rebounding handling
@@ -1120,7 +1095,7 @@ Modules.Clear = function(self)
 	end
 end
 
-Ripper.Unload = function(self)
+Module.Unload = function(self)
 	self:Clear()
 	for i, v in self.Connections do
 		v:Disconnect()
@@ -1131,5 +1106,5 @@ Ripper.Unload = function(self)
 	end
 end
 
-getgenv().RipperSpawner = Ripper
-return Ripper
+getgenv().Ripper = Module
+return Module
