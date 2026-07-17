@@ -1,5 +1,6 @@
 game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
 
+
 ---====== Load spawner ======---
 
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Ripper%20Spawner"))()
@@ -128,9 +129,7 @@ end
 local hasTriggered = false
 
 entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
-	-- Chỉ chạy logic này nếu phòng vừa vào đúng bằng phòng mới nhất (LatestRoom)
-
-	-- 1. Xử lý hiệu ứng nổ tung các mảnh nội thất trong phòng (Giữ nguyên gốc của bạn)
+	-- 1. Xử lý hiệu ứng nổ tung các mảnh nội thất trong phòng (Giữ nguyên của bạn)
 	task.spawn(function()
 		for _, obj in ipairs(room:GetDescendants()) do
 			if obj:IsA("BasePart") then
@@ -167,121 +166,155 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 			end
 		end
 	end)
-	
-	local latestRoomNum = tostring(game.ReplicatedStorage.GameData.LatestRoom.Value + 1)
+
+	-- Kiểm tra tên phòng xem có trùng khớp không
+	local latestRoomNum = tostring(game.ReplicatedStorage.GameData.LatestRoom.Value)
 	if room.Name ~= latestRoomNum then 
 		return 
 	end
 
-	-- Nếu đã chạy rồi thì bỏ qua không chạy lại nữa, tránh spam âm thanh
+	-- Nếu đã kích hoạt chuỗi hiệu ứng rồi thì bỏ qua để tránh spam
 	if hasTriggered then 
 		return 
 	end
-	hasTriggered = true -- Khóa lại ngay lập tức
+
+	local RunService = game:GetService("RunService")
 
 	-- 2. Xử lý thực thể RipperNotMoving
 	local entityModel = workspace:FindFirstChild("RipperNotMoving")
 	local entityRoot = entityModel and (entityModel:FindFirstChild("HumanoidRootPart") or entityModel:FindFirstChildWhichIsA("BasePart")) 
-	local freezeConnection
 
-	if entityModel and entityRoot then
-		-- Ép thực thể dịch chuyển và đóng băng tại vị trí (0, 4, 5) tính từ tâm căn phòng (room)
-		local roomPivot = room:GetPivot() 
-		local doorFreezePos = roomPivot * CFrame.new(0, 4, 5) 
+	-- Tìm part Cửa (Door) bên trong phòng một cách an toàn
+	local doorModel = room:FindFirstChild("Door")
+	local doorPanel = doorModel and doorModel:FindFirstChild("Door")
 
-		-- Đưa thực thể tới vị trí đó ngay lập tức trước khi bắt đầu freeze
-		entityRoot.CFrame = doorFreezePos
+	-- Chỉ chạy khi tìm thấy cả Entity và vị trí Cửa hợp lệ
+	if entityModel and entityRoot and doorPanel and doorPanel:IsA("BasePart") then
+		hasTriggered = true -- Khóa chặn spam ngay khi bắt đầu xử lý
 
-		-- Bắt đầu đóng băng vị trí tại chỗ
-		freezeConnection = game:GetService("RunService").Heartbeat:Connect(function()
-			if entityModel and entityModel.Parent and entityRoot then
-				entityRoot.Anchored = true
-				entityRoot.CFrame = doorFreezePos
-				entityRoot.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-				entityRoot.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-			end
-		end)
+		-- Chờ cho tới khi thực thể đi đến sát cửa (Khoảng cách từ Entity tới Cửa <= 14 studs)
+		while entityModel and entityModel.Parent and entityRoot and (entityRoot.Position - doorPanel.Position).Magnitude > 5 do
+			task.wait()
+		end
 
-		-- Chạy chuỗi hiệu ứng âm thanh, rung lắc và xóa thực thể
-		task.spawn(function()
-			local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
-			local camera = game.Workspace.CurrentCamera
+		-- Bắt đầu đóng băng thực thể ngay tại vị trí hiện tại của nó khi chạm mốc 14 studs
+		if entityModel and entityModel.Parent and entityRoot then
+			local doorFreezePos = entityRoot.CFrame
+			local freezeConnection
 
-			-- Rung lần 1
-			local camShake1 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
-				camera.CFrame = camera.CFrame * shakeCf
+			freezeConnection = RunService.Heartbeat:Connect(function()
+				if entityModel and entityModel.Parent and entityRoot then
+					entityRoot.Anchored = true
+					entityRoot.CFrame = doorFreezePos
+					entityRoot.AssemblyLinearVelocity = Vector3.zero
+					entityRoot.AssemblyAngularVelocity = Vector3.zero
+				end
 			end)
-			camShake1:Start()
-			camShake1:ShakeOnce(10, 3.5, 0.1, 1, 15, 0.5)
 
-			local sound = Instance.new("Sound", workspace)
-			sound.SoundId = "rbxassetid://6657340839"
-			sound.Volume = 10
-			sound.PlaybackSpeed = 1
-			sound:Play()
+			-- Chạy chuỗi hiệu ứng âm thanh, rung lắc và xóa thực thể
+			task.spawn(function()
+				local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
+				local camera = game.Workspace.CurrentCamera
 
-			task.wait(0.65)
+				-- Rung lần 1
+				local camShake1 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
+					camera.CFrame = camera.CFrame * shakeCf
+				end)
+				camShake1:Start()
+				camShake1:ShakeOnce(10, 3.5, 0.1, 1, 15, 0.5)
 
-			local tweenService = game:GetService("TweenService")
-			tweenService:Create(
-				sound,
-				TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
-				{ PlaybackSpeed = 0 }
-			):Play()
+				local sound = Instance.new("Sound", workspace)
+				sound.SoundId = "rbxassetid://6657340839"
+				sound.Volume = 10
+				sound.PlaybackSpeed = 1
+				sound:Play()
 
-			task.wait(0.85)
+				task.wait(0.65)
 
-			-- Rung lần 2 (Mạnh hơn)
-			local camShake2 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
-				camera.CFrame = camera.CFrame * shakeCf
-			end)
-			camShake2:Start()
-			camShake2:ShakeOnce(30, 11.5, 0.1, 2, 15, 0.5)
+				local tweenService = game:GetService("TweenService")
+				tweenService:Create(
+					sound,
+					TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
+					{ PlaybackSpeed = 0 }
+				):Play()
 
-			local sound5 = Instance.new("Sound", workspace)
-			sound5.SoundId = "rbxassetid://1837829565"
-			sound5.Volume = 10
-			sound5.PlaybackSpeed = 1
-			sound5:Play()
+				task.wait(0.85)
 
-			task.wait(2)
+				-- Rung lần 2 (Mạnh hơn)
+				local camShake2 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
+					camera.CFrame = camera.CFrame * shakeCf
+				end)
+				camShake2:Start()
+				camShake2:ShakeOnce(30, 11.5, 0.1, 2, 15, 0.5)
 
-			-- Giải phóng đóng băng (Dừng Heartbeat)
-			if freezeConnection then
-				freezeConnection:Disconnect()
-			end
+				local sound5 = Instance.new("Sound", workspace)
+				sound5.SoundId = "rbxassetid://1837829565"
+				sound5.Volume = 10
+				sound5.PlaybackSpeed = 1
+				sound5:Play()
 
-			-- Xóa hoàn toàn entity khỏi game
-			if entityModel and entityModel.Parent then
-				entityModel:Destroy()
-			end
+				task.wait(3)
 
-			-- Tự động mở cửa phòng tiếp theo
-			local currentRoom = workspace.CurrentRooms:FindFirstChild(game.ReplicatedStorage.GameData.LatestRoom.Value)
-			if currentRoom then
-				local doorModel = currentRoom:FindFirstChild("Door")
+				-- Giải phóng đóng băng (Dừng Heartbeat)
+				if freezeConnection then
+					freezeConnection:Disconnect()
+				end
+
+				local TweenService = game:GetService("TweenService")
+				local Players = game:GetService("Players")
+				local player = Players.LocalPlayer
+				
+				local model = workspace:WaitForChild("RipperNotMoving")
+				local part = model:FindFirstChild("Ripe") or model:FindFirstChildWhichIsA("BasePart")
+				if not part then return end
+
+				local chr = player.Character or player.CharacterAdded:Wait()
+				local hrp = chr:WaitForChild("HumanoidRootPart")
+
+				part.Anchored = true
+
+				local SPEED_STUDS_PER_SECOND = 215
+				local targetCFrame = model:GetPivot() - Vector3.new(0, 215, 0).CFrame
+				local distance = (targetCFrame.Position - part.Position).Magnitude
+				local duration = distance / SPEED_STUDS_PER_SECOND
+
+				if duration <= 0 then
+					duration = 0.05
+				end
+
+				local tween = TweenService:Create(
+					part,
+					TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
+					{CFrame = targetCFrame}
+				)
+
+				tween:Play()
+				wait(1)
+				model:Destroy()
+
+				-- Tự động mở cửa phòng hiện tại thông qua doorModel đã tìm ở trên
 				if doorModel and doorModel:FindFirstChild("ClientOpen") then
 					doorModel.ClientOpen:FireServer()
 				end
-			end
 
-			-- Trao Achievement
-			local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
-			achievementGiver({
-				Title = "Torn Apart",
-				Desc = "Don't Leave too Early",
-				Reason = "Encounter and survive RIPPER.",
-				Image = "rbxassetid://85259240471519"
-			})
+				-- Trao Achievement
+				local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
+				achievementGiver({
+					Title = "Torn Apart",
+					Desc = "Don't Leave too Early",
+					Reason = "Encounter and survive RIPPER.",
+					Image = "rbxassetid://85259240471519"
+				})
 
-			-- Dọn dẹp âm thanh thừa sau khi phát xong
-			task.wait(4)
-			sound:Destroy()
-			sound5:Destroy()
+				-- Dọn dẹp âm thanh thừa sau khi phát xong
+				task.wait(4)
+				sound:Destroy()
+				sound5:Destroy()
 
-			-- Mở khóa debounce để chuẩn bị cho các phòng sau nữa nếu cần
-			hasTriggered = false 
-		end)
+				-- Mở khóa debounce để chuẩn bị cho các phòng sau
+				hasTriggered = false 
+			end)
+		end
 	end
 end)
 
