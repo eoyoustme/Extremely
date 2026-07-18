@@ -1,5 +1,21 @@
 game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
 
+function light(tim,color0,color1)
+	local tweenservice = game:GetService("TweenService")
+	local info = TweenInfo.new(tim,Enum.EasingStyle.Linear)
+	for _ , light in pairs(game.Workspace.CurrentRooms:GetDescendants()) do
+		if light:IsA("Light") or light:IsA("SurfaceLight") or light:IsA("SpotLight") then
+			local target = {Color = color1}
+			local anim = tweenservice:Create(light,info,target)
+			anim:Play()
+		end
+		if light:IsA("MeshPart") and light.Material == Enum.Material.Neon  and light.Name ~= "Skybox" then
+			local target1 = {Color = color0}
+			local anim2 = tweenservice:Create(light,info,target1)
+			anim2:Play()
+		end
+	end
+end
 
 ---====== Load spawner ======---
 
@@ -43,7 +59,7 @@ local entity = Spawner:Create({
 	},
 	Damage = {
 		Enabled = true,
-		Range = 100,
+		Range = 0,
 		Amount = 0.001
 	},
 	Crucifixion = {
@@ -63,9 +79,43 @@ local entity = Spawner:Create({
 
 entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
+	
+	light(2,Color3.fromRGB(85, 0, 0),Color3.fromRGB(255, 0, 0))
+	
+	local sound5 = Instance.new("Sound")
+	sound5.PlaybackSpeed = 0.6
+	sound5.Volume = 10
+	sound5.SoundId = "rbxassetid://9125713501"
+	sound5.Parent = workspace
+	sound5:Play()
+	
+	local pitch = Instance.new("PitchShiftSoundEffect")
+	pitch.Octave = 0.875
+	pitch.Parent = sound5
+	
+	local sound51 = Instance.new("Sound")
+	sound51.PlaybackSpeed = 1
+	sound51.Volume = 10
+	sound51.SoundId = "rbxassetid://9125713501"
+	sound51.Parent = workspace
+	sound51:Play()
+
+	local pitch2 = Instance.new("PitchShiftSoundEffect")
+	pitch2.Octave = 0.8
+	pitch2.Parent = sound51
+	
+	local pitch23 = Instance.new("PitchShiftSoundEffect")
+	pitch23.Octave = 0.5
+	pitch23.Parent = sound51
+	
+	local eq = Instance.new("EqualizerSoundEffect")
+	eq.LowGain = -20
+	eq.MidGain = -10
+	eq.Parent = sound51
+	
 	local Reboundcolor = Instance.new("ColorCorrectionEffect",game.Lighting) game.Debris:AddItem(Reboundcolor,24)
 	Reboundcolor.Name = "Warn"
-	Reboundcolor.TintColor = Color3.fromRGB(255, 0, 0) Reboundcolor.Saturation = -0.7 Reboundcolor.Contrast = 0.2
+	Reboundcolor.TintColor = Color3.fromRGB(255, 0, 0) Reboundcolor.Saturation = 0 Reboundcolor.Contrast = 0.2
 	game.TweenService:Create(Reboundcolor,TweenInfo.new(15),{TintColor = Color3.fromRGB(255, 255, 255),Saturation = 0, Contrast = 0}):Play()
 	local TweenService = game:GetService("TweenService")
 	local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(7),{TintColor = Color3.fromRGB(255, 255, 255)})
@@ -193,7 +243,7 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 		hasTriggered = true -- Khóa chặn spam ngay khi bắt đầu xử lý
 
 		-- Chờ cho tới khi thực thể đi đến sát cửa (Khoảng cách từ Entity tới Cửa <= 14 studs)
-		while entityModel and entityModel.Parent and entityRoot and (entityRoot.Position - doorPanel.Position).Magnitude > 5 do
+		while entityModel and entityModel.Parent and entityRoot and (entityRoot.Position - doorPanel.Position).Magnitude > 8 do
 			task.wait()
 		end
 
@@ -260,37 +310,7 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 					freezeConnection:Disconnect()
 				end
 
-				local TweenService = game:GetService("TweenService")
-				local Players = game:GetService("Players")
-				local player = Players.LocalPlayer
-				
-				local model = workspace:WaitForChild("RipperNotMoving")
-				local part = model:FindFirstChild("Ripe") or model:FindFirstChildWhichIsA("BasePart")
-				if not part then return end
-
-				local chr = player.Character or player.CharacterAdded:Wait()
-				local hrp = chr:WaitForChild("HumanoidRootPart")
-
-				part.Anchored = true
-
-				local SPEED_STUDS_PER_SECOND = 215
-				local targetCFrame = model:GetPivot() - Vector3.new(0, 215, 0).CFrame
-				local distance = (targetCFrame.Position - part.Position).Magnitude
-				local duration = distance / SPEED_STUDS_PER_SECOND
-
-				if duration <= 0 then
-					duration = 0.05
-				end
-
-				local tween = TweenService:Create(
-					part,
-					TweenInfo.new(duration, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-					{CFrame = targetCFrame}
-				)
-
-				tween:Play()
-				wait(1)
-				model:Destroy()
+				entityModel:Destroy()
 
 				-- Tự động mở cửa phòng hiện tại thông qua doorModel đã tìm ở trên
 				if doorModel and doorModel:FindFirstChild("ClientOpen") then
