@@ -393,7 +393,7 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 					Title = "Torn Apart",
 					Desc = "Don't Leave too Early",
 					Reason = "Encounter and survive RIPPER.",
-					Image = "rbxassetid://85259240471519"
+					Image = "rbxassetid://12231244908"
 				})
 
 				-- Dọn dẹp âm thanh thừa sau khi phát xong
