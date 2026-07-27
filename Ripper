@@ -1,6 +1,5 @@
 game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
 
-
 function light(tim,color0,color1)
 	local tweenservice = game:GetService("TweenService")
 	local info = TweenInfo.new(tim,Enum.EasingStyle.Linear)
@@ -44,7 +43,7 @@ local entity = Spawner:Create({
 	CameraShake = {
 		Enabled = true,
 		Range = 100,
-		Values = {30, 57, 0.1, 0.4} -- Magnitude, Roughness, FadeIn, FadeOut
+		Values = {10, 27, 0.1, 0.4} -- Magnitude, Roughness, FadeIn, FadeOut
 	},
 	Movement = {
 		Speed = 215,
@@ -82,7 +81,7 @@ entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
 
 	light(2,Color3.fromRGB(85, 0, 0),Color3.fromRGB(255, 0, 0))
-
+task.spawn(function()
 	local sound5 = Instance.new("Sound")
 	sound5.PlaybackSpeed = 0.6
 	sound5.Volume = 10
@@ -112,7 +111,11 @@ entity:SetCallback("OnSpawned", function()
 	local eq = Instance.new("EqualizerSoundEffect")
 	eq.LowGain = -20
 	eq.MidGain = -10
-	eq.Parent = sound51
+		eq.Parent = sound51
+		wait(6.771)
+		sound5:Destroy()
+		sound51:Destroy()
+		end)
 
 	local Reboundcolor = Instance.new("ColorCorrectionEffect",game.Lighting) game.Debris:AddItem(Reboundcolor,24)
 	Reboundcolor.Name = "Warn"
@@ -126,7 +129,7 @@ end)
 entity:SetCallback("OnStartMoving", function()
 	print("Entity has started moving")
 	task.spawn(function()
-		
+
 		local function GetGitSound(GithubSnd, SoundName)
 			local url = GithubSnd
 			if not isfile(SoundName .. ".mp3") then
@@ -148,7 +151,7 @@ entity:SetCallback("OnStartMoving", function()
 		blueSound.Volume = 0.733
 
 		gitSoundTemp:Destroy()
-		
+
 		local function GetGitSound(GithubSnd, SoundName)
 			local url = GithubSnd
 			if not isfile(SoundName .. ".mp3") then
@@ -170,7 +173,7 @@ entity:SetCallback("OnStartMoving", function()
 		ReallyNear.Volume = 0.733
 
 		Github:Destroy()
-		
+
 		local function GetGitSound(GithubSnd, SoundName)
 			local url = GithubSnd
 			if not isfile(SoundName .. ".mp3") then
@@ -192,7 +195,7 @@ entity:SetCallback("OnStartMoving", function()
 		Close.Volume = 1.51
 
 		cui:Destroy()
-		
+
 	end)
 end)
 
@@ -299,25 +302,23 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 	end
 
 	local RunService = game:GetService("RunService")
+	local TweenService = game:GetService("TweenService")
 
-	-- 2. Xử lý thực thể RipperNotMoving
 	local entityModel = workspace:FindFirstChild("RipperNotMoving")
 	local entityRoot = entityModel and (entityModel:FindFirstChild("HumanoidRootPart") or entityModel:FindFirstChildWhichIsA("BasePart")) 
 
-	-- Tìm part Cửa (Door) bên trong phòng một cách an toàn
+
 	local doorModel = room:FindFirstChild("Door")
 	local doorPanel = doorModel and doorModel:FindFirstChild("Door")
 
-	-- Chỉ chạy khi tìm thấy cả Entity và vị trí Cửa hợp lệ
 	if entityModel and entityRoot and doorPanel and doorPanel:IsA("BasePart") then
-		hasTriggered = true -- Khóa chặn spam ngay khi bắt đầu xử lý
+		hasTriggered = true
 
-		-- Chờ cho tới khi thực thể đi đến sát cửa (Khoảng cách từ Entity tới Cửa <= 14 studs)
 		while entityModel and entityModel.Parent and entityRoot and (entityRoot.Position - doorPanel.Position).Magnitude > 8 do
 			task.wait()
 		end
 
-		-- Bắt đầu đóng băng thực thể ngay tại vị trí hiện tại của nó khi chạm mốc 14 studs
+		-- Bắt đầu xử lý đóng băng thực thể ngay tại vị trí hiện tại
 		if entityModel and entityModel.Parent and entityRoot then
 			local doorFreezePos = entityRoot.CFrame
 			local freezeConnection
@@ -329,79 +330,98 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 					entityRoot.AssemblyLinearVelocity = Vector3.zero
 					entityRoot.AssemblyAngularVelocity = Vector3.zero
 				end
-			end)
+				end)
 
-			-- Chạy chuỗi hiệu ứng âm thanh, rung lắc và xóa thực thể
+			-- Tỉ lệ 50/50 chọn kịch bản (1 hoặc 2)
+			local chance = math.random(1, 2)
+
 			task.spawn(function()
 				local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
 				local camera = game.Workspace.CurrentCamera
 
-				-- Rung lần 1
-				local camShake1 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
-					camera.CFrame = camera.CFrame * shakeCf
-				end)
-				camShake1:Start()
-				camShake1:ShakeOnce(10, 3.5, 0.1, 1, 15, 0.5)
+				local sound, sound5, sound6, sound7
 
-				local sound = Instance.new("Sound", workspace)
-				sound.SoundId = "rbxassetid://6657340839"
-				sound.Volume = 10
-				sound.PlaybackSpeed = 1
-				sound:Play()
+				if chance == 1 then
 
-				task.wait(0.65)
+					local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
+						camera.CFrame = camera.CFrame * shakeCf
+					end)
+					camShake:Start()
+					camShake:ShakeOnce(30, 11.5, 0.1, 2, 15, 0.5)
 
-				local tweenService = game:GetService("TweenService")
-				tweenService:Create(
-					sound,
-					TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out),
-					{ PlaybackSpeed = 0 }
-				):Play()
 
-				task.wait(0.85)
+					sound5 = Instance.new("Sound", workspace)
+					sound5.SoundId = "rbxassetid://1837829565"
+					sound5.Volume = 5
+					sound5.PlaybackSpeed = 1
+					sound5:Play()
 
-				-- Rung lần 2 (Mạnh hơn)
-				local camShake2 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
-					camera.CFrame = camera.CFrame * shakeCf
-				end)
-				camShake2:Start()
-				camShake2:ShakeOnce(30, 11.5, 0.1, 2, 15, 0.5)
+					task.wait(3)
 
-				local sound5 = Instance.new("Sound", workspace)
-				sound5.SoundId = "rbxassetid://1837829565"
-				sound5.Volume = 10
-				sound5.PlaybackSpeed = 1
-				sound5:Play()
+				else
+					
+					
+					local originalCFrame = entityRoot.CFrame
+		
 
-				task.wait(3)
+					-- 1. Rung lần 1 & Phát sound đầu tiên
+					local camShake1 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
+						camera.CFrame = camera.CFrame * shakeCf
+					end)
+					camShake1:Start()
+					camShake1:ShakeOnce(10, 3.5, 0.1, 1, 15, 0.5)
+					entityRoot.Despawn2:Play()
+					
+					wait(1)
 
-				-- Giải phóng đóng băng (Dừng Heartbeat)
-				if freezeConnection then
-					freezeConnection:Disconnect()
+					local backCFrame = originalCFrame * CFrame.new(0, 0, -25) 
+					local tweenBackInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+					local tweenBack = TweenService:Create(entityRoot, tweenBackInfo, {CFrame = backCFrame})
+
+					tweenBack:Play()
+					tweenBack.Completed:Wait()
+
+					local tweenForwardInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+					local tweenForward = TweenService:Create(entityRoot, tweenForwardInfo, {CFrame = originalCFrame})
+					tweenForward:Play()
+					wait(0.3)
+
+					local camShake2 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
+						camera.CFrame = camera.CFrame * shakeCf
+					end)
+					camShake2:Start()
+					camShake2:ShakeOnce(30, 11.5, 0.1, 2, 15, 0.5)
+
+ entityRoot.Despawn3:Play()
+entityRoot.Despawn1:Play()
+					entityRoot.DoorOpen1:Play()	
+
+					task.wait(3)
 				end
 
-				entityModel:Destroy()
+				if entityModel and entityModel.Parent then
+					entityModel:Destroy()
+				end
 
-				-- Tự động mở cửa phòng hiện tại thông qua doorModel đã tìm ở trên
 				if doorModel and doorModel:FindFirstChild("ClientOpen") then
 					doorModel.ClientOpen:FireServer()
 				end
 
-				-- Trao Achievement
-				local achievementGiver = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
-				achievementGiver({
-					Title = "Torn Apart",
-					Desc = "Don't Leave too Early",
-					Reason = "Encounter and survive RIPPER.",
-					Image = "rbxassetid://12231244908"
-				})
+				local success, achievementGiver = pcall(function()
+					return loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
+				end)
 
-				-- Dọn dẹp âm thanh thừa sau khi phát xong
-				task.wait(4)
-				sound:Destroy()
-				sound5:Destroy()
+				if success and achievementGiver then
+					achievementGiver({
+						Title = "Torn Apart",
+						Desc = "Don't Leave too Early",
+						Reason = "Encounter and survive RIPPER.",
+						Image = "rbxassetid://12231244908"
+					})
+				end
 
-				-- Mở khóa debounce để chuẩn bị cho các phòng sau
+				task.wait(2)
+
 				hasTriggered = false 
 			end)
 		end
