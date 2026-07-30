@@ -1,4 +1,5 @@
 game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 function light(tim,color0,color1)
 	local tweenservice = game:GetService("TweenService")
@@ -81,41 +82,41 @@ entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
 
 	light(2,Color3.fromRGB(85, 0, 0),Color3.fromRGB(255, 0, 0))
-task.spawn(function()
-	local sound5 = Instance.new("Sound")
-	sound5.PlaybackSpeed = 0.6
-	sound5.Volume = 10
-	sound5.SoundId = "rbxassetid://9125713501"
-	sound5.Parent = workspace
-	sound5:Play()
+	task.spawn(function()
+		local sound5 = Instance.new("Sound")
+		sound5.PlaybackSpeed = 0.6
+		sound5.Volume = 10
+		sound5.SoundId = "rbxassetid://9125713501"
+		sound5.Parent = workspace
+		sound5:Play()
 
-	local pitch = Instance.new("PitchShiftSoundEffect")
-	pitch.Octave = 0.875
-	pitch.Parent = sound5
+		local pitch = Instance.new("PitchShiftSoundEffect")
+		pitch.Octave = 0.875
+		pitch.Parent = sound5
 
-	local sound51 = Instance.new("Sound")
-	sound51.PlaybackSpeed = 1
-	sound51.Volume = 10
-	sound51.SoundId = "rbxassetid://9125713501"
-	sound51.Parent = workspace
-	sound51:Play()
+		local sound51 = Instance.new("Sound")
+		sound51.PlaybackSpeed = 1
+		sound51.Volume = 10
+		sound51.SoundId = "rbxassetid://9125713501"
+		sound51.Parent = workspace
+		sound51:Play()
 
-	local pitch2 = Instance.new("PitchShiftSoundEffect")
-	pitch2.Octave = 0.8
-	pitch2.Parent = sound51
+		local pitch2 = Instance.new("PitchShiftSoundEffect")
+		pitch2.Octave = 0.8
+		pitch2.Parent = sound51
 
-	local pitch23 = Instance.new("PitchShiftSoundEffect")
-	pitch23.Octave = 0.5
-	pitch23.Parent = sound51
+		local pitch23 = Instance.new("PitchShiftSoundEffect")
+		pitch23.Octave = 0.5
+		pitch23.Parent = sound51
 
-	local eq = Instance.new("EqualizerSoundEffect")
-	eq.LowGain = -20
-	eq.MidGain = -10
+		local eq = Instance.new("EqualizerSoundEffect")
+		eq.LowGain = -20
+		eq.MidGain = -10
 		eq.Parent = sound51
 		wait(6.771)
 		sound5:Destroy()
 		sound51:Destroy()
-		end)
+	end)
 
 	local Reboundcolor = Instance.new("ColorCorrectionEffect",game.Lighting) game.Debris:AddItem(Reboundcolor,24)
 	Reboundcolor.Name = "Warn"
@@ -330,7 +331,7 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 					entityRoot.AssemblyLinearVelocity = Vector3.zero
 					entityRoot.AssemblyAngularVelocity = Vector3.zero
 				end
-				end)
+			end)
 
 			-- Tỉ lệ 50/50 chọn kịch bản (1 hoặc 2)
 			local chance = math.random(1, 2)
@@ -359,10 +360,10 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 					task.wait(3)
 
 				else
-					
-					
+
+
 					local originalCFrame = entityRoot.CFrame
-		
+
 
 					-- 1. Rung lần 1 & Phát sound đầu tiên
 					local camShake1 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
@@ -371,7 +372,7 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 					camShake1:Start()
 					camShake1:ShakeOnce(10, 3.5, 0.1, 1, 15, 0.5)
 					entityRoot.Despawn2:Play()
-					
+
 					wait(1)
 
 					local backCFrame = originalCFrame * CFrame.new(0, 0, -25) 
@@ -392,8 +393,8 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 					camShake2:Start()
 					camShake2:ShakeOnce(30, 11.5, 0.1, 2, 15, 0.5)
 
- entityRoot.Despawn3:Play()
-entityRoot.Despawn1:Play()
+					entityRoot.Despawn3:Play()
+					entityRoot.Despawn1:Play()
 					entityRoot.DoorOpen1:Play()	
 
 					task.wait(3)
@@ -654,6 +655,13 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
 				-- ?? Gi?t ngu?i choi
 				if humanoid then humanoid.Health = 0 end
+
+				firesignal(ReplicatedStorage.RemotesFolder.DeathHint.OnClientEvent, {
+					"You died to who you call Ripper",
+					" A red light and an earthquake will begin announcing his presence. To survive run towards him"
+				}, "Blue")
+
+				ReplicatedStorage.GameStats["Player_".. player.Name].Total.DeathCause.Value = "Ripper"
 
 				local sound = Instance.new("Sound")
 				sound.SoundId = "rbxassetid://4988621968"
