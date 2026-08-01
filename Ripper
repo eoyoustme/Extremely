@@ -1,5 +1,9 @@
 game.ReplicatedStorage.GameData.LatestRoom.Changed:Wait()
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local localPlayer = Players.LocalPlayer
 
 function light(tim,color0,color1)
 	local tweenservice = game:GetService("TweenService")
@@ -200,96 +204,116 @@ entity:SetCallback("OnStartMoving", function()
 	end)
 end)
 
-local blacklist = {
-	"wardrobe",
-	"bed",
-	"rug",
-	"key",
-	"drawer",
-	"book",
-	"breaker",
-	"table",
-	"desk",
-	"gold",
-	"dresser",
-	"floor",
-	"wall",
-	"door",
-	"frame",
-	"ceiling",
-	"light",
-	"pillar",
-	"beam",
-	"window",
-	"gate",
-	"stairs"
-}
-
-local function IsBlacklisted(name)
-	local lowerName = name:lower()
-
-	for _, v in ipairs(blacklist) do
-		if string.find(lowerName, v, 1, true) then
-			return true
-		end
-	end
-
-	return false
-end
-
-local function IsInsideBlacklistedModel(obj)
-	local current = obj.Parent
-
-	while current and current ~= workspace do
-		if current:IsA("Model") and IsBlacklisted(current.Name) then
-			return true
-		end
-		current = current.Parent
-	end
-
-	return false
-end
-
 local hasTriggered = false
+local destroyedRooms = {}
 
 entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
-	-- 1. Xử lý hiệu ứng nổ tung các mảnh nội thất trong phòng (Giữ nguyên của bạn)
-	task.spawn(function()
-		for _, obj in ipairs(room:GetDescendants()) do
-			if obj:IsA("BasePart") then
-				local model = obj:FindFirstAncestorOfClass("Model")
-				if model and model:FindFirstChildOfClass("Humanoid") then
-					continue
+	if room and not destroyedRooms[room] then
+		destroyedRooms[room] = true
+
+		task.spawn(function()
+			task.wait(0.05)
+
+			local breakSound = Instance.new("Sound")
+			breakSound.SoundId = "rbxassetid://9114223171"
+			breakSound.Volume = 2.5
+			breakSound.Parent = room:FindFirstChild("Assets") or room
+			breakSound:Play()
+			breakSound.Ended:Connect(function() breakSound:Destroy() end)
+
+			local assetContainer = room:FindFirstChild("Assets") or room
+
+			local breakSounds = {
+				"rbxassetid://0",
+				"rbxassetid://0",
+				"rbxassetid://0",
+				"rbxassetid://0",
+				"rbxassetid://0",
+				"rbxassetid://0",
+				"rbxassetid://0"
+			}
+
+			local blacklist = {"wardrobe", "bed", "rug", "key", "drawer", "book", "breaker", "table", "desk", "gold", "dresser"}
+
+			for _, item in pairs(assetContainer:GetChildren()) do
+				if item:IsA("Model") and item.Name ~= "Door" and item.Name ~= "HidingSpots" then
+
+					local isBlacklisted = false
+					local itemNameLower = string.lower(item.Name)
+					for _, word in ipairs(blacklist) do
+						if string.find(itemNameLower, word) then
+							isBlacklisted = true
+							break
+						end
+					end
+
+					if not isBlacklisted then
+						local primary = item.PrimaryPart or item:FindFirstChildWhichIsA("BasePart")
+
+						if primary then
+							-- Thread out the model destruction to let parts stagger their sound playbacks
+							task.spawn(function()
+								for _, v in ipairs(item:GetDescendants()) do
+									if v:IsA("BasePart") then
+										local lowerName = string.lower(v.Name)
+
+										if not string.find(lowerName, "floor") and not string.find(lowerName, "hitbox") then
+
+											-- STAGGER DELAY: Breaks up the 'one sound' audio compression
+											task.wait(math.random(1, 4) / 100)
+
+											local randomSoundId = breakSounds[math.random(1, #breakSounds)]
+
+											local s = Instance.new("Sound")
+											s.SoundId = randomSoundId
+											s.Volume = math.random(12, 24) / 10 
+											s.PlaybackSpeed = math.random(85, 115) / 100
+											s.RollOffMaxDistance = 100
+											s.Parent = v
+											s:Play()
+
+											s.Ended:Connect(function()
+												s:Destroy()
+											end)
+
+											v.Anchored = false
+											v.CanCollide = true 
+
+											v.CustomPhysicalProperties = PhysicalProperties.new(0.01, 0.01, 0.5, 1, 1)
+
+											pcall(function()
+												if v:CanSetNetworkOwnership() then
+													v:SetNetworkOwner(localPlayer)
+												end
+											end)
+
+											v.CFrame = v.CFrame + Vector3.new(0, 0.05, 0)
+										end
+									end
+								end
+							end)
+
+							primary.Anchored = true
+							task.wait()
+							primary.Anchored = false
+
+							primary.AssemblyLinearVelocity = Vector3.new(
+								math.random(-60, 60),
+								math.random(20, 50),
+								math.random(-60, 60)
+							)
+
+							primary.AssemblyAngularVelocity = Vector3.new(
+								math.random(-25, 25),
+								math.random(-25, 25),
+								math.random(-25, 25)
+							)
+							end
+					end
 				end
-
-				if IsBlacklisted(obj.Name) then
-					continue
-				end
-
-				if IsInsideBlacklistedModel(obj) then
-					continue
-				end
-
-				obj.Anchored = true
-				task.wait()
-				obj.Anchored = false
-				obj.Massless = true
-				obj.CanCollide = true
-
-				obj.AssemblyLinearVelocity = Vector3.new(
-					math.random(-150, 150),
-					math.random(50, 50),
-					math.random(-180, 180)
-				)
-
-				obj.AssemblyAngularVelocity = Vector3.new(
-					math.random(-25,25),
-					math.random(-25,25),
-					math.random(-25,25)
-				)
 			end
+		end)
 		end
-	end)
 
 	-- Kiểm tra tên phòng xem có trùng khớp không
 	local latestRoomNum = tostring(game.ReplicatedStorage.GameData.LatestRoom.Value)
