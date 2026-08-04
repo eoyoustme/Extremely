@@ -449,6 +449,8 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 
 						if promxy:IsA("ProximityPrompt") then
 							promxy:Destroy()
+						else
+							return
 						end
 
 						if obj.Name == "DoorBarrier" or obj.Name == "BarrierTrigger" then
@@ -477,6 +479,8 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 
 						if promxy:IsA("ProximityPrompt") then
 							promxy:Destroy()
+						else
+							return
 						end
 
 						if obj.Name == "DoorBarrier" or obj.Name == "BarrierTrigger" or obj.Name == "Sign" then
