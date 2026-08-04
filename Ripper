@@ -424,11 +424,66 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 				if entityModel and entityModel.Parent then
 					entityModel:Destroy()
 				end
+				if doorModel then
+					local doorpart = doorModel:FindFirstChild("Door")
+					-- 1. Chỉnh kích thước Part "Hidden" trong doorModel gốc
+					local hiddenPart = doorModel:FindFirstChild("Hidden", true)
+					if hiddenPart and hiddenPart:IsA("BasePart") then
+						hiddenPart.Size = Vector3.new(3, 8, 4)
+					end
 
-				if doorModel and doorModel:FindFirstChild("ClientOpen") then
-					doorModel.ClientOpen:FireServer()
+					-- 2. Tạo bản sao DoorClone
+					local doorClone = doorModel:Clone()
+					doorClone.Name = "DoorClone"
+					doorClone.Parent = doorModel.Parent
+
+					-- 3. Xử lý riêng cho DoorClone: Unanchor, bật CanCollide & xóa trigger/prompt
+					for _, obj in doorClone:GetDescendants() do
+						if obj:IsA("BasePart") then
+							obj.Anchored = false
+							obj.CanCollide = true -- BẮT BUỘC: Giúp cửa không bị rơi lún xuống đất
+							doorpart.CanCollide = false
+							doorpart.Open.Volume = 0
+						end
+
+						if obj:IsA("ProximityPrompt") then
+							obj:Destroy()
+						end
+
+						if obj.Name == "DoorBarrier" or obj.Name == "BarrierTrigger" then
+							obj:Destroy()
+						end
+					end
+
+					-- 💥 HIỆU ỨNG HÚC CỬA NGÃ NẰM SÀN (NHƯ TRONG ẢNH)
+					local cloneRoot = doorClone.PrimaryPart or doorClone:FindFirstChildWhichIsA("BasePart")
+					if cloneRoot then
+						-- Lấy hướng thẳng góc với cánh cửa
+						local pushDirection = cloneRoot.CFrame.LookVector
+
+						-- Lực 1: Đẩy văng tới trước + nảy nhẹ lên
+						cloneRoot.AssemblyLinearVelocity = (pushDirection * 30) + Vector3.new(0, 3, 0)
+
+						-- Lực 2: Tạo lực xoay làm cánh cửa lật ngửa/sập nằm bẹt xuống sàn
+						cloneRoot.AssemblyAngularVelocity = cloneRoot.CFrame.RightVector * -90
+					end
+
+					-- 4. Xử lý trên DoorModel gốc: Làm trong suốt toàn bộ & xóa trigger, prompt, Sign
+					for _, obj in doorModel:GetDescendants() do
+						if obj:IsA("BasePart") then
+							obj.Transparency = 1
+						end
+
+						if obj:IsA("ProximityPrompt") then
+							obj:Destroy()
+						end
+
+						if obj.Name == "DoorBarrier" or obj.Name == "BarrierTrigger" or obj.Name == "Sign" then
+							obj:Destroy()
+						end
+					end
 				end
-
+				
 				local success, achievementGiver = pcall(function()
 					return loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 				end)
@@ -517,7 +572,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 						end
 					end
 				end
-		
+
 
 				-- Tắt tất cả particle trên entity lúc jumpscare bắt đầu
 				SetAllParticlesTimeScale(entityModel, 1)
