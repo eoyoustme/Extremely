@@ -426,6 +426,7 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 				end
 				if doorModel then
 					local doorpart = doorModel:FindFirstChild("Door")
+					local promxy = doorpart.Knob.ProximityPrompt
 					-- 1. Chỉnh kích thước Part "Hidden" trong doorModel gốc
 					local hiddenPart = doorModel:FindFirstChild("Hidden", true)
 					if hiddenPart and hiddenPart:IsA("BasePart") then
@@ -446,8 +447,8 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 							doorpart.Open.Volume = 0
 						end
 
-						if obj:IsA("ProximityPrompt") then
-							obj:Destroy()
+						if promxy:IsA("ProximityPrompt") then
+							promxy:Destroy()
 						end
 
 						if obj.Name == "DoorBarrier" or obj.Name == "BarrierTrigger" then
@@ -474,8 +475,8 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 							obj.Transparency = 1
 						end
 
-						if obj:IsA("ProximityPrompt") then
-							obj:Destroy()
+						if promxy:IsA("ProximityPrompt") then
+							promxy:Destroy()
 						end
 
 						if obj.Name == "DoorBarrier" or obj.Name == "BarrierTrigger" or obj.Name == "Sign" then
@@ -483,7 +484,7 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 						end
 					end
 				end
-				
+
 				local success, achievementGiver = pcall(function()
 					return loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/Utilities/main/Doors/Custom%20Achievements/Source.lua"))()
 				end)
