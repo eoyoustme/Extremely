@@ -20,6 +20,64 @@ function light(tim,color0,color1)
 	end
 end
 
+
+light(2,Color3.fromRGB(85, 0, 0),Color3.fromRGB(255, 0, 0))
+task.spawn(function()
+	pcall(function()
+		local CameraShaker = require(game.ReplicatedStorage:WaitForChild("CameraShaker"))
+		local camera = game.Workspace.CurrentCamera
+		local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
+			camera.CFrame = camera.CFrame * shakeCf
+		end)
+		camShake:Start()
+		camShake:ShakeOnce(20, 3, 0.1, 6)
+	end)
+	
+	local sound5 = Instance.new("Sound")
+	sound5.PlaybackSpeed = 0.6
+	sound5.Volume = 10
+	sound5.SoundId = "rbxassetid://9125713501"
+	sound5.Parent = workspace
+	sound5:Play()
+
+	local pitch = Instance.new("PitchShiftSoundEffect")
+	pitch.Octave = 0.875
+	pitch.Parent = sound5
+
+	local sound51 = Instance.new("Sound")
+	sound51.PlaybackSpeed = 1
+	sound51.Volume = 10
+	sound51.SoundId = "rbxassetid://1318185544"
+	sound51.Parent = workspace
+	sound51:Play()
+
+	local pitch2 = Instance.new("PitchShiftSoundEffect")
+	pitch2.Octave = 0.8
+	pitch2.Parent = sound51
+
+	local pitch23 = Instance.new("PitchShiftSoundEffect")
+	pitch23.Octave = 0.5
+	pitch23.Parent = sound51
+
+	local eq = Instance.new("EqualizerSoundEffect")
+	eq.LowGain = -20
+	eq.MidGain = -10
+	eq.Parent = sound51
+	wait(6.771)
+	sound5:Destroy()
+	sound51:Destroy()
+end)
+
+local Reboundcolor = Instance.new("ColorCorrectionEffect",game.Lighting) game.Debris:AddItem(Reboundcolor,24)
+Reboundcolor.Name = "Warn"
+Reboundcolor.TintColor = Color3.fromRGB(255, 0, 0) Reboundcolor.Saturation = 0 Reboundcolor.Contrast = 0.2
+game.TweenService:Create(Reboundcolor,TweenInfo.new(15),{TintColor = Color3.fromRGB(255, 255, 255),Saturation = 0, Contrast = 0}):Play()
+local TweenService = game:GetService("TweenService")
+local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(7),{TintColor = Color3.fromRGB(255, 255, 255)})
+TW:Play()
+
+wait(6.771)
+
 ---====== Load spawner ======---
 
 local Spawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Ripper%20Spawner"))()
@@ -41,7 +99,7 @@ local entity = Spawner:Create({
 		Repair = false
 	},
 	Earthquake = {
-		Enabled = true
+		Enabled = false
 	},
 	CameraShake = {
 		Enabled = true,
@@ -50,7 +108,7 @@ local entity = Spawner:Create({
 	},
 	Movement = {
 		Speed = 215,
-		Delay = 6.771,
+		Delay = 0,
 		Reversed = false
 	},
 	Rebounding = {
@@ -61,7 +119,7 @@ local entity = Spawner:Create({
 		Delay = 2
 	},
 	Damage = {
-		Enabled = true,
+		Enabled = false,
 		Range = 40,
 		Amount = 0.001
 	},
@@ -82,51 +140,6 @@ local entity = Spawner:Create({
 
 entity:SetCallback("OnSpawned", function()
 	print("Entity has spawned")
-
-	light(2,Color3.fromRGB(85, 0, 0),Color3.fromRGB(255, 0, 0))
-	task.spawn(function()
-		local sound5 = Instance.new("Sound")
-		sound5.PlaybackSpeed = 0.6
-		sound5.Volume = 10
-		sound5.SoundId = "rbxassetid://9125713501"
-		sound5.Parent = workspace
-		sound5:Play()
-
-		local pitch = Instance.new("PitchShiftSoundEffect")
-		pitch.Octave = 0.875
-		pitch.Parent = sound5
-
-		local sound51 = Instance.new("Sound")
-		sound51.PlaybackSpeed = 1
-		sound51.Volume = 10
-		sound51.SoundId = "rbxassetid://9125713501"
-		sound51.Parent = workspace
-		sound51:Play()
-
-		local pitch2 = Instance.new("PitchShiftSoundEffect")
-		pitch2.Octave = 0.8
-		pitch2.Parent = sound51
-
-		local pitch23 = Instance.new("PitchShiftSoundEffect")
-		pitch23.Octave = 0.5
-		pitch23.Parent = sound51
-
-		local eq = Instance.new("EqualizerSoundEffect")
-		eq.LowGain = -20
-		eq.MidGain = -10
-		eq.Parent = sound51
-		wait(6.771)
-		sound5:Destroy()
-		sound51:Destroy()
-	end)
-
-	local Reboundcolor = Instance.new("ColorCorrectionEffect",game.Lighting) game.Debris:AddItem(Reboundcolor,24)
-	Reboundcolor.Name = "Warn"
-	Reboundcolor.TintColor = Color3.fromRGB(255, 0, 0) Reboundcolor.Saturation = 0 Reboundcolor.Contrast = 0.2
-	game.TweenService:Create(Reboundcolor,TweenInfo.new(15),{TintColor = Color3.fromRGB(255, 255, 255),Saturation = 0, Contrast = 0}):Play()
-	local TweenService = game:GetService("TweenService")
-	local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(7),{TintColor = Color3.fromRGB(255, 255, 255)})
-	TW:Play()
 end)
 
 entity:SetCallback("OnStartMoving", function()
@@ -336,7 +349,7 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 	if entityModel and entityRoot and doorPanel and doorPanel:IsA("BasePart") then
 		hasTriggered = true
 
-		while entityModel and entityModel.Parent and entityRoot and (entityRoot.Position - doorPanel.Position).Magnitude > 8 do
+		while entityModel and entityModel.Parent and entityRoot and (entityRoot.Position - doorPanel.Position).Magnitude > 4 do
 			task.wait()
 		end
 
@@ -347,15 +360,12 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 
 			freezeConnection = RunService.Heartbeat:Connect(function()
 				if entityModel and entityModel.Parent and entityRoot then
-					entityRoot.Anchored = true
-					entityRoot.CFrame = doorFreezePos
-					entityRoot.AssemblyLinearVelocity = Vector3.zero
-					entityRoot.AssemblyAngularVelocity = Vector3.zero
+					entity:Pause()
 				end
 			end)
 
 			-- Tỉ lệ 50/50 chọn kịch bản (1 hoặc 2)
-			local chance = math.random(1, 2)
+			local chance = math.random(2, 2)
 
 			task.spawn(function()
 				local CameraShaker = require(game.ReplicatedStorage.CameraShaker)
@@ -392,21 +402,38 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 					end)
 					camShake1:Start()
 					camShake1:ShakeOnce(10, 3.5, 0.1, 1, 15, 0.5)
-					entityRoot.Despawn2:Play()
+					entityRoot.Despawn1:Play()
 
 					wait(1)
 
-					local backCFrame = originalCFrame * CFrame.new(0, 0, 25) 
-					local tweenBackInfo = TweenInfo.new(2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+					-- 1. Lấy hướng nhìn hiện tại và loại bỏ trục Y để tránh bị nghiêng lên/xuống
+					-- 1. Lấy hướng lùi song song với mặt sàn
+					local lookVector = originalCFrame.LookVector
+					local flatLook = Vector3.new(lookVector.X, 0, lookVector.Z).Unit
+
+					-- 2. Tính vị trí lùi về sau 40 studs
+					local targetPosition = originalCFrame.Position - (flatLook * 40)
+
+					-- 3. Lấy vị trí của doorPanel (Tự động xử lý dù doorPanel là Part hay Model)
+					local doorPosition = doorPanel:IsA("BasePart") and doorPanel:GetPivot().Position or doorPanel.Position
+
+					-- [TÙY CHỌN A]: Xoay người về hướng cửa nhưng GIỮ THÂN ĐỨNG THẲNG (Không cắm/ngửa mặt nếu cửa cao/thấp)
+					local targetLookAt = Vector3.new(doorPosition.X, targetPosition.Y, doorPosition.Z)
+					local backCFrame = CFrame.lookAt(targetPosition, targetLookAt)
+
+					-- [TÙY CHỌN B]: Nếu muốn nhìn CHÍNH XÁC vào tâm cửa (Có nghiêng lên/ลง nếu cửa khác độ cao)
+					-- local backCFrame = CFrame.lookAt(targetPosition, doorPosition)
+
+					-- 4. Tween di chuyển
+					local tweenBackInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 					local tweenBack = TweenService:Create(entityRoot, tweenBackInfo, {CFrame = backCFrame})
-
 					tweenBack:Play()
-					tweenBack.Completed:Wait()
+					wait(1)
 
-					local tweenForwardInfo = TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+					local tweenForwardInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 					local tweenForward = TweenService:Create(entityRoot, tweenForwardInfo, {CFrame = originalCFrame})
 					tweenForward:Play()
-					wait(0.3)
+					wait(0.8)
 
 					local camShake2 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
 						camera.CFrame = camera.CFrame * shakeCf
@@ -415,10 +442,16 @@ entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
 					camShake2:ShakeOnce(30, 11.5, 0.1, 2, 15, 0.5)
 
 					entityRoot.Despawn3:Play()
-					entityRoot.Despawn1:Play()
+					entityRoot.Despawn2:Play()
+					entityRoot.DoorOpen1.TimePosition = 0.3
 					entityRoot.DoorOpen1:Play()	
+					wait(2)
+					
+					local tweenForwardInf5o = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+					local tweenForward5 = TweenService:Create(entityRoot, tweenForwardInf5o, {CFrame = originalCFrame * CFrame.new(0, -100, 0)})
+					tweenForward5:Play()
 
-					task.wait(3)
+					task.wait(1)
 				end
 
 				if entityModel and entityModel.Parent then
