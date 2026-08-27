@@ -1,3 +1,5 @@
+if game.ReplicatedStorage.GameData.LatestRoom.Vaule >= 14 then
+	
 if workspace:FindFirstChild("RipperPrime") then
 	loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Prime%20Ripper"))()
 else
@@ -828,4 +830,7 @@ end)
 	---====== Run entity ======---
 
 	entity:Run(true)
+end
+else
+	warn("Note By Hecker")
 end
