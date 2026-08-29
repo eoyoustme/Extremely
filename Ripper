@@ -321,7 +321,15 @@ else
 		local destroyedRooms = {}
 
 		entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
-			if room and not destroyedRooms[room] then
+if room and not destroyedRooms[room] then
+				-- Kiểm tra nếu Floor là "Archives" thì bỏ qua toàn bộ logic phá hủy bên dưới
+				local gameData = game:GetService("ReplicatedStorage"):FindFirstChild("GameData")
+				local floorValue = gameData and gameData:FindFirstChild("Floor") and gameData.Floor.Value
+
+				if floorValue == "Archives" then 
+					return 
+				end
+
 				destroyedRooms[room] = true
 
 				task.spawn(function()
