@@ -1,6 +1,7 @@
 if workspace:FindFirstChild("IsM") then
 	return
 else
+	local breaksound
 	local function GetGitSound(GithubSnd, SoundName)
 		local url = GithubSnd
 		if not isfile(SoundName .. ".mp3") then
@@ -344,7 +345,7 @@ else
 					if soundTemplate then
 						soundTemplate.RollOffMaxDistance = 100
 					end
-			
+
 
 					local whitelist = {
 						"bookcase", "potted_plant"
@@ -418,14 +419,13 @@ else
 
 										local rootPart
 										local partsInGroup = {}
-										
-										local sound = soundTemplate:Clone()
-										sound.Parent = entity.Model:FindFirstChild("Ripe") 
-										sound.Volume = Random.new():NextNumber(0,1)		
-										sound.RollOffMaxDistance = 1000
-										sound.RollOffMinDistance = Random.new():NextNumber(0,10)
-										sound:Play()
-										Debris:AddItem(sound, Random.new():NextNumber(0,3))
+
+										 breaksound = soundTemplate:Clone()
+										breaksound.Parent = entity.Model:FindFirstChild("Ripe") 
+										breaksound.Volume = Random.new():NextNumber(0,10)		
+										breaksound.RollOffMinDistance = Random.new():NextNumber(0,10)
+										breaksound:Play()
+										Debris:AddItem(breaksound, Random.new():NextNumber(0,1))
 
 										if clientGroup:IsA("Model") then
 											rootPart = clientGroup.PrimaryPart or clientGroup:FindFirstChildWhichIsA("BasePart")
@@ -476,21 +476,73 @@ else
 					end
 				end)
 			end
-			-- Kiểm tra tên phòng xem có trùng khớp không
+			
+			task.spawn(function()
+				local latestRoomNum5 = tostring(game.ReplicatedStorage.GameData.LatestRoom.Value -1 )
+				local latestRoomNum55 = tostring(game.ReplicatedStorage.GameData.LatestRoom.Value -2 )
+				local latestRoomNum555 = tostring(game.ReplicatedStorage.GameData.LatestRoom.Value -3 )
+				if room.Name ~= latestRoomNum5 then
+					task.spawn(function()
+						for i=1 ,10 do
+							for _, descendant in ipairs(breaksound:GetDescendants()) do
+								if descendant:IsA("Sound") then
+									descendant:Destroy()
+								end
+							end
+							wait(0.01)
+						end
+					end)
+				elseif room.Name ~= latestRoomNum55 then
+					task.spawn(function()
+						for i=1 ,10 do
+							for _, descendant in ipairs(breaksound:GetDescendants()) do
+								if descendant:IsA("Sound") then
+									descendant:Destroy()
+								end
+							end
+							wait(0.01)
+						end
+					end)
+				elseif room.Name ~= latestRoomNum555 then
+					task.spawn(function()
+						for i=1 ,10 do
+							for _, descendant in ipairs(breaksound:GetDescendants()) do
+								if descendant:IsA("Sound") then
+									descendant:Destroy()
+								end
+							end
+							wait(0.01)
+						end
+					end)
+				end
+			end)
+			
 			local latestRoomNum = tostring(game.ReplicatedStorage.GameData.LatestRoom.Value)
 			if room.Name ~= latestRoomNum then 
 				return 
 			end
+			
 
 			if hasTriggered then 
 				return 
 			end
-			
+
 			local soundTemplate = GetGitSound("https://github.com/eoyoustme/Extremely/blob/main/ripper%20breaking%20stuffs%20(1).mp3?raw=true", "RipperBreakStuff")
 			if soundTemplate then
 				soundTemplate.RollOffMaxDistance = 100
 			end
 			
+			task.spawn(function()
+				for i=1 ,10 do
+			for _, descendant in ipairs(breaksound:GetDescendants()) do
+				if descendant:IsA("Sound") then
+					descendant:Destroy()
+				end
+					end
+					wait(0.01)
+					end
+				end)
+
 			local sound = soundTemplate:Clone()
 			sound.Parent = workspace
 			sound.Volume = 50
@@ -603,7 +655,18 @@ else
 						local sound, sound5, sound6, sound7
 
 						if chance == 1 then
-
+							
+							task.spawn(function()
+								for i=1 ,10 do
+									for _, descendant in ipairs(breaksound:GetDescendants()) do
+										if descendant:IsA("Sound") then
+											descendant:Destroy()
+										end
+									end
+									wait(0.01)
+								end
+							end)
+						
 							local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
 								camera.CFrame = camera.CFrame * shakeCf
 							end)
@@ -617,9 +680,8 @@ else
 							entityRoot.DoorOpen2:Play()
 
 							task.wait(1.5)
-
+							
 							local originalCFrame = entityRoot.CFrame
-							entityRoot.Orientation = Exit.Orientation
 
 							local tweenForwardInf5o = TweenInfo.new(3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 							local tweenForward5 = TweenService:Create(entityRoot, tweenForwardInf5o, {CFrame = originalCFrame * CFrame.new(0, -100, 0)})
@@ -628,6 +690,17 @@ else
 							task.wait(4)
 
 						else
+							
+							task.spawn(function()
+								for i=1 ,10 do
+									for _, descendant in ipairs(breaksound:GetDescendants()) do
+										if descendant:IsA("Sound") then
+											descendant:Destroy()
+										end
+									end
+									wait(0.01)
+								end
+							end)
 
 							local originalCFrame = entityRoot.CFrame
 
@@ -1054,6 +1127,39 @@ else
 						sound.PlaybackSpeed = 0.7
 						sound.Parent = workspace
 						sound:Play()
+						
+						local disto = Instance.new("DistortionSoundEffect")
+						disto.Level = 0.75
+						disto.Parent = sound
+						
+						task.spawn(function()
+						local Players = game:GetService("Players")
+						local player = Players.LocalPlayer
+						local playergui = player:WaitForChild("PlayerGui")
+
+						local screenGui = Instance.new("ScreenGui")
+						screenGui.Name = "FlashOverlay"
+						screenGui.IgnoreGuiInset = true
+						screenGui.Parent = playergui
+
+						local frame = Instance.new("Frame")
+						frame.Size = UDim2.new(1, 0, 1, 0)
+						frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+						frame.BackgroundTransparency = 0
+						frame.BorderSizePixel = 0
+						frame.Parent = screenGui
+
+						local originalVolumes = {}
+
+							
+							for i=1 ,7 do
+								frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+								wait(0.005)
+								frame.BackgroundColor3 = Color3.fromRGB(132, 0, 0)
+								wait(0.005)
+							end
+						screenGui:Destroy()
+						end)
 
 						-- ?? Cleanup
 						if entityModel and entityModel.Parent then
