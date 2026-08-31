@@ -1,6 +1,15 @@
 if workspace:FindFirstChild("IsM") then
 	return
 else
+	local function GetGitSound(GithubSnd, SoundName)
+		local url = GithubSnd
+		if not isfile(SoundName .. ".mp3") then
+			writefile(SoundName .. ".mp3", game:HttpGet(url))
+		end
+		local sound = Instance.new("Sound")
+		sound.SoundId = (getcustomasset or getsynasset)(SoundName .. ".mp3")
+		return sound
+	end
 	if workspace:FindFirstChild("RipperPrime") then
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/eoyoustme/Extremely/refs/heads/main/Prime%20Ripper"))()
 	else
@@ -27,7 +36,7 @@ else
 		end
 
 
-		light(2,Color3.fromRGB(85, 0, 0),Color3.fromRGB(255, 0, 0))
+		light(2,Color3.fromRGB(255, 0, 0),Color3.fromRGB(255, 0, 0))
 		task.spawn(function()
 			pcall(function()
 				local CameraShaker = require(game.ReplicatedStorage:WaitForChild("CameraShaker"))
@@ -36,7 +45,7 @@ else
 					camera.CFrame = camera.CFrame * shakeCf
 				end)
 				camShake:Start()
-				camShake:ShakeOnce(20, 3, 0.1, 6)
+				camShake:ShakeOnce(10, 3, 0.1, 6)
 			end)
 
 			local sound5 = Instance.new("Sound")
@@ -73,14 +82,6 @@ else
 			sound5:Destroy()
 			sound51:Destroy()
 		end)
-
-		local Reboundcolor = Instance.new("ColorCorrectionEffect",game.Lighting) game.Debris:AddItem(Reboundcolor,24)
-		Reboundcolor.Name = "Warn"
-		Reboundcolor.TintColor = Color3.fromRGB(255, 0, 0) Reboundcolor.Saturation = 0 Reboundcolor.Contrast = 0.2
-		game.TweenService:Create(Reboundcolor,TweenInfo.new(15),{TintColor = Color3.fromRGB(255, 255, 255),Saturation = 0, Contrast = 0}):Play()
-		local TweenService = game:GetService("TweenService")
-		local TW = TweenService:Create(game.Lighting.MainColorCorrection, TweenInfo.new(7),{TintColor = Color3.fromRGB(255, 255, 255)})
-		TW:Play()
 
 		wait(6.771)
 
@@ -186,13 +187,13 @@ else
 
 						for sound in pairs(originalSoundSpeeds) do
 							if sound and sound.Parent then
-								TweenService:Create(sound, ceaseTweenInfo, {PlaybackSpeed = 0}):Play()
+								game:GetService("TweenService"):Create(sound, ceaseTweenInfo, {PlaybackSpeed = 0}):Play()
 							end
 						end
 
 						for particle in pairs(originalParticleScales) do
 							if particle and particle.Parent then
-								TweenService:Create(particle, ceaseTweenInfo, {TimeScale = 0}):Play()
+								game:GetService("TweenService"):Create(particle, ceaseTweenInfo, {TimeScale = 0}):Play()
 							end
 						end
 
@@ -206,13 +207,13 @@ else
 
 						for sound, origSpeed in pairs(originalSoundSpeeds) do
 							if sound and sound.Parent then
-								TweenService:Create(sound, unceaseTweenInfo, {PlaybackSpeed = origSpeed}):Play()
+								game:GetService("TweenService"):Create(sound, unceaseTweenInfo, {PlaybackSpeed = origSpeed}):Play()
 							end
 						end
 
 						for particle, origScale in pairs(originalParticleScales) do
 							if particle and particle.Parent then
-								TweenService:Create(particle, unceaseTweenInfo, {TimeScale = origScale}):Play()
+								game:GetService("TweenService"):Create(particle, unceaseTweenInfo, {TimeScale = origScale}):Play()
 							end
 						end
 
@@ -321,7 +322,7 @@ else
 		local destroyedRooms = {}
 
 		entity:SetCallback("OnEnterRoom", function(room: Model, firstTime: boolean)
-if room and not destroyedRooms[room] then
+			if room and not destroyedRooms[room] then
 				-- Kiểm tra nếu Floor là "Archives" thì bỏ qua toàn bộ logic phá hủy bên dưới
 				local gameData = game:GetService("ReplicatedStorage"):FindFirstChild("GameData")
 				local floorValue = gameData and gameData:FindFirstChild("Floor") and gameData.Floor.Value
@@ -336,24 +337,14 @@ if room and not destroyedRooms[room] then
 					task.wait(0.05)
 
 					local assetContainer = room:FindFirstChild("Assets") or room
+					local Debris = game:GetService("Debris")
 
-					-- Phát âm thanh vỡ chung của phòng
-					local breakSound = Instance.new("Sound")
-					breakSound.SoundId = "rbxassetid://9114223171"
-					breakSound.Volume = 2.5
-					breakSound.Parent = assetContainer
-					breakSound:Play()
-					breakSound.Ended:Connect(function() breakSound:Destroy() end)
-
-					local breakSounds = {
-						"rbxassetid://9125992545",
-						"rbxassetid://4004052860",
-						"rbxassetid://7142857558",
-						"rbxassetid://7142843615",
-						"rbxassetid://7142857558",
-						"rbxassetid://2612674531",
-						"rbxassetid://2174790942"
-					}
+					-- Khởi tạo sound mẫu
+					local soundTemplate = GetGitSound("https://github.com/eoyoustme/Extremely/blob/main/ripper%20breaking%20stuffs%20(1).mp3?raw=true", "RipperBreakStuff")
+					if soundTemplate then
+						soundTemplate.RollOffMaxDistance = 100
+					end
+			
 
 					local whitelist = {
 						"bookcase", "potted_plant"
@@ -427,6 +418,14 @@ if room and not destroyedRooms[room] then
 
 										local rootPart
 										local partsInGroup = {}
+										
+										local sound = soundTemplate:Clone()
+										sound.Parent = entity.Model:FindFirstChild("Ripe") 
+										sound.Volume = Random.new():NextNumber(0,1)		
+										sound.RollOffMaxDistance = 1000
+										sound.RollOffMinDistance = Random.new():NextNumber(0,10)
+										sound:Play()
+										Debris:AddItem(sound, Random.new():NextNumber(0,3))
 
 										if clientGroup:IsA("Model") then
 											rootPart = clientGroup.PrimaryPart or clientGroup:FindFirstChildWhichIsA("BasePart")
@@ -442,7 +441,6 @@ if room and not destroyedRooms[room] then
 
 										if not rootPart or #partsInGroup == 0 then return end
 
-										-- 1. Hàn (Weld) tất cả Part vào rootPart
 										for _, part in ipairs(partsInGroup) do
 											if part ~= rootPart then
 												local weld = Instance.new("WeldConstraint")
@@ -451,16 +449,6 @@ if room and not destroyedRooms[room] then
 												weld.Parent = rootPart
 											end
 										end
-
-										-- 2. Phát âm thanh vỡ
-										local s = Instance.new("Sound")
-										s.SoundId = breakSounds[math.random(1, #breakSounds)]
-										s.Volume = math.random(12, 24) / 10 
-										s.PlaybackSpeed = math.random(85, 115) / 100
-										s.RollOffMaxDistance = 100
-										s.Parent = rootPart
-										s:Play()
-										s.Ended:Connect(function() s:Destroy() end)
 
 										-- 3. Bật Physics và Unanchor đồng bộ
 										for _, part in ipairs(partsInGroup) do
@@ -497,6 +485,18 @@ if room and not destroyedRooms[room] then
 			if hasTriggered then 
 				return 
 			end
+			
+			local soundTemplate = GetGitSound("https://github.com/eoyoustme/Extremely/blob/main/ripper%20breaking%20stuffs%20(1).mp3?raw=true", "RipperBreakStuff")
+			if soundTemplate then
+				soundTemplate.RollOffMaxDistance = 100
+			end
+			
+			local sound = soundTemplate:Clone()
+			sound.Parent = workspace
+			sound.Volume = 50
+			sound.RollOffMaxDistance = 100
+			sound.RollOffMinDistance = 10
+			sound:Play()
 
 			local RunService = game:GetService("RunService")
 			local TweenService = game:GetService("TweenService")
@@ -629,7 +629,6 @@ if room and not destroyedRooms[room] then
 
 						else
 
-
 							local originalCFrame = entityRoot.CFrame
 
 							local camShake1 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
@@ -661,11 +660,11 @@ if room and not destroyedRooms[room] then
 								end
 							end
 
-							local tweenInfo = TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+							local tweenInfo = TweenInfo.new(2.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 							TweenService:Create(ambient, tweenInfo, {PlaybackSpeed = 2}):Play()
-							local tweenInfo2 = TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+							local tweenInfo2 = TweenInfo.new(2.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 							TweenService:Create(ambient2, tweenInfo2, {PlaybackSpeed = 1.2}):Play()
-							local tweenInfo3 = TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+							local tweenInfo3 = TweenInfo.new(2.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 							TweenService:Create(ambient3, tweenInfo3, {PlaybackSpeed = 1}):Play()
 
 							local lookVector = originalCFrame.LookVector
@@ -678,10 +677,10 @@ if room and not destroyedRooms[room] then
 							local targetLookAt = Vector3.new(doorPosition.X, targetPosition.Y, doorPosition.Z)
 							local backCFrame = CFrame.lookAt(targetPosition, targetLookAt)
 
-							local tweenBackInfo = TweenInfo.new(2.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+							local tweenBackInfo = TweenInfo.new(1.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 							local tweenBack = TweenService:Create(entityRoot, tweenBackInfo, {CFrame = backCFrame})
 							tweenBack:Play()
-							wait(2.2)
+							wait(1.5)
 
 							local tweenForwardInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
 							local tweenForward = TweenService:Create(entityRoot, tweenForwardInfo, {CFrame = originalCFrame})
@@ -694,12 +693,12 @@ if room and not destroyedRooms[room] then
 							local tweenInfo333 = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 							TweenService:Create(ambient3, tweenInfo333, {PlaybackSpeed = 0.37}):Play()
 
-							wait(1.2)						
-							local tweenInfo33 = TweenInfo.new(6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+							wait(0.8)						
+							local tweenInfo33 = TweenInfo.new(9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 							TweenService:Create(ambient, tweenInfo33, {PlaybackSpeed = 0}):Play()
-							local tweenInfo23 = TweenInfo.new(6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+							local tweenInfo23 = TweenInfo.new(9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 							TweenService:Create(ambient2, tweenInfo23, {PlaybackSpeed = 0}):Play()
-							local tweenInfo33 = TweenInfo.new(6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+							local tweenInfo33 = TweenInfo.new(9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 							TweenService:Create(ambient3, tweenInfo33, {PlaybackSpeed = 0}):Play()
 
 							local camShake2 = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf)
@@ -717,7 +716,7 @@ if room and not destroyedRooms[room] then
 							local tweenForward5 = TweenService:Create(entityRoot, tweenForwardInf5o, {CFrame = originalCFrame * CFrame.new(0, -100, 0)})
 							tweenForward5:Play()
 
-							task.wait(3)
+							task.wait(6)
 							ambient:Destroy()
 							ambient2:Destroy()
 							ambient3:Destroy()
